@@ -1,4 +1,4 @@
-EXEC = scenner
+EXEC = scanner
 CC = gcc
 CFLAGS = -Wall -std=c11 -MMD
 LDLIBS = -lm
