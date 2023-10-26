@@ -16,7 +16,7 @@ void string_reset(char* string){
 
 char getChar(){
     static int i =0;
-    char* input = "abc + 123 = XYZ \nefg";
+    char* input = "abc + 123 = //komentar ktory sa nezobrazi \n efg /*dalsi komentar*/ 456+789 KONIEC";
     return input[i++];
 }
 
@@ -30,11 +30,12 @@ struct Token getNextToken(){
     int string_pos = 0;
 
 
-    // 1 - id
-    // 2 - int
+    // 1 - string (identifikator / identifikator typu / klucove slovo )   napr.: Position_01 / String? / while
+    // 2 - int 
+    // 2 - double
     // 3 - operator
-    // 4 - key word
-    // 5 - assigment
+    // 4 - priradenie (=)
+    // 5 - zatvorky
 
     char c = ' ';
     while (c != '\0')
@@ -43,7 +44,7 @@ struct Token getNextToken(){
         switch (state)
         {
         case 's':
-            if (('a' <=  c && c <= 'z') || ('A' <=  c && c <= 'Z'))
+            if (('a' <=  c && c <= 'z') || ('A' <=  c && c <= 'Z') || c =='_' || c =='?')
             {
                 state='a';
                 string[string_pos]=c;
@@ -69,12 +70,20 @@ struct Token getNextToken(){
             }
             else if (c == '/')
             {
-                state='p';
+                state=90;
             }
             else if (c == '=')
             {
                 state='q';
             }
+            else if (c == '?')      //operator ??
+            {
+                state='r';
+            }
+            else if (c == '*'){
+
+            }
+
 
             else{
                 state = 's';
@@ -83,7 +92,7 @@ struct Token getNextToken(){
             
             break;
         case 'a':                                           //  ID / key word
-            if (('0' <=  c && c <= '9') ||('a' <=  c && c <= 'z') || ('A' <=  c && c <= 'Z'))
+            if (('0' <=  c && c <= '9') ||('a' <=  c && c <= 'z') || ('A' <=  c && c <= 'Z') || c =='_' || c =='?')
             {
                 state='a';
                 string[string_pos]=c;
@@ -129,15 +138,55 @@ struct Token getNextToken(){
             token.attribute = "*";
 
             return token;
-        case 'p':                                           // /
-            i--;
-            token.type = 3;
-            token.attribute = "/";
+        case 90:                                            // "/"
+            if (c == '/')                                   // "//" - riadkovy koementar
+            {
+                state = 91;
+            }
+            else if (c == '*')                              // "/*" - blokovy komentar
+            {
+                state = 95;
+            }
+            
+            else{                                           //  delenie
+                i--;
+                token.type = 3;
+                token.attribute = "/";
 
-            return token;
+                return token;
+            }
+            break;
+        case 91:
+            if (c == '\n')
+            {
+                
+                state = 's';
+            }
+            else{
+                state = 91;
+            }
+            break;            
+        case 95:                                                // "/*" - blokovy koementar
+            if (c == '*')
+            {
+                state = 96;
+            }
+            else{
+                state = 95;
+            }
+            break;    
+        case 96:
+            if (c =='/')
+            {
+                state = 's';
+            }
+            else{
+                state = 95;
+            }
+            break;
         case 'q':                                           // =
             i--;
-            token.type = 3;
+            token.type = 4;
             token.attribute = "=";
             
             return token;
@@ -154,7 +203,7 @@ struct Token getNextToken(){
 
 
 void parser(){
-    for (int i = 0; i < 7; i++)
+    for (int i = 0; i < 10; i++)
     {
         struct Token nextToken = getNextToken();
         printf("Type: %d     ", nextToken.type);
@@ -165,7 +214,7 @@ void parser(){
 
 
 int main(){
-
+    puts("abc + 123 = //komentar ktory sa nezobrazi \n efg /*dalsi komentar*/ 456+789 KONIEC");
     parser();
     puts("");
     return 1;
