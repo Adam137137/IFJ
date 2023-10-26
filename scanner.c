@@ -4,7 +4,7 @@
 struct Token
 {
     int type;
-    int attribute;
+    char *attribute;
 };
 
 void string_reset(char* string){
@@ -14,30 +14,32 @@ void string_reset(char* string){
     }
 }
 
-void lexal(char *s){
+char getChar(){
+    static int i =0;
+    char* input = "abc + 123 = XYZ \nefg";
+    return input[i++];
+}
 
+struct Token getNextToken(){
+    struct Token token;
     int i=0;
-    char c=s[0];
     char state = 's';
 
     char string [100];
-    string_reset(string);
-    
+    string_reset(string);   
     int string_pos = 0;
 
-    struct Token token_out [100];
-    int token_nmbr = 0;
+
     // 1 - id
     // 2 - int
     // 3 - operator
     // 4 - key word
     // 5 - assigment
 
-
+    char c = ' ';
     while (c != '\0')
     {
-        c =s[i];
-
+        c = getChar();
         switch (state)
         {
         case 's':
@@ -46,44 +48,36 @@ void lexal(char *s){
                 state='a';
                 string[string_pos]=c;
                 string_pos++;
-                printf("char: %c je prve pismeno \n", c );
             }
             else if ('0' <=  c && c <= '9')
             {
                 state='b';
                 string[string_pos]=c;
                 string_pos++;
-                printf("char: %c je cislo \n", c );
             }
             else if (c == '+')
             {
                 state='m';
-                printf("char: %c je + \n", c );
             }
             else if (c == '-')
             {
                 state='n';
-                printf("char: %c je - \n", c );
             }
             else if (c == '*')
             {
                 state='o';
-                printf("char: %c je * \n", c );
             }
             else if (c == '/')
             {
                 state='p';
-                printf("char: %c je / \n", c );
             }
             else if (c == '=')
             {
                 state='q';
-                printf("char: %c je = \n", c );
             }
 
             else{
                 state = 's';
-                printf("char: %c je ine \n", c );
             }
             
             
@@ -94,17 +88,13 @@ void lexal(char *s){
                 state='a';
                 string[string_pos]=c;
                 string_pos++;
-                printf("char: %c je dalsie pismeno \n", c );
             }
             else{
                 i--;
-                token_out[token_nmbr].type = 1;
-                token_nmbr++;
-                
-                state = 's';
-                printf("%s \n", string);
-                string_reset(string);
-                string_pos=0;
+                token.type = 1;
+                token.attribute = string;
+
+                return token;
             }
             break;
         case 'b':                                           // integer
@@ -112,63 +102,71 @@ void lexal(char *s){
             {
                 string[string_pos]=c;
                 string_pos++;
-                printf("char: %c je dalsie cislo \n", c );
             }
             else{
                 i--;
-                token_out[token_nmbr].type = 2;
-                token_nmbr++;
-                state = 's';
-                printf("%s \n", string);
-                string_reset(string);
-                string_pos=0;
+                token.type = 2;
+                token.attribute = string;
+                
+                return token;
             }
             break;
         case 'm':                                           // +
-            token_out[token_nmbr].type = 3;
-            token_nmbr++;
-            state = 's';
-            break;
+            i--;
+            token.type = 3;
+            token.attribute = "+";
+
+            return token;
         case 'n':                                           // -
-            token_out[token_nmbr].type = 3;
-            token_nmbr++;
-            state = 's';
-            break;
+            i--;
+            token.type = 3;
+            token.attribute = "-";
+
+            return token;
         case 'o':                                           // *
-            token_out[token_nmbr].type = 3;
-            token_nmbr++;
-            state = 's';
-            break;
+            i--;
+            token.type = 3;
+            token.attribute = "*";
+
+            return token;
         case 'p':                                           // /
-            token_out[token_nmbr].type = 3;
-            token_nmbr++;
-            state = 's';
-            break;
+            i--;
+            token.type = 3;
+            token.attribute = "/";
+
+            return token;
         case 'q':                                           // =
-            token_out[token_nmbr].type = 5;
-            token_nmbr++;
-            state = 's';
-            break;
+            i--;
+            token.type = 3;
+            token.attribute = "=";
+            
+            return token;
         default:
             break;
         }
         i++;
     }
-
-    puts("TOKENY:");
-    for (int i = 0; i < 10; i++) {
-        
-        printf("%d, ", token_out[i].type);
-    }
-    
-
+    token.type = 0;
+    token.attribute = "err";
+    return token;
 }
 
 
 
+void parser(){
+    for (int i = 0; i < 7; i++)
+    {
+        struct Token nextToken = getNextToken();
+        printf("Type: %d     ", nextToken.type);
+        printf("Attribute: %s\n", nextToken.attribute);
+    }
+    
+}
+
+
 int main(){
 
-    lexal("abc + 123 = X\nefg");
+    parser();
     puts("");
     return 1;
 }
