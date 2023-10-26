@@ -1,0 +1,1 @@
+scenner.o: scenner.c
