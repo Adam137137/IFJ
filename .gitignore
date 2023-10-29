@@ -2,6 +2,6 @@
 
 *.o
 *.dgit push
-
+.vscode
 
 build/

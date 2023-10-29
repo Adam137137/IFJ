@@ -1,6 +1,9 @@
 #include<stdlib.h>
 #include <stdio.h>
 
+
+char* input = "abc/123= //komentar ktory sa nezobrazi \n efg /*dalsi /*inside abc*/comment */ komentar * / 456+ /789 KONIEC";
+
 struct Token
 {
     int type;
@@ -14,21 +17,21 @@ void string_reset(char* string){
     }
 }
 
-char getChar(){
-    static int i =0;
-    char* input = "abc + 123 = //komentar ktory sa nezobrazi \n efg /*dalsi komentar*/ 456+789 KONIEC";
-    return input[i++];
+char getChar(int *pos){
+    return input[(*pos)++];
 }
 
 struct Token getNextToken(){
     struct Token token;
-    int i=0;
+
     char state = 's';
+    static int posInInput=0;
 
     char string [100];
-    string_reset(string);   
+    string_reset(string);
     int string_pos = 0;
 
+    int comments_inside_count = 0;
 
     // 1 - string (identifikator / identifikator typu / klucove slovo )   napr.: Position_01 / String? / while
     // 2 - int 
@@ -40,7 +43,7 @@ struct Token getNextToken(){
     char c = ' ';
     while (c != '\0')
     {
-        c = getChar();
+        c = getChar(&posInInput);
         switch (state)
         {
         case 's':
@@ -99,7 +102,20 @@ struct Token getNextToken(){
                 string_pos++;
             }
             else{
-                i--;
+                posInInput--;
+
+                /* je to identifikator alebo klucove slovo, pozri sa do tabulky
+                 boolean IsKeyword IsItKeyWord(string);
+
+                if (IsKeyword)
+                {
+                    token.type = 4;
+                }
+                else{
+                    token.type = 1
+                }
+                */
+
                 token.type = 1;
                 token.attribute = string;
 
@@ -113,7 +129,7 @@ struct Token getNextToken(){
                 string_pos++;
             }
             else{
-                i--;
+                posInInput--;
                 token.type = 2;
                 token.attribute = string;
                 
@@ -121,22 +137,21 @@ struct Token getNextToken(){
             }
             break;
         case 'm':                                           // +
-            i--;
+            posInInput--;
             token.type = 3;
             token.attribute = "+";
 
             return token;
         case 'n':                                           // -
-            i--;
+            posInInput--;
             token.type = 3;
             token.attribute = "-";
 
             return token;
         case 'o':                                           // *
-            i--;
+            posInInput--;
             token.type = 3;
             token.attribute = "*";
-
             return token;
         case 90:                                            // "/"
             if (c == '/')                                   // "//" - riadkovy koementar
@@ -145,21 +160,21 @@ struct Token getNextToken(){
             }
             else if (c == '*')                              // "/*" - blokovy komentar
             {
+                comments_inside_count++;
                 state = 95;
             }
             
             else{                                           //  delenie
-                i--;
+                posInInput--;
+
                 token.type = 3;
                 token.attribute = "/";
-
                 return token;
             }
             break;
         case 91:
             if (c == '\n')
             {
-                
                 state = 's';
             }
             else{
@@ -171,6 +186,11 @@ struct Token getNextToken(){
             {
                 state = 96;
             }
+            else if (c == '/')
+            {
+                state = 90;
+            }
+            
             else{
                 state = 95;
             }
@@ -178,14 +198,21 @@ struct Token getNextToken(){
         case 96:
             if (c =='/')
             {
-                state = 's';
+                comments_inside_count--;
+                if (comments_inside_count == 0)
+                {
+                    state = 's';
+                }
+                else{
+                    state = 95;
+                }
             }
             else{
                 state = 95;
             }
             break;
         case 'q':                                           // =
-            i--;
+            posInInput--;
             token.type = 4;
             token.attribute = "=";
             
@@ -193,8 +220,10 @@ struct Token getNextToken(){
         default:
             break;
         }
-        i++;
+
     }
+
+    // tu by sme sa niky nemali dostat;
     token.type = 0;
     token.attribute = "err";
     return token;
@@ -203,7 +232,7 @@ struct Token getNextToken(){
 
 
 void parser(){
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 13; i++)
     {
         struct Token nextToken = getNextToken();
         printf("Type: %d     ", nextToken.type);
@@ -212,9 +241,8 @@ void parser(){
     
 }
 
-
 int main(){
-    puts("abc + 123 = //komentar ktory sa nezobrazi \n efg /*dalsi komentar*/ 456+789 KONIEC");
+    printf("input:\n%s\n", input);
     parser();
     puts("");
     return 1;
