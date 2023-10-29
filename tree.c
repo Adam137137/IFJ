@@ -83,7 +83,7 @@ void printtree(btree_node *root, int level){
 }
 
 
-int main(){
+int main_tree(){
     btree_node *root = NULL;
     int x = 0;
     insert(&root, 4, 1, "double", "", 0);
