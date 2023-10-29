@@ -1,8 +1,8 @@
 #include<stdlib.h>
 #include <stdio.h>
+/*vyansobil som*/
 
-
-char* input = "abc/123= //komentar ktory sa nezobrazi \n efg /*dalsi /*inside abc*/comment */ komentar * / 456+ /789 KONIEC";
+char* input = "ab /* ano /* ok */ nie */- +";
 
 struct Token
 {
@@ -182,11 +182,13 @@ struct Token getNextToken(){
             }
             break;            
         case 95:                                                // "/*" - blokovy koementar
-            if (c == '*')
+            char c2 =getChar(&posInInput);                         //precitam o jeden znak viac aby som sa vedel rozhodnut
+            if (c == '*' && c2 == '/')
             {
+                
                 state = 96;
             }
-            else if (c == '/')
+            else if (c == '/' && c2 == '*')
             {
                 state = 90;
             }
@@ -194,6 +196,7 @@ struct Token getNextToken(){
             else{
                 state = 95;
             }
+            posInInput--;
             break;    
         case 96:
             if (c =='/')
@@ -232,7 +235,7 @@ struct Token getNextToken(){
 
 
 void parser(){
-    for (int i = 0; i < 13; i++)
+    for (int i = 0; i < 3; i++)
     {
         struct Token nextToken = getNextToken();
         printf("Type: %d     ", nextToken.type);
