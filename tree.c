@@ -55,6 +55,51 @@ void insert(btree_node **root, int token_type, int key, char *name_of_symbol, ch
     }
 }
 
+// token_type to know which tree, searching through keys, and returning true or false whether it found it, other params are for returning the values
+bool search(btree_node *root, int token_type, int key, char **name_of_symbol, char **func_param, int *func_num_of_param){
+    if (root == NULL){                          // case, when the key is not there
+        return false;
+    }
+
+    if (root->token_type != token_type){        // checking if we are in a good tree
+        return false;
+    }
+    
+    if (root->key == key){                             // found the key, returning valuse in variables
+        *name_of_symbol = strdup(root->name_of_symbol);
+        if(*name_of_symbol == NULL){
+            return false;
+        }
+        
+        if(strlen(root->func_param) > 0){                   // check whether we have an empty string = a function has parameters
+            *func_param = strdup(root->func_param);
+            if(*func_param == NULL){
+                free(*name_of_symbol);
+                return false;
+            }
+        }
+        else{
+            *func_param = NULL;
+        }
+
+        if(func_num_of_param != 0){                                 // toto mozeme teoreticky spojit s tym hore
+            *func_num_of_param = root->func_num_of_param;
+        }
+        return true;
+    }
+    else if (root->key != key){                                 // recurs
+        if(key < root->key){
+            return search(root->left, token_type, key, name_of_symbol, func_param, func_num_of_param);
+        }
+        else if (key > root->key){
+            return search(root->right, token_type, key, name_of_symbol, func_param, func_num_of_param);
+        }
+        
+    }
+    return false;     // idk ci to tu musi byt
+}
+
+
 void printtab(int numtabs){
     for(int i = 0; i < numtabs; i++){
         printf("\t");
@@ -83,15 +128,26 @@ void printtree(btree_node *root, int level){
 }
 
 
-int main_tree(){
+/*int main(){
     btree_node *root = NULL;
     int x = 0;
+    char *found_name_of_symbol = NULL;
+    char *func_params = NULL;
+ 
     insert(&root, 4, 1, "double", "", 0);
     insert(&root, 4, 2, "else", "", 0);
     insert(&root, 4, 3, "if", "", 0);
     insert(&root, 4, 4, "ugabugag", "", 0);
-    insert(&root, 4, 0, "lol", "", 0);
+    insert(&root, 4, 5, "lol", "", 0);
     printtree(root, x);
     
+    bool result = search(root, 4, 3, &found_name_of_symbol, &func_params, 0);
+    if (result) {
+        printf("Found: %s\n", found_name_of_symbol);
+        free(found_name_of_symbol);    
+    } else {
+        printf("Not found.\n");
+    }
+
     return 0;
-}
+}*/
