@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdbool.h>
 
 struct Token
 {
@@ -21,7 +22,6 @@ struct Token getNextToken(FILE* file){
     struct Token token;
 
     char state = 's';
-    static int posInInput=0;
 
     char string [100];
     string_reset(string);
@@ -29,16 +29,23 @@ struct Token getNextToken(FILE* file){
 
     int comments_inside_count = 0;
 
-    // 1 - string (identifikator / identifikator typu / klucove slovo )   napr.: Position_01 / String? / while
-    // 2 - int 
-    // 2 - double
-    // 3 - operator
-    // 4 - priradenie (=)
-    // 5 - zatvorky
-    // 6 - operatory porovnavacie
-    // 7 - string
+    // 1  - identifikator                    napr.: Position_01
+    // 2  - int 
+    // 3  - double
+    // 4  - klucove slovo        napr.: / String? / while
+    // 5  - operatory
+    // 6  - operatory porovnavacie
+    // 7  - string
+    // 8  - string """
+    // 9  - zatvorky
+    // 10 - priradenie (=)
+    // 11 - ->
+    // 12 - :
+    // 13 - ,
+    // 14 - !
 
 
+    bool integerWithE = false;
     char c = ' ';
     while (c  != EOF)
     {
@@ -46,71 +53,108 @@ struct Token getNextToken(FILE* file){
         switch (state)
         {
         case 's':
-            if (isalpha(c) || c =='_' || c =='?')
+            if (isalpha(c) || c =='_')
             {   
-                state='a';
+                state=1;
                 string[string_pos]=c;
                 string_pos++;
             }
             else if ('0' <=  c && c <= '9')
             {
-                state='b';
+                state=10;
                 string[string_pos]=c;
                 string_pos++;
             }
             else if (c == '+')
             {
-                state='m';
+                state=20;
             }
             else if (c == '-')
             {
-                state='n';
+                state=21;
             }
             else if (c == '*')
             {
-                state='o';
+                state=25;
             }
             else if (c == '/')
             {
                 state=90;
             }
+            else if (c == '!')
+            {
+                state=30;
+            }
             else if (c == '=')
             {
-                state='q';
+                state=35;
+            }
+            else if (c == '<')
+            {
+                state=40;
+            }
+            else if (c == '>')
+            {
+                state=45;
             }
             else if (c == '?')      //operator ??
             {
-                state='r';
+                state=50;
             }
-            else if (c == '*'){
-                state = 'o';
-            }
-            else if (c == '<'){
-                state = 70;
-            }
-            else if( c == '>'){
-                state = 60;
-            }
+
             else if (c == '"'){
-                string[string_pos]=c;
-                string_pos++;
-                state = 80;
+                char c2 =getc(file);
+                char c3 =getc(file);
+                if (c2 == '"' && c3 == '"')
+                {
+                    state = 70;
+                }
+                else{
+                    state = 60;
+                }
+                ungetc(c2,file);
+                ungetc(c3,file);
             }
-            else if (c == EOF){
-                break;
+
+            else if (c == '(')
+            {
+                token.type = 9;
+                token.attribute = "(";
+                return token;
             }
-            else{
-                state = 's';
+            else if (c == ')')
+            {
+                token.type = 9;
+                token.attribute = ")";
+                return token;
+            }
+            else if (c == '{')
+            {
+                token.type = 9;
+                token.attribute = "{";
+                return token;
+            }
+            else if (c == '}')
+            {
+                token.type = 9;
+                token.attribute = "}";
+                return token;
+            }
+            else if (c == ',')
+            {
+                token.type = 13;
+                token.attribute = ",";
+                return token;
             }
             
             break;
 
-        case 'a':                                           //  ID / key word
+        case 1:                                           //  ID / key word
             if (('0' <=  c && c <= '9') ||('a' <=  c && c <= 'z') || ('A' <=  c && c <= 'Z') || c =='_' || c =='?')
             {
-                state='a';
                 string[string_pos]=c;
                 string_pos++;
+
             }
             else{
                 ungetc(c,file);
@@ -129,25 +173,26 @@ struct Token getNextToken(FILE* file){
 
                 token.type = 1;
                 token.attribute = string;
-
+                
                 return token;
             }
             break;
-        case 'b':                                           // integer
+        case 10:                                           // integer
             if ('0' <=  c && c <= '9')
             {
                 string[string_pos]=c;
                 string_pos++;
             }
-            else if (c == '.'){                            //decimal
+            else if (c == '.'){                            //float
                 string[string_pos]=c;
                 string_pos++;
-                state = 100;
+                state = 11;
             }
             else if ( c == 'e' || c == 'E'){
+                integerWithE=true;
                 string[string_pos]=c;
                 string_pos++;
-                state = 101;
+                state = 13;
             }
             else{
                 ungetc(c, file);
@@ -156,12 +201,11 @@ struct Token getNextToken(FILE* file){
                 return token;
             }
             break;
-        case 100:
+        case 11:
             string[string_pos]=c;
             string_pos++;
-            if ('0' <=  c && c <= '9'){
-                
-                state = 101;
+            if ('0' <=  c && c <= '9'){     
+                state = 12;
             }
             else{
                 printf("lexical error\n");
@@ -169,68 +213,169 @@ struct Token getNextToken(FILE* file){
             }
             break;
         
-        case 101:
+        case 12:
             if ('0' <=  c && c <= '9')
             {
                 string[string_pos]=c;
                 string_pos++;
-                state = 101;
             }
             else if (c == 'e' || c == 'E'){
                 string[string_pos]=c;
                 string_pos++;
-                state = 102;
+                state = 13;
             }
             else{
                 ungetc(c,file);
-                token.type = 2;
+                token.type = 3;                     // FLOAT
                 token.attribute = string;
                 return token;
             }
             break;
 
-        case 102:
+        case 13:
             string[string_pos]=c;
             string_pos++;
             if ('0' <=  c && c <= '9'){
-                
-                state = 104;
+                state = 15;
             }
             else if (c == '+' || c == '-'){
-                
-                state = 103;
+                state = 14;
             }
             else{
                 printf("Lexical error\n");
             }
             break;
 
-        case 103:
+        case 14:
             string[string_pos]=c;
             string_pos++;
             if ('0' <=  c && c <= '9'){
-                state = 104;
+                state = 15;
             }
             else{
                 printf("Lexical error\n");
             }
             break;
-        case 104:
-            
+        case 15:
             if ('0' <=  c && c <= '9'){
                 string[string_pos]=c;
                 string_pos++;
-                state = 104;
             }
             else{
                 ungetc(c,file);
-                token.type = 2;
+                if (integerWithE)
+                {
+                    token.type = 2;
+                    integerWithE = false;
+                }
+                else{
+                    token.type = 3;
+                }
                 token.attribute = string;
                 return token;
             }
             break;
+        case 20:
+            ungetc(c,file);
+            token.type = 5;
+            token.attribute = "+";
+            return token;
+        case 21:                                           // -
+            if (c=='>')
+            {
+                state = 22;
+                break;
+            }
+            else
+            {
+                ungetc(c,file);
+                token.type = 5;
+                token.attribute = "-";
+                return token;
+            }
+        case 22:
+            ungetc(c,file);
+            token.type = 11;
+            token.attribute = "->";
+            break;
+        case 25:                                           // *
+            ungetc(c,file);
+            token.type = 5;
+            token.attribute = "*";
+            return token;
+        case 30:                                           // !
+            if (c=='=')
+            {
+                state = 31;
+                break;
+            }
+            else
+            {
+                ungetc(c,file);
+                token.type = 14;
+                token.attribute = "!";
+                return token;
+            }
+        case 31:
+            ungetc(c,file);
+            token.type = 6;
+            token.attribute = "!=";
+            return token;
 
-        case 80:                                           //string
+            break;
+        case 35:                                            // =
+            if (c == '='){
+                state = 36;
+                break;
+            }
+            else{
+                ungetc(c,file);
+                token.type = 10;
+                token.attribute = "=";
+                return token;
+            }
+        case 36:
+            ungetc(c,file);
+            token.type = 6;
+            token.attribute = "==";
+            return token;
+
+            break;
+
+        case 40:
+            if (c == '='){
+                state = 41;
+                break;
+            }
+            else{
+                ungetc(c,file);
+                token.type = 6;
+                token.attribute = "<";
+                return token;
+            }
+        case 41:
+            ungetc(c,file);
+            token.type = 6;
+            token.attribute = "<=";
+            return token;
+        case 45:
+            if (c == '='){
+                state = 46;
+                break;
+            }
+            else{
+                ungetc(c,file);
+                token.type = 6;
+                token.attribute = ">";
+                return token;
+            }
+        case 46:
+            ungetc(c,file);
+            token.type = 6;
+            token.attribute = ">=";
+            return token;
+
+        case 60:                                           //string
             if (c == '"'){
                 string[string_pos]=c;
                 string_pos++;
@@ -251,60 +396,18 @@ struct Token getNextToken(FILE* file){
                 printf("lexical errorsss\n");
             }
             break;
-        case 81:
+        case 65:
             if (c == 'n' || c == 't' || c == '\"' || c == '\\'){
-                //todo dokoncit stringy ked dostaneme escape charaktery + este napr\u{1F} previes zo 16tkovej do dekadickej sustavy
+               //todo dokoncit stringy ked dostaneme escape charaktery + este napr\u{1F} previes zo 16tkovej do dekadickej sustavy
+                state = 60;
             }
-        case 60:
-            if (c == '='){
-                state = 61;
-            }
-            else{
-                ungetc(c,file);
-                token.type = 6;
-                token.attribute = ">";
-                return token;
-            }
-        case 61:
-            ungetc(c,file);
-            token.type = 6;
-            token.attribute = ">=";
-            return token;
+            break;          // TODO
 
-        case 70:
-            if (c == '='){
-                state = 71;
-            }
-            else{
-                ungetc(c,file);
-                token.type = 6;
-                token.attribute = "<";
-                return token;
-            }
-            break;
-        case 71:
-            ungetc(c,file);
-            token.type = 6;
-            token.attribute = "<=";
-            return token;
-        
-        case 'm':                                           // +
-            ungetc(c,file);
-            token.type = 3;
-            token.attribute = "+";
-            return token;
 
-        case 'n':                                           // -
-            ungetc(c,file);
-            token.type = 3;
-            token.attribute = "-";
 
-            return token;
-        case 'o':                                           // *
-            ungetc(c,file);
-            token.type = 3;
-            token.attribute = "*";
-            return token;
+
+
+
         case 90:                                            // "/"
             if (c == '/')                                   // "//" - riadkovy koementar
             {
@@ -328,9 +431,6 @@ struct Token getNextToken(FILE* file){
             {
                 state = 's';
             }
-            else{
-                state = 91;
-            }
             break;            
         case 95:                                                // "/*" - blokovy koementar
             char c2 =getc(file);                         //precitam o jeden znak viac aby som sa vedel rozhodnut
@@ -343,7 +443,7 @@ struct Token getNextToken(FILE* file){
             else if (c == '/' && c2 == '*')
             {
                 state = 90;
-            }            
+            }
             else{
                 
                 state = 95;
@@ -355,36 +455,18 @@ struct Token getNextToken(FILE* file){
             {
                 comments_inside_count--;
                 if (comments_inside_count == 0)
-                {
-                    
+                {                    
                     state = 's';
                 }
                 else{
-                    //printf("%d", comments_inside_count);
                     state = 95;
                 }
             }
             else{
-                //printf("%d", comments_inside_count);
                 state = 95;
             }
             break;
-        case 'q':                                         // =
-            if (c == '='){
-                state = 'v';
-            }
-            else{
-                ungetc(c,file);
-                token.type = 4;
-                token.attribute = "=";
-                return token;
-            }
-            break;
-        case 'v':
-            ungetc(c,file);
-            token.type = 3;
-            token.attribute = "==";
-            return token;
+
         default:
             //printf("error");
             break;
@@ -407,7 +489,6 @@ void parser(FILE* file){
         printf("Attribute: %s\n", nextToken.attribute);
         nextToken = getNextToken(file);
     }
-    
     
 }
 

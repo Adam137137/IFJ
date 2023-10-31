@@ -1,1 +1,5 @@
-< == 12.5 "anooo"125.15e-15
+Ahoj 123 _ahoj abc123 456+789 10- 11 12 * 13, 14! 15=c while float 14.5
+nieco_pred_komentom // komentar
+nieco_pred_komentom2 /*zanorenie/*inside*/ */ za_komentom
+let a?
+3.14e10
