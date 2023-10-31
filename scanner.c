@@ -1,7 +1,7 @@
 #include<stdlib.h>
 #include <stdio.h>
-
-char* input = "abc/123= //komentar ktory sa nezobrazi \n NovyRiadok /*komentar /*vnoreny*/ */ 456+ /789 KONIEC\0";;
+#include <ctype.h>
+#include <string.h>
 
 struct Token
 {
@@ -16,11 +16,8 @@ void string_reset(char* string){
     }
 }
 
-char getChar(int *pos){
-    return input[(*pos)++];
-}
 
-struct Token getNextToken(){
+struct Token getNextToken(FILE* file){
     struct Token token;
 
     char state = 's';
@@ -38,17 +35,19 @@ struct Token getNextToken(){
     // 3 - operator
     // 4 - priradenie (=)
     // 5 - zatvorky
+    // 6 - operatory porovnavacie
+    // 7 - string
+
 
     char c = ' ';
-    while (c != '\0')
+    while (c  != EOF)
     {
-        c=getChar(&posInInput);
-
+        c = getc(file);
         switch (state)
         {
         case 's':
-            if (('a' <=  c && c <= 'z') || ('A' <=  c && c <= 'Z') || c =='_' || c =='?')
-            {
+            if (isalpha(c) || c =='_' || c =='?')
+            {   
                 state='a';
                 string[string_pos]=c;
                 string_pos++;
@@ -84,16 +83,28 @@ struct Token getNextToken(){
                 state='r';
             }
             else if (c == '*'){
-
+                state = 'o';
             }
-
-
+            else if (c == '<'){
+                state = 70;
+            }
+            else if( c == '>'){
+                state = 60;
+            }
+            else if (c == '"'){
+                string[string_pos]=c;
+                string_pos++;
+                state = 80;
+            }
+            else if (c == EOF){
+                break;
+            }
             else{
                 state = 's';
             }
             
-            
             break;
+
         case 'a':                                           //  ID / key word
             if (('0' <=  c && c <= '9') ||('a' <=  c && c <= 'z') || ('A' <=  c && c <= 'Z') || c =='_' || c =='?')
             {
@@ -102,7 +113,7 @@ struct Token getNextToken(){
                 string_pos++;
             }
             else{
-                posInInput--;
+                ungetc(c,file);
 
                 /* je to identifikator alebo klucove slovo, pozri sa do tabulky
                  boolean IsKeyword IsItKeyWord(string);
@@ -128,28 +139,169 @@ struct Token getNextToken(){
                 string[string_pos]=c;
                 string_pos++;
             }
+            else if (c == '.'){                            //decimal
+                string[string_pos]=c;
+                string_pos++;
+                state = 100;
+            }
+            else if ( c == 'e' || c == 'E'){
+                string[string_pos]=c;
+                string_pos++;
+                state = 101;
+            }
             else{
-                posInInput--;
+                ungetc(c, file);
                 token.type = 2;
                 token.attribute = string;
-                
                 return token;
             }
             break;
+        case 100:
+            string[string_pos]=c;
+            string_pos++;
+            if ('0' <=  c && c <= '9'){
+                
+                state = 101;
+            }
+            else{
+                printf("lexical error\n");
+                //return LEXICAL_ERROR;
+            }
+            break;
+        
+        case 101:
+            if ('0' <=  c && c <= '9')
+            {
+                string[string_pos]=c;
+                string_pos++;
+                state = 101;
+            }
+            else if (c == 'e' || c == 'E'){
+                string[string_pos]=c;
+                string_pos++;
+                state = 102;
+            }
+            else{
+                ungetc(c,file);
+                token.type = 2;
+                token.attribute = string;
+                return token;
+            }
+            break;
+
+        case 102:
+            string[string_pos]=c;
+            string_pos++;
+            if ('0' <=  c && c <= '9'){
+                
+                state = 104;
+            }
+            else if (c == '+' || c == '-'){
+                
+                state = 103;
+            }
+            else{
+                printf("Lexical error\n");
+            }
+            break;
+
+        case 103:
+            string[string_pos]=c;
+            string_pos++;
+            if ('0' <=  c && c <= '9'){
+                state = 104;
+            }
+            else{
+                printf("Lexical error\n");
+            }
+            break;
+        case 104:
+            
+            if ('0' <=  c && c <= '9'){
+                string[string_pos]=c;
+                string_pos++;
+                state = 104;
+            }
+            else{
+                ungetc(c,file);
+                token.type = 2;
+                token.attribute = string;
+                return token;
+            }
+            break;
+
+        case 80:                                           //string
+            if (c == '"'){
+                string[string_pos]=c;
+                string_pos++;
+                //ungetc(c,file);
+                token.type = 7;
+                token.attribute = string;
+                return token;  
+            }
+            else if (c > (char)31){
+                string[string_pos]=c;
+                string_pos++;
+                state = 80;
+            }
+            else if (c == '\\'){
+                state = 81;
+            }
+            else{
+                printf("lexical errorsss\n");
+            }
+            break;
+        case 81:
+            if (c == 'n' || c == 't' || c == '\"' || c == '\\'){
+                //todo dokoncit stringy ked dostaneme escape charaktery + este napr\u{1F} previes zo 16tkovej do dekadickej sustavy
+            }
+        case 60:
+            if (c == '='){
+                state = 61;
+            }
+            else{
+                ungetc(c,file);
+                token.type = 6;
+                token.attribute = ">";
+                return token;
+            }
+        case 61:
+            ungetc(c,file);
+            token.type = 6;
+            token.attribute = ">=";
+            return token;
+
+        case 70:
+            if (c == '='){
+                state = 71;
+            }
+            else{
+                ungetc(c,file);
+                token.type = 6;
+                token.attribute = "<";
+                return token;
+            }
+            break;
+        case 71:
+            ungetc(c,file);
+            token.type = 6;
+            token.attribute = "<=";
+            return token;
+        
         case 'm':                                           // +
-            posInInput--;
+            ungetc(c,file);
             token.type = 3;
             token.attribute = "+";
-
             return token;
+
         case 'n':                                           // -
-            posInInput--;
+            ungetc(c,file);
             token.type = 3;
             token.attribute = "-";
 
             return token;
         case 'o':                                           // *
-            posInInput--;
+            ungetc(c,file);
             token.type = 3;
             token.attribute = "*";
             return token;
@@ -165,8 +317,7 @@ struct Token getNextToken(){
             }
             
             else{                                           //  delenie
-                posInInput--;
-
+                ungetc(c,file);
                 token.type = 3;
                 token.attribute = "/";
                 return token;
@@ -182,7 +333,9 @@ struct Token getNextToken(){
             }
             break;            
         case 95:                                                // "/*" - blokovy koementar
-            char c2 =getChar(&posInInput);                         //precitam o jeden znak viac aby som sa vedel rozhodnut
+            char c2 =getc(file);                         //precitam o jeden znak viac aby som sa vedel rozhodnut
+            //printf("%d", c);
+            //printf("%d\n", c2);
             if (c == '*' && c2 == '/')
             {               
                 state = 96;
@@ -192,9 +345,10 @@ struct Token getNextToken(){
                 state = 90;
             }            
             else{
+                
                 state = 95;
             }
-            posInInput--;
+            ungetc(c2,file);
             break;    
         case 96:
             if (c =='/')
@@ -202,28 +356,41 @@ struct Token getNextToken(){
                 comments_inside_count--;
                 if (comments_inside_count == 0)
                 {
+                    
                     state = 's';
                 }
                 else{
+                    //printf("%d", comments_inside_count);
                     state = 95;
                 }
             }
             else{
+                //printf("%d", comments_inside_count);
                 state = 95;
             }
             break;
-        case 'q':                                           // =
-            posInInput--;
-            token.type = 4;
-            token.attribute = "=";
-            
+        case 'q':                                         // =
+            if (c == '='){
+                state = 'v';
+            }
+            else{
+                ungetc(c,file);
+                token.type = 4;
+                token.attribute = "=";
+                return token;
+            }
+            break;
+        case 'v':
+            ungetc(c,file);
+            token.type = 3;
+            token.attribute = "==";
             return token;
         default:
+            //printf("error");
             break;
         }
 
     }
-
     // posledny token;
     token.type = 0;
     token.attribute = "END";
@@ -232,21 +399,23 @@ struct Token getNextToken(){
 
 
 
-void parser(){
-    struct Token nextToken = getNextToken();
+void parser(FILE* file){
+    struct Token nextToken = getNextToken(file);
     while (nextToken.type != 0)
     {
         printf("Type: %d     ", nextToken.type);
         printf("Attribute: %s\n", nextToken.attribute);
-        nextToken = getNextToken();
+        nextToken = getNextToken(file);
     }
     
     
 }
 
-int main(){
-    printf("input:\n%s\n", input);
-    parser();
+int main(int argc, char *argv[]){
+    FILE *file = fopen("test.txt", "r");
+    //char firstchar = fgetc(file);
+    //printf("%c", firstchar);
+    parser(file);
     puts("");
     return 1;
 }
