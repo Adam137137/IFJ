@@ -115,7 +115,6 @@ struct Token getNextToken(FILE* file){
                 ungetc(c2,file);
                 ungetc(c3,file);
             }
-
             else if (c == '(')
             {
                 token.type = 9;
@@ -146,6 +145,12 @@ struct Token getNextToken(FILE* file){
                 token.attribute = ",";
                 return token;
             }
+            else if (c == ':')
+            {
+                token.type = 12;
+                token.attribute = ":";
+                return token;
+            }
             
             break;
 
@@ -154,7 +159,6 @@ struct Token getNextToken(FILE* file){
             {
                 string[string_pos]=c;
                 string_pos++;
-
             }
             else{
                 ungetc(c,file);
@@ -297,7 +301,7 @@ struct Token getNextToken(FILE* file){
             ungetc(c,file);
             token.type = 11;
             token.attribute = "->";
-            break;
+            return token;
         case 25:                                           // *
             ungetc(c,file);
             token.type = 5;
