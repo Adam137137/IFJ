@@ -112,8 +112,8 @@ struct Token getNextToken(FILE* file){
                 else{
                     state = 60;
                 }
-                ungetc(c2,file);
                 ungetc(c3,file);
+                ungetc(c2,file);
             }
             else if (c == '(')
             {
@@ -381,32 +381,105 @@ struct Token getNextToken(FILE* file){
 
         case 60:                                           //string
             if (c == '"'){
-                string[string_pos]=c;
-                string_pos++;
-                //ungetc(c,file);
                 token.type = 7;
                 token.attribute = string;
                 return token;  
             }
-            else if (c > (char)31){
+            else if (c > (char)31 && c != 92){
                 string[string_pos]=c;
                 string_pos++;
-                state = 80;
             }
             else if (c == '\\'){
-                state = 81;
+                state = 65;
             }
             else{
                 printf("lexical errorsss\n");
             }
             break;
         case 65:
-            if (c == 'n' || c == 't' || c == '\"' || c == '\\'){
-               //todo dokoncit stringy ked dostaneme escape charaktery + este napr\u{1F} previes zo 16tkovej do dekadickej sustavy
+            //printf("%d", c);
+            if (c == 'n'){
+                string[string_pos] = '\n';
+                string_pos++;
                 state = 60;
+
+            }
+            else if (c == 't'){
+                string[string_pos] = '\t';
+                string_pos++;
+                state = 60;
+
+            }
+            else if (c == '\"'){
+                string[string_pos] = '\"';
+                string_pos++;
+                state = 60;
+                
+            }
+            else if (c == '\\'){
+                string[string_pos] = '\\';
+                string_pos++;
+                state = 60;
+                
+            }
+            else if (c == '\r'){
+                string[string_pos] = '\r';
+                string_pos++;
+                state = 60;
+                
+            }
+            else if (c == 'u'){
+                state = 66;
+            }
+
+            else{
+                printf("lexical error");
             }
             break;          // TODO
 
+        case 66:
+            if (c == '{'){
+                state = 67;
+            }
+            else{
+                printf("lexical error");
+            }
+            break;
+        case 67:
+            char c3 = getc(file);
+            if (97 <= c && c <= 102){
+                c= c-32; 
+            }
+            if (97 <= c3 && c3 <= 102){
+                c3 = c3-32;
+            }
+            if (((65 <= c && c <= 70) || (48 <= c && c <= 57)) || ((65 <= c3 && c3 <= 70) ||  (48 <= c3 && c3 <= 57))){
+                char res[3];
+                char *endPtr;
+                res[0] = c;
+                res[1] = c3;
+                res[2] = '\0';
+                unsigned int a = strtol(res,&endPtr,16);
+                string[string_pos]= (char)a;
+                string_pos++;
+                //printf("%s", string);
+                state = 69;
+            }
+            else{
+                printf("lexical error");
+            }
+            //ungetc(c3,file);
+            //ungetc(c, file);
+            break;
+        case 69:
+            //printf("%c\n", c);
+            if (c == '}'){
+                state = 60;
+            }
+            else{
+                printf("lexicalerror");
+            }
+            break;
 
 
 
