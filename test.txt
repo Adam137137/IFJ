@@ -3,3 +3,4 @@ nieco_pred_komentom // komentar
 nieco_pred_komentom2 /*zanorenie/*inside*/ */ za_komentom
 let a?
 3.14e10
+HelloWorld1
