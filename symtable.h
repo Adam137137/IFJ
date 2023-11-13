@@ -13,9 +13,7 @@ typedef struct btree_node{                      // structure of node
     struct btree_node *right;                   // pointer to right child
 } btree_node;
 
-btree_node *create_node(int token_type, int key, char *name_of_symbol, char *func_param, int func_num_of_param);
 void insert(btree_node **root, int token_type, int key, char *name_of_symbol, char *func_param, int func_num_of_param);
 bool search(btree_node *root, int token_type, int key, char **name_of_symbol, char **func_param, int *func_num_of_param);
 void node_delete(btree_node **root, int token_type, int key);
-void printtab(int numtabs);
 void printtree(btree_node *root, int level);
