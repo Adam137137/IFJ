@@ -1,17 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-
-typedef struct btree_node{                      // structure of node
-    int token_type;                             // pre klucove slova : to bude 4, ak to tam nebude, novy strom kde toto bude 1                            
-    int key;                                   // identifier
-    char *name_of_symbol;                       // value of element
-    char *func_param;
-    int func_num_of_param;
-    struct btree_node *left;                    // pointer to left child
-    struct btree_node *right;                   // pointer to right child
-} btree_node;
+#include "symtable.h"
 
 btree_node *create_node(int token_type, int key, char *name_of_symbol, char *func_param, int func_num_of_param){
     btree_node *node = (btree_node *)malloc(sizeof(btree_node));
@@ -143,15 +130,15 @@ void replace_highest_in_left_tree(btree_node **root, btree_node *target){
     }
 }
 
-void delete(btree_node **root, int token_type, int key){
+void node_delete(btree_node **root, int token_type, int key){
     
     // ak zavolame nad prazdnym podstromom, not sure, co spravit
     
     if(key < (*root)->key){                                     // searching our key
-        delete(&((*root)->left), token_type, key);
+        node_delete(&((*root)->left), token_type, key);
     }
     else if(key > (*root)->key){
-        delete(&((*root)->right), token_type, key);
+        node_delete(&((*root)->right), token_type, key);
     }
     else{
         if((*root)->left == NULL && (*root)->right == NULL){        // node has no children
@@ -219,9 +206,9 @@ void delete(btree_node **root, int token_type, int key){
 
 // }
 
-void balance(btree_node **root){
+// void balance(btree_node **root){
 
-}
+// }
 
 void printtab(int numtabs){
     for(int i = 0; i < numtabs; i++){
@@ -251,31 +238,31 @@ void printtree(btree_node *root, int level){
 }
 
 
-int main(){
-    btree_node *root = NULL;
-    int x = 0;
-    // char *found_name_of_symbol = NULL;
-    // char *func_params = NULL;
+// int main(){
+//     btree_node *root = NULL;
+//     int x = 0;
+//     // char *found_name_of_symbol = NULL;
+//     // char *func_params = NULL;
  
-    // insert(&root, 4, 10, "double", "", 0);
-    // insert(&root, 4, 13, "else", "", 0);
-    // insert(&root, 4, 11, "if", "", 0);
-    // insert(&root, 4, 6, "ugabugag", "", 0);
-    // insert(&root, 4, 7, "lol", "", 0);
-    // insert(&root, 4, 4, "XDDd", "", 0);
-    // insert(&root, 4, 1, "uff", "", 0);
-    // insert(&root, 4, 9, "memem", "", 0);
-    // insert(&root, 4, 5, "memem", "", 0);
-    // delete(&root, 4, 6);
-    printtree(root, x);
+//     insert(&root, 4, 10, "double", "", 0);
+//     insert(&root, 4, 13, "else", "", 0);
+//     insert(&root, 4, 11, "if", "", 0);
+//     insert(&root, 4, 6, "ugabugag", "", 0);
+//     insert(&root, 4, 7, "lol", "", 0);
+//     insert(&root, 4, 4, "XDDd", "", 0);
+//     insert(&root, 4, 1, "uff", "", 0);
+//     insert(&root, 4, 9, "memem", "", 0);
+//     insert(&root, 4, 5, "memem", "", 0);
+//     node_delete(&root, 4, 6);
+//     printtree(root, x);
     
-    // bool result = search(root, 4, 6, &found_name_of_symbol, &func_params, 0);
-    // if (result) {
-    //     printf("Found: %s\n", found_name_of_symbol);
-    //     free(found_name_of_symbol);    
-    // } else {
-    //     printf("Not found.\n");
-    // }
+//     // bool result = search(root, 4, 6, &found_name_of_symbol, &func_params, 0);
+//     // if (result) {
+//     //     printf("Found: %s\n", found_name_of_symbol);
+//     //     free(found_name_of_symbol);    
+//     // } else {
+//     //     printf("Not found.\n");
+//     // }
 
-    return 0;
-}
+//     return 0;
+// }
