@@ -1,14 +1,7 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <ctype.h>
-#include <string.h>
-#include <stdbool.h>
-#include "compiler.h"
-
-int keywords_length = key_words_length;
+#include "scanner.h"
 
 
-void string_reset(char* string){
+void string_reset(char *string){
     for (size_t i = 0; i < 100; i++)
     {
         string[i]='\0';
@@ -20,6 +13,16 @@ bool IsItKeyWord (char *c){
     for (int i = 0; i < key_words_length; i++)
     {
         if (strcmp(c, key_words[i]) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+bool IsItBuiltIn (char *c){
+    for (int i = 0; i < built_in_functions_length; i++)
+    {
+        if (strcmp(c, built_in_functions[i]) == 0)
         {
             return true;
         }
@@ -53,7 +56,8 @@ struct Token getNextToken(FILE* file){
     // 12 - :
     // 13 - ,
     // 14 - !
-
+    // 15 - _
+    // 16 - vstavana funkcia
 
     bool integerWithE = false;
     char c = ' ';
@@ -172,14 +176,19 @@ struct Token getNextToken(FILE* file){
             }
             else{
                 ungetc(c,file);
-
-                // je to identifikator alebo klucove slovo, pozri sa do tabulky
                 
-                bool IsKeyword = IsItKeyWord(string);
-                if (IsKeyword)
+                if (IsItKeyWord(string))
                 {
                     token.type = 4;
                 }
+                else if (IsItBuiltIn(string)){
+                    token.type = 16;    
+                }
+                else if (strcmp(string, "_") == 0)
+                {
+                    token.type = 15;
+                }
+                
                 else{
                     token.type = 1;
                 }
@@ -561,26 +570,4 @@ struct Token getNextToken(FILE* file){
     token.type = 0;
     token.attribute = "END";
     return token;
-}
-
-
-
-void parser(FILE* file){
-    struct Token nextToken = getNextToken(file);
-    while (nextToken.type != 0)
-    {
-        printf("Type: %d     ", nextToken.type);
-        printf("Attribute: %s\n", nextToken.attribute);
-        nextToken = getNextToken(file);
-    }
-    
-}
-
-int main(int argc, char *argv[]){
-    FILE *file = fopen("test.txt", "r");
-    //char firstchar = fgetc(file);
-    //printf("%c", firstchar);
-    parser(file);
-    puts("");
-    return 1;
 }

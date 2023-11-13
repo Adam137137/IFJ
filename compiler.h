@@ -1,4 +1,8 @@
-
+#include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdbool.h>
 
 typedef enum {
     NO_ERROR = 0,
@@ -15,19 +19,12 @@ typedef enum {
 } ErrorCode;
 ErrorCode error;
 
-#define key_words_length 11
-
-char *key_words[] = {"Double", "else", "func", "if", "Int", "let", "nil", "return", "String", "var", "while"};
-
-
 struct Token
 {
     int type;
     char *attribute;
 };
 
+struct Token getNextToken(FILE* file);
 
-void string_reset(char*);
-char getChar(int*);
-struct Token getNextToken();
-void parser();
+
