@@ -3,18 +3,28 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
+#include "compiler.h"
 
-struct Token
-{
-    int type;
-    char *attribute;
-};
+int keywords_length = key_words_length;
+
 
 void string_reset(char* string){
     for (size_t i = 0; i < 100; i++)
     {
         string[i]='\0';
     }
+}
+
+
+bool IsItKeyWord (char *c){
+    for (int i = 0; i < key_words_length; i++)
+    {
+        if (strcmp(c, key_words[i]) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 
@@ -163,21 +173,18 @@ struct Token getNextToken(FILE* file){
             else{
                 ungetc(c,file);
 
-                /* je to identifikator alebo klucove slovo, pozri sa do tabulky
-                 boolean IsKeyword IsItKeyWord(string);
-
+                // je to identifikator alebo klucove slovo, pozri sa do tabulky
+                
+                bool IsKeyword = IsItKeyWord(string);
                 if (IsKeyword)
                 {
                     token.type = 4;
                 }
                 else{
-                    token.type = 1
+                    token.type = 1;
                 }
-                */
 
-                token.type = 1;
                 token.attribute = string;
-                
                 return token;
             }
             break;

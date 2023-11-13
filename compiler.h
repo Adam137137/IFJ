@@ -15,6 +15,9 @@ typedef enum {
 } ErrorCode;
 ErrorCode error;
 
+#define key_words_length 11
+
+char *key_words[] = {"Double", "else", "func", "if", "Int", "let", "nil", "return", "String", "var", "while"};
 
 
 struct Token
