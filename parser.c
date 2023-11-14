@@ -13,7 +13,7 @@
 // }
 
 
-
+struct Token current_token;
 void parser(FILE* file){
     current_token = getNextToken(file);
     while (current_token.type != 0)

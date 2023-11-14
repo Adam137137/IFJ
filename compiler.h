@@ -1,8 +1,13 @@
+#ifndef COMPILER_H
+#define COMPILER_H
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
+#include "symtable.h"
+#include "scanner.h"
+#include "parser.h"
 
 typedef enum {
     NO_ERROR = 0,
@@ -19,12 +24,4 @@ typedef enum {
 } ErrorCode;
 ErrorCode error;
 
-struct Token
-{
-    int type;
-    char *attribute;
-};
-
-struct Token getNextToken(FILE* file);
-
-
+#endif

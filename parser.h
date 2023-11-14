@@ -1,5 +1,9 @@
-#include "compiler.h"
+#ifndef PARSER_H
+#define PARSER_H
+#include "scanner.h"
 
-struct Token current_token;
-
+extern struct Token current_token;
 void parser(FILE* file);
+
+
+#endif

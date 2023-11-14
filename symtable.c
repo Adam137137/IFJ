@@ -7,13 +7,12 @@ btree_node *create_node(int token_type, int key, char *name_of_symbol, char *fun
     }
     node->token_type = token_type;
     node->key = key;
-
     node->name_of_symbol = strdup(name_of_symbol);                // duplicating the string given, allocating memmory for it and adding it to tree
     if(node->name_of_symbol == NULL){
         free(node);
         return NULL;                                // podla zadania sa vracia 99, ale to je dobra chujovina potom
     }
-    
+
     node->func_param = strdup(func_param);
     if(node->func_param == NULL){
         free(node);

@@ -1,4 +1,4 @@
-EXEC = scanner
+EXEC = Main
 CC = gcc
 CFLAGS = -Wall -std=c11 -MMD
 LDLIBS = -lm

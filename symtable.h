@@ -1,4 +1,10 @@
-#include "compiler.h"
+#ifndef SYMTABLE_H
+#define SYMTABLE_H
+#include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdbool.h>
 
 typedef struct btree_node{                      // structure of node
     int token_type;                             // pre klucove slova : to bude 4, ak to tam nebude, novy strom kde toto bude 1                            
@@ -14,3 +20,4 @@ void insert(btree_node **root, int token_type, int key, char *name_of_symbol, ch
 bool search(btree_node *root, int token_type, int key, char **name_of_symbol, char **func_param, int *func_num_of_param);
 void node_delete(btree_node **root, int token_type, int key);
 void printtree(btree_node *root, int level);
+#endif
