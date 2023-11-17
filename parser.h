@@ -4,6 +4,7 @@
 
 extern struct Token current_token;
 void parser(FILE* file);
-
+bool sekvencia(FILE* file);
+bool letnutie(FILE* file);
 
 #endif
