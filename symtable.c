@@ -11,7 +11,31 @@ char *string_dup(char *string){
     }
     strcpy(copied_string, string);
     return copied_string;
-} 
+}
+
+int max(int a, int b){
+    if(a > b){
+        return a;
+    }
+    return b;
+}
+
+int height_of_node(btree_node * root){
+    if(root == NULL){                                   // not existing node
+        return -1;
+    }
+    else{
+        int count_left = height_of_node(root->left);
+        int count_right = height_of_node(root->right);
+        return 1 + max(count_left, count_right);            // + 1 to include itself
+    }
+}
+
+
+
+// btree_node *rotate_right(btree_node *root){
+
+// }
 
 btree_node *create_node(int token_type, int key, char *name_of_symbol, char *func_param, int func_num_of_param){
     btree_node *node = (btree_node *)malloc(sizeof(btree_node));
@@ -202,19 +226,27 @@ void node_delete(btree_node **root, int token_type, int key){
     }
 }
 
+void tree_dispose(btree_node **root) {
+    if((*root) != NULL){
+        tree_dispose(&((*root)->left));
+        tree_dispose(&((*root)->right));
+        
+        if((*root)->name_of_symbol != NULL){
+            free((*root)->name_of_symbol);
+        }
+        if((*root)->func_param != NULL){                        // checking if it is not an empty string
+            free((*root)->func_param);
+        }
+        free(*root);
+        (*root) = NULL;
+        return;
+    }
+}
+
 // int check_balanced(btree_node * root){
 
 // }
-
-// void check_weight(btree_node * root){
-
-// }
-
 // btree_node *rotate_left(btree_node *root){
-
-// }
-
-// btree_node *rotate_right(btree_node *root){
 
 // }
 
