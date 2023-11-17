@@ -2,7 +2,7 @@
 
 char *key_words[] = {"Double", "else", "func", "if", "Int", "let", "nil", "return", "String", "var", "while"};
 char *built_in_functions[] = {"readString", "readInt", "readDouble", "write", "Int2Double", "Double2Int", "length", "substring", "ord", "chr"};
-
+char string [100];
 
 void string_reset(char *string){
     for (size_t i = 0; i < 100; i++)
@@ -39,7 +39,7 @@ struct Token getNextToken(FILE* file){
 
     char state = 's';
 
-    char string [100];
+    
     string_reset(string);
     int string_pos = 0;
 

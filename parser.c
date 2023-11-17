@@ -12,7 +12,7 @@
 
 // }
 bool stop = false;
-
+struct Token current_token;
 void unget_token(struct Token token, FILE* file) {
     for (int i = strlen(token.attribute) - 1; i >= 0; i--) {
         ungetc((unsigned char)token.attribute[i], file);
@@ -80,9 +80,8 @@ bool letnutie(FILE* file){
     }
 }
 bool sekvencia(FILE* file){
-    current_token = getNextToken(file);
-
-    //printf("s%s\n", current_token.attribute);
+    printf("%s\n", current_token.attribute);
+    printf("%s\n", current_token.attribute);
     //printf("Token 2 type: %d\n", current_token.type);
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
         return letnutie(file);
@@ -93,11 +92,12 @@ bool sekvencia(FILE* file){
     else if (current_token.attribute == "while" && current_token.type == 4){
         //whilnutie();
     }
+    return false;
     //TODO dalsie mozne neterminaly zo sekvencie
 }
 
-struct Token current_token;
 void parser(FILE* file){
+    current_token = getNextToken(file);
     if (sekvencia(file) == true){
         printf("ok");
     }
