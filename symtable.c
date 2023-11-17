@@ -1,5 +1,18 @@
 #include "symtable.h"
 
+char *string_dup(char *string){
+    if(string == NULL){
+        return NULL;
+    }
+
+    char *copied_string = malloc((strlen(string) + 1 )*sizeof(char));
+    if(copied_string == NULL){
+        return NULL;
+    }
+    strcpy(copied_string, string);
+    return copied_string;
+} 
+
 btree_node *create_node(int token_type, int key, char *name_of_symbol, char *func_param, int func_num_of_param){
     btree_node *node = (btree_node *)malloc(sizeof(btree_node));
     if(node == NULL){                           // check for allocation
@@ -7,13 +20,13 @@ btree_node *create_node(int token_type, int key, char *name_of_symbol, char *fun
     }
     node->token_type = token_type;
     node->key = key;
-    node->name_of_symbol = strdup(name_of_symbol);                // duplicating the string given, allocating memmory for it and adding it to tree
+    node->name_of_symbol = string_dup(name_of_symbol);                // duplicating the string given, allocating memmory for it and adding it to tree
     if(node->name_of_symbol == NULL){
         free(node);
         return NULL;                                // podla zadania sa vracia 99, ale to je dobra chujovina potom
     }
 
-    node->func_param = strdup(func_param);
+    node->func_param = string_dup(func_param);
     if(node->func_param == NULL){
         free(node);
         free(node->name_of_symbol);
@@ -52,13 +65,13 @@ bool search(btree_node *root, int token_type, int key, char **name_of_symbol, ch
     }
     
     if (root->key == key){                             // found the key, returning valuse in variables
-        *name_of_symbol = strdup(root->name_of_symbol);                 // duplicating the string given, allocating memmory for it, will be returned in param
+        *name_of_symbol = string_dup(root->name_of_symbol);                 // duplicating the string given, allocating memmory for it, will be returned in param
         if(*name_of_symbol == NULL){
             return false;
         }
         
         if(strlen(root->func_param) > 0){                   // check whether we have an empty string = a function has parameters
-            *func_param = strdup(root->func_param);
+            *func_param = string_dup(root->func_param);
             if(*func_param == NULL){
                 free(*name_of_symbol);
                 return false;
@@ -235,33 +248,3 @@ void printtree(btree_node *root, int level){
     printtab(level);
     printf("done\n");
 }
-
-
-// int main(){
-//     btree_node *root = NULL;
-//     int x = 0;
-//     // char *found_name_of_symbol = NULL;
-//     // char *func_params = NULL;
- 
-//     insert(&root, 4, 10, "double", "", 0);
-//     insert(&root, 4, 13, "else", "", 0);
-//     insert(&root, 4, 11, "if", "", 0);
-//     insert(&root, 4, 6, "ugabugag", "", 0);
-//     insert(&root, 4, 7, "lol", "", 0);
-//     insert(&root, 4, 4, "XDDd", "", 0);
-//     insert(&root, 4, 1, "uff", "", 0);
-//     insert(&root, 4, 9, "memem", "", 0);
-//     insert(&root, 4, 5, "memem", "", 0);
-//     node_delete(&root, 4, 6);
-//     printtree(root, x);
-    
-//     // bool result = search(root, 4, 6, &found_name_of_symbol, &func_params, 0);
-//     // if (result) {
-//     //     printf("Found: %s\n", found_name_of_symbol);
-//     //     free(found_name_of_symbol);    
-//     // } else {
-//     //     printf("Not found.\n");
-//     // }
-
-//     return 0;
-// }
