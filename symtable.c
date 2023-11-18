@@ -13,7 +13,7 @@ char *string_dup(char *string){
     return copied_string;
 }
 
-int max(int a, int b){
+int maximum(int a, int b){
     if(a > b){
         return a;
     }
@@ -27,7 +27,7 @@ int height_of_node(btree_node * root){
     else{
         int count_left = height_of_node(root->left);
         int count_right = height_of_node(root->right);
-        return 1 + max(count_left, count_right);            // + 1 to include itself
+        return 1 + maximum(count_left, count_right);            // + 1 to include itself
     }
 }
 
