@@ -20,22 +20,41 @@ int maximum(int a, int b){
     return b;
 }
 
-int height_of_node(btree_node * root){
-    if(root == NULL){                                   // not existing node
+int height_of_node(btree_node *root){
+    if(root == NULL){
         return -1;
     }
     else{
         int count_left = height_of_node(root->left);
         int count_right = height_of_node(root->right);
-        return 1 + maximum(count_left, count_right);            // + 1 to include itself
+        return 1 + maximum(count_left, count_right);
     }
 }
 
+int balance_factor(btree_node * root){
+    if(root == NULL){
+        return 0;
+    }
+    return height_of_node(root->left) - height_of_node(root->right);
+}
 
+btree_node *rotate_right(btree_node *root){
+    btree_node *new_root = root->left;
+    root->left = new_root->right;
+    new_root->right = root;
+    root->height = height_of_node(root);
+    new_root->height = height_of_node(new_root);
+    return new_root;
+}
 
-// btree_node *rotate_right(btree_node *root){
-
-// }
+btree_node *rotate_left(btree_node *root){
+    btree_node *new_root = root->right;
+    root->right = new_root->left;
+    new_root->left = root;
+    root->height = height_of_node(root);
+    new_root->height = height_of_node(new_root);
+    return new_root; 
+}
 
 btree_node *create_node(int token_type, int key, char *name_of_symbol, char *func_param, int func_num_of_param){
     btree_node *node = (btree_node *)malloc(sizeof(btree_node));
@@ -59,6 +78,7 @@ btree_node *create_node(int token_type, int key, char *name_of_symbol, char *fun
 
     node->func_num_of_param = func_num_of_param;
 
+    // node->height = 0;                               // aj bez tohto to tam da implicitne 0, ale v debuggeri to nedalo nic
     node->left = NULL;
     node->right = NULL;
     return node;
@@ -76,6 +96,24 @@ void insert(btree_node **root, int token_type, int key, char *name_of_symbol, ch
             insert(&((*root)->right), token_type, key, name_of_symbol, func_param, func_num_of_param);
         }
         (*root)->height = height_of_node(*root);
+        int factor = balance_factor(*root);
+        if(factor == 2 && key < (*root)->left->key){                             // LL case
+            *root = rotate_right(*root);
+        }
+
+        if(factor == -2 && key > (*root)->right->key){                          // RR case
+            *root = rotate_left(*root);
+        }
+
+        if(factor == 2 && key > (*root)->left->key){                             // LR case
+            (*root)->left = rotate_left((*root)->left);
+            *root = rotate_right(*root);
+        }
+
+        if(factor == -2 && key < (*root)->right->key){                          // RL case
+            (*root)->right = rotate_right((*root)->right);
+            *root = rotate_left(*root);
+        }
     }
 }
 
@@ -244,17 +282,6 @@ void tree_dispose(btree_node **root) {
     }
 }
 
-// int check_balanced(btree_node * root){
-
-// }
-// btree_node *rotate_left(btree_node *root){
-
-// }
-
-// void balance(btree_node **root){
-
-// }
-
 void printtab(int numtabs){
     for(int i = 0; i < numtabs; i++){
         printf("\t");
@@ -270,7 +297,7 @@ void printtree(btree_node *root, int level){
     printtab(level);
     printf("root key : %d\n", root->key);
     printf("root name_of_symbol : %s\n", root->name_of_symbol);
-    printf("height : %d\n", root->height);
+    printf("height: %d\n", root->height);
     printtab(level);
     
     printf("left\n");

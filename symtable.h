@@ -14,7 +14,7 @@ typedef struct btree_node{                      // structure of node
     int func_num_of_param;
     struct btree_node *left;                    // pointer to left child
     struct btree_node *right;                   // pointer to right child
-    int height;                                 // height of tree
+    int height;                                 // height of node
 } btree_node;
 
 void insert(btree_node **root, int token_type, int key, char *name_of_symbol, char *func_param, int func_num_of_param);
@@ -22,5 +22,4 @@ bool search(btree_node *root, int token_type, int key, char **name_of_symbol, ch
 void node_delete(btree_node **root, int token_type, int key);
 void tree_dispose(btree_node **root);
 void printtree(btree_node *root, int level);
-int height_of_node(btree_node * root);
 #endif
