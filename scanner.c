@@ -1,6 +1,7 @@
 #include "scanner.h"
+#include "compiler.h"
 
-char *key_words[] = {"Double", "else", "func", "if", "Int", "let", "nil", "return", "String", "var", "while"};
+char *key_words[] = {"Double","Double?", "else", "func", "if", "Int", "Int?", "let", "nil", "return", "String", "String?", "var", "while"};
 char *built_in_functions[] = {"readString", "readInt", "readDouble", "write", "Int2Double", "Double2Int", "length", "substring", "ord", "chr"};
 char string [100];
 
@@ -34,7 +35,7 @@ bool IsItBuiltIn (char *c){
 }
 
 
-struct Token getNextToken(FILE* file){
+struct Token getNextToken(){
     struct Token token;
 
     char state = 's';

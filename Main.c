@@ -1,13 +1,13 @@
 #include "compiler.h"
-
+FILE *file = NULL;
 
 
 int main(int argc, char *argv[]){
     (void) argc;
     (void) argv;
-    // FILE *file = fopen("test.txt", "r");
-    // parser(file);
-    // puts("");
+    file = fopen("test.txt", "r");
+    parser(file);
+    puts("");
 
     // strom testy
     // btree_node *root = NULL;

@@ -75,6 +75,7 @@ void insert(btree_node **root, int token_type, int key, char *name_of_symbol, ch
         else if(key > (*root)->key){
             insert(&((*root)->right), token_type, key, name_of_symbol, func_param, func_num_of_param);
         }
+        (*root)->height = height_of_node(*root);
     }
 }
 
@@ -269,6 +270,7 @@ void printtree(btree_node *root, int level){
     printtab(level);
     printf("root key : %d\n", root->key);
     printf("root name_of_symbol : %s\n", root->name_of_symbol);
+    printf("height : %d\n", root->height);
     printtab(level);
     
     printf("left\n");

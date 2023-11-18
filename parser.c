@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "compiler.h"
 
 // bool parametre(){
 //     return paramete() && ciarka() && parametre();
@@ -12,61 +13,71 @@
 
 // }
 bool stop = false;
-struct Token current_token;
-void unget_token(struct Token token, FILE* file) {
+struct Token current_token, current_token2;
+
+void unget_token(struct Token token) {
     for (int i = strlen(token.attribute) - 1; i >= 0; i--) {
         ungetc((unsigned char)token.attribute[i], file);
     }
 }
 
-bool typ(FILE* file){
-    current_token = getNextToken(file);
-    if (current_token.type == 4 && strcmp(current_token.attribute, "Int") == 0 ||
-        current_token.type == 4 && strcmp(current_token.attribute, "String") == 0 ||
-        current_token.type == 4 && strcmp(current_token.attribute, "Double") == 0)
+bool typ(){
+    current_token = getNextToken();
+    printf("%s\n", current_token.attribute);
+    if (current_token.type == 4 && ( 
+        strcmp(current_token.attribute, "Int") == 0 ||
+        strcmp(current_token.attribute, "String") == 0 ||
+        strcmp(current_token.attribute, "Double") == 0 ||
+        strcmp(current_token.attribute, "Int?") == 0 ||
+        strcmp(current_token.attribute, "String?") == 0 ||
+        strcmp(current_token.attribute, "Double?") == 0))
         {
             return true;
         }
     return false;
 }
 
-bool typ_s_dvojbodkou(FILE* file){
-    current_token = getNextToken(file);
+bool dvojbodka_typ(){
+    current_token = getNextToken();
+    printf("%s\n", current_token.attribute);
     if (strcmp(current_token.attribute, ":") == 0 && current_token.type == 12){
-        return typ(file);
+        return typ();
     }
     stop = true;
-    unget_token(current_token, file);
+    unget_token(current_token);
     return true;
 }
 
-bool priradenie_prave(FILE* file){
-    current_token = getNextToken(file);
-    struct Token current_token2 = getNextToken(file);
+bool priradenie_prave(){
+    current_token = getNextToken();
+    current_token2 = getNextToken();
     if (current_token.type == 1 && current_token2.type == 9 && strcmp(current_token2.attribute, "(") == 0){
         printf("funkcia priradenie\n");
+        //return parametre_volania()
         return true;
-        //return parametre_volania(file)
     }
     else if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7){
         printf("expression will be reduced\n");
         printf("%s\n", current_token.attribute);
-        unget_token(current_token2, file);
+        unget_token(current_token2);
         return true;
         //precencna analzya(),druhy token treba vymysliet aby sa znova odnacital
+        printf("%s\n", current_token.attribute);
+        unget_token(current_token2);
+        return true;
     }
     else{
         return false;
     }
 }
 
-bool priradenie(FILE* file){
-    current_token = getNextToken(file);
+bool rovna_sa__priradenie(){
+    current_token = getNextToken();
     if (current_token.type == 10 && strcmp(current_token.attribute, "=") == 0){
-        return priradenie_prave(file);
+        return priradenie_prave();
     }
     else{                        
-        unget_token(current_token, file);
+        unget_token(current_token);
         if (stop == true){
             return false;           //ked bola vypustena deklaracia typu nemozeme vypustit priradenie
         }
@@ -74,27 +85,28 @@ bool priradenie(FILE* file){
     }
 
 }
-bool letnutie(FILE* file){
-    current_token = getNextToken(file);
+bool letnutie(){
+    current_token = getNextToken();
     if (current_token.type == 1){
-        return typ_s_dvojbodkou(file) && priradenie(file);
+        return dvojbodka_typ() && rovna_sa__priradenie();
     }
     else{
         return false;
     }
 }
 
-bool varnutie(FILE* file){
+
+bool varnutie(){
     current_token = getNextToken(file);
     if (current_token.type == 1){
-        return typ_s_dvojbodkou(file) && priradenie(file);
+        return dvojbodka_typ(file) && rovna_sa__priradenie(file);
     }
     else{
         return false;
     }
 }
 
-bool whilnutie(FILE* file){
+bool whilnutie(){
     bool res;
     current_token = getNextToken(file);
     if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7){
@@ -110,41 +122,26 @@ bool whilnutie(FILE* file){
         return res && current_token.type == 9 && strcmp(current_token.attribute, "}") == 0;
     }
     return false;
-
-    
 }
-bool sekvencia(FILE* file){
-    current_token = getNextToken(file);
+
+bool sekvencia(){
+    current_token = getNextToken();
     printf("%s\n", current_token.attribute);
-    printf("type: %d\n", current_token.type);
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
-        if (letnutie(file) == false){
-            return false;
-        }
-        return sekvencia(file);
+        return letnutie();
     }
     else if (strcmp(current_token.attribute, "var") == 0 && current_token.type == 4){
-        if (varnutie(file) == false){
-            return false;
-        }
-        sekvencia(file);
+        return varnutie();
     }
-    // else if (strcmp(current_token.attribute, "while") == 0 && current_token.type == 4){
-    //     if (whilnutie(file) == false){
-    //         printf("somt");
-    //         return false;
-    //     }
-    //     sekvencia(file);
-    // }
-    // else{
-    //     return false;           //not sure
-    // }
+    else if (strcmp(current_token.attribute, "while") == 0 && current_token.type == 4){
+        return whilnutie();
+    }
+    return false;
     //TODO dalsie mozne neterminaly zo sekvencie
 }
 
-void parser(FILE* file){
-    //current_token = getNextToken(file);
-    if (sekvencia(file) == true){
+void parser(){
+    if (sekvencia() == true){
         printf("ok");
     }
     else{
@@ -154,7 +151,7 @@ void parser(FILE* file){
     // {
     //      printf("Type: %d     ", current_token.type);
     //      printf("Attribute: %s\n", current_token.attribute);
-    //      current_token = getNextToken(file);
+    //      current_token = getNextToken();
     // }
     
 }

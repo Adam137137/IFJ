@@ -3,8 +3,8 @@
 #include "scanner.h"
 
 extern struct Token current_token;
-void parser(FILE* file);
-bool sekvencia(FILE* file);
-bool letnutie(FILE* file);
+void parser();
+bool sekvencia();
+bool letnutie();
 
 #endif
