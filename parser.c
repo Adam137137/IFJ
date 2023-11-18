@@ -105,27 +105,61 @@ bool varnutie(){
         return false;
     }
 }
-
-bool whilnutie(){
-    bool res;
-    current_token = getNextToken(file);
-    if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7){
-        printf("expression will be reduced\n");
+bool podmienka(){
+    if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4)
+    {
+        return letnutie();
+    }
+    else if(current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7)
+    {
         //dame na precedencnu analyzu nech zjednoduchsi vyraz alebo podmienku
-        current_token = getNextToken(file);
-        //current_token2 = getNextToken(file);
-        if (current_token.type == 9 && strcmp(current_token.attribute, "{") == 0){
-            current_token = getNextToken(file);
-            res = sekvencia(file);
+        //return relacia();
+        printf("precedencna\n");
+        return true;
+    }
+}
+bool whilnutie(){
+    current_token = getNextToken();
+    if (podmienka()== false){
+        return false;
+    }
+    current_token = getNextToken();
+    if (current_token.type != 22){              // {
+        return false;        
+    }
+    current_token = getNextToken();
+
+    if (sekvencia() == false){
+        return false;
+    }
+    current_token = getNextToken();
+    if (current_token.type != 23){          // }
+        return false;
+    }
+    current_token = getNextToken();
+    return true;
+}
+
+bool parameter_volania(){
+
+
+}
+bool priradenie_zost(){
+    current_token = getNextToken();
+    if (current_token.type == 9 && strcmp(current_token.attribute, "(") == 0){
+        if (parameter_volania()){
+            current_token = getNextToken();
+            if (current_token.type == 9 && strcmp(current_token.attribute, ")") == 0){
+                return true;
+            }
         }
-        current_token = getNextToken(file);
-        return res && current_token.type == 9 && strcmp(current_token.attribute, "}") == 0;
+    }
+    else if (current_token.type == 10 && strcmp(current_token.attribute, "=") == 0){
     }
     return false;
 }
 
 bool sekvencia(){
-    current_token = getNextToken();
     printf("%s\n", current_token.attribute);
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
         return letnutie();
@@ -136,11 +170,15 @@ bool sekvencia(){
     else if (strcmp(current_token.attribute, "while") == 0 && current_token.type == 4){
         return whilnutie();
     }
+    else if (current_token.type == 1){          //idnutie ale vlastne uz rovno mozem zavolat priradenie_zost
+        return priradenie_zost();
+    }
     return false;
     //TODO dalsie mozne neterminaly zo sekvencie
 }
 
 void parser(){
+    current_token = getNextToken();
     if (sekvencia() == true){
         printf("ok");
     }

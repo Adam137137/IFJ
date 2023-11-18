@@ -135,25 +135,25 @@ struct Token getNextToken(){
             }
             else if (c == '(')
             {
-                token.type = 9;
+                token.type = 20;
                 token.attribute = "(";
                 return token;
             }
             else if (c == ')')
             {
-                token.type = 9;
+                token.type = 21;
                 token.attribute = ")";
                 return token;
             }
             else if (c == '{')
             {
-                token.type = 9;
+                token.type =22;
                 token.attribute = "{";
                 return token;
             }
             else if (c == '}')
             {
-                token.type = 9;
+                token.type = 23;
                 token.attribute = "}";
                 return token;
             }
