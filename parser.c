@@ -1,6 +1,24 @@
 #include "parser.h"
 #include "compiler.h"
 
+bool stop = false;
+struct Token current_token, current_token2;
+
+bool ladenie = 0;
+void token_print(){
+    if (ladenie)
+    {
+        printf("%s\n", current_token.attribute);
+    }
+    
+}
+
+void unget_token(struct Token token){
+    for (int i = strlen(token.attribute) - 1; i >= 0; i--) {
+        ungetc((unsigned char)token.attribute[i], file);
+    }
+}
+
 bool func_declar(){
     current_token = getNextToken();
     if (current_token.type != 1){               // id
@@ -37,11 +55,12 @@ bool func_declar(){
 
 bool parametre(){
     current_token = getNextToken();
+    token_print();
     if (current_token.type == 1 ||current_token.type == 15)
     {
         return parameter() && param_zostatok();
     }
-    else if (current_token.type == 20)               // (
+    else if (current_token.type == 21)               // )
     {
         unget_token(current_token);
         return true;
@@ -63,6 +82,7 @@ bool parameter(){
             return false;
         }
         current_token = getNextToken();
+        token_print();
         if (current_token.type != 12)                // :
         {
             return false;
@@ -74,12 +94,13 @@ bool parameter(){
 
 bool param_zostatok(){
     current_token = getNextToken();
+    token_print();
     if (current_token.type == 13)                   // ,
     {
         current_token = getNextToken();
         return parameter() && param_zostatok();
     }
-    else if (current_token.type == 20)              // epsilon
+    else if (current_token.type == 21)              // epsilon
     {
         unget_token(current_token);
         return true;
@@ -91,9 +112,11 @@ bool zbytok_param(){
     current_token = getNextToken();
     if (current_token.type == 1 || current_token.type == 15)
     {
+        token_print();
         current_token = getNextToken();
-        if (current_token.type == 12)
+        if (current_token.type == 12)           // :
         {
+            token_print();
             return typ();
         }
         return false;
@@ -103,7 +126,7 @@ bool zbytok_param(){
 
 bool sipka_typ(){
     current_token = getNextToken();
-    if (current_token.type = 11)
+    if (current_token.type == 11)
     {
         return typ();
     }
@@ -113,29 +136,10 @@ bool sipka_typ(){
     }
     return false;
 }
-// bool parametre(){
-//     return paramete() && ciarka() && parametre();
-// }
-// bool parameter(){
-//     if (current_token.type == "id")
-//     {
-//         /* code */
-//     }
-    
-
-// }
-bool stop = false;
-struct Token current_token, current_token2;
-
-void unget_token(struct Token token) {
-    for (int i = strlen(token.attribute) - 1; i >= 0; i--) {
-        ungetc((unsigned char)token.attribute[i], file);
-    }
-}
 
 bool typ(){
     current_token = getNextToken();
-    // printf("%s\n", current_token.attribute);
+    token_print();
     if (current_token.type == 4 && ( 
         strcmp(current_token.attribute, "Int") == 0 ||
         strcmp(current_token.attribute, "String") == 0 ||
@@ -195,6 +199,7 @@ bool rovna_sa__priradenie(){
 }
 bool letnutie(){
     current_token = getNextToken();
+    token_print();
     if (current_token.type == 1){
         return dvojbodka_typ() && rovna_sa__priradenie();
     }
@@ -345,7 +350,7 @@ bool idnutie(){
 }
 
 bool sekvencia(){
-    //printf("%s\n", current_token.attribute);
+    token_print();
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
         return letnutie();
     }
