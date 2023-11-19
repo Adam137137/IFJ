@@ -54,7 +54,7 @@ struct Token getNextToken(){
     // 6  - operatory porovnavacie
     // 7  - string
     // 8  - string """
-    // 9  - zatvorky
+    // 
     // 10 - priradenie (=)
     // 11 - ->
     // 12 - :
@@ -62,7 +62,11 @@ struct Token getNextToken(){
     // 14 - !
     // 15 - _
     // 16 - vstavana funkcia
-
+    // 20 - (
+    // 21 - )
+    // 20 - {
+    // 21 - }
+    
     bool integerWithE = false;
     char c = ' ';
     while (c  != EOF)

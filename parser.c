@@ -23,7 +23,7 @@ void unget_token(struct Token token) {
 
 bool typ(){
     current_token = getNextToken();
-    printf("%s\n", current_token.attribute);
+    // printf("%s\n", current_token.attribute);
     if (current_token.type == 4 && ( 
         strcmp(current_token.attribute, "Int") == 0 ||
         strcmp(current_token.attribute, "String") == 0 ||
@@ -31,9 +31,9 @@ bool typ(){
         strcmp(current_token.attribute, "Int?") == 0 ||
         strcmp(current_token.attribute, "String?") == 0 ||
         strcmp(current_token.attribute, "Double?") == 0))
-        {
-            return true;
-        }
+    {
+        return true;
+    }
     return false;
 }
 
@@ -51,9 +51,11 @@ bool priradenie_prave(){
     current_token = getNextToken();
     current_token2 = getNextToken();
     
-    if (current_token.type == 1 && current_token2.type == 20){
-        printf("funkcia priradenie\n");
-        return parameter_volania();
+    if (current_token.type == 1 && current_token2.type == 20){              // id (
+        if (parameter_volania() == false){
+            return false;
+        }
+        return (current_token.type == 21) ? true : false;                   // )
     }
 
     else if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7){
@@ -61,10 +63,6 @@ bool priradenie_prave(){
         //printf("%s\n", current_token.attribute);
         unget_token(current_token2);
         return true;
-        //precencna analzya(),druhy token treba vymysliet aby sa znova odnacital
-        // printf("%s\n", current_token.attribute);
-        // unget_token(current_token2);
-        // return true;
     }
     return false;
 }
@@ -103,17 +101,20 @@ bool varnutie(){
     }
 }
 
+bool relacia(){
+    //dame na precedencnu analyzu nech zjednoduchsi vyraz alebo podmienku
+    printf("precedencna\n");
+    return true;
+}
+
 bool podmienka(){
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4)
     {
         return letnutie();
     }
-    else if(current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7)
+    else if(current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7 || current_token.type == 20)
     {
-        //dame na precedencnu analyzu nech zjednoduchsi vyraz alebo podmienku
-        //return relacia();
-        printf("precedencna\n");
-        return true;
+        return relacia();
     }
     return false;
 }
@@ -133,29 +134,65 @@ bool whilnutie(){
         return false;
     }
     current_token = getNextToken();
-    if (current_token.type != 23){          // }
+    if (current_token.type != 23){              // }
         return false;
     }
     current_token = getNextToken();
     return true;
 }
 
+bool ifnutie(){
+    current_token = getNextToken();
+    if (podmienka()== false){
+        return false;
+    }
+    current_token = getNextToken();
+    if (current_token.type != 22){                                                  // {
+        return false;        
+    }
+    current_token = getNextToken();
+    if (sekvencia() == false){                                                      // sekvencia
+        return false;
+    }
+    current_token = getNextToken();
+    if (current_token.type != 23){                                                  // }
+        return false;
+    }
+    current_token = getNextToken();
+    if (strcmp(current_token.attribute, "else") != 0 || current_token.type != 4){   // else
+        return false;        
+    }
+    current_token = getNextToken();
+    if (current_token.type != 22){                                                  // {
+        return false;        
+    }
+    current_token = getNextToken();
+    if (sekvencia() == false){                                                      // sekvencia
+        return false;
+    }
+    current_token = getNextToken();
+    if (current_token.type != 23){                                                  // }
+        return false;
+    }
+    return true;
+}
+
 bool param_vol_zost(){
     current_token = getNextToken();
-    if (current_token.type == 13){
+    if (current_token.type == 13){                  // ,
         return parameter_volania();
     }
-
-    unget_token(current_token);                 //epsilon prechod musime vratit nacitany token naspat
-    return true;
-
+    else{
+        unget_token(current_token);                 // epsilon prechod musime vratit nacitany token naspat
+        return true;
+    }
 }
 
 bool parameter_volania(){
     current_token = getNextToken();                             // malo by byt id alebo zaciatok vyrazu
     current_token2 = getNextToken();                           // ak je dvojbodka je to volanie f(with: sth)
     
-    if (current_token.type == 1 && current_token2.type == 12){                             
+    if (current_token.type == 1 && current_token2.type == 12){              // id :                   
         //return parse_vyraz()&&param_vol_zost()
         printf("precendecna analyza vo func parametroch\n");
         current_token = getNextToken(); // zatial nech to zhltne token za dvojbodkou,
@@ -176,18 +213,16 @@ bool parameter_volania(){
 }
 
 bool priradenie_zost(){
-    current_token = getNextToken();                                 //(
+    current_token = getNextToken();                             
     printf("%s\n", current_token.attribute);
 
-    if (current_token.type == 20 && parameter_volania()){       //vieme ze to je f(nieco)    
+    if (current_token.type == 20 && parameter_volania()){       // ( paramter    
         current_token = getNextToken();
         printf("%s\n", current_token.attribute);
-        if (current_token.type == 21){                              //kontrola konca funkcie )
-            return true;
-        }
+        return (current_token.type == 21) ? true : false;       // )
     }
 
-    else if (current_token.type == 10){                 //=
+    else if (current_token.type == 10){                         // =
         return priradenie_prave();
     }
     return false;
@@ -207,6 +242,9 @@ bool sekvencia(){
     }
     else if (strcmp(current_token.attribute, "while") == 0 && current_token.type == 4){
         return whilnutie();
+    }
+    else if (strcmp(current_token.attribute, "if") == 0 && current_token.type == 4){
+        return ifnutie();
     }
     else if (current_token.type == 1){
         return idnutie();
