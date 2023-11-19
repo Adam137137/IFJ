@@ -8,6 +8,7 @@
 #include "symtable.h"
 #include "scanner.h"
 #include "parser.h"
+#include "precedence.h"
 
 // typedef enum {
 //     NO_ERROR = 0,

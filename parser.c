@@ -135,7 +135,7 @@ bool sipka_typ(){
     {
         return typ();
     }
-    else if(current_token.type == 22){          // epsilon
+    else if(current_token.type == 22){          // {
         unget_token(current_token);
         return true;
     }
@@ -181,8 +181,10 @@ bool priradenie_prave(){
     }
 
     else if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7){
-        printf("expression will be reduced\n");
-        //printf("%s\n", current_token.attribute);
+        printf("expression will be reduced:\n");
+        if (reduce_exp() == false){
+            return false;
+        }
         unget_token(current_token2);
         return true;
     }
@@ -225,8 +227,10 @@ bool varnutie(){
 }
 
 bool relacia(){
-    //dame na precedencnu analyzu nech zjednoduchsi vyraz alebo podmienku
     printf("precedencna\n");
+    if (reduce_exp() == false){
+        return false;
+    }
     return true;
 }
 
@@ -316,14 +320,19 @@ bool parameter_volania(){
     current_token2 = getNextToken();                           //: ak je dvojbodka je to volanie f(with: sth)
     
     if (current_token.type == 1 && current_token2.type == 12){              // id :                   
-        //return parse_vyraz()&&param_vol_zost()
-        printf("precendecna analyza vo func parametroch\n");
+        printf("precedencna\n");
+        if (reduce_exp() == false){
+            return false;
+        }
         current_token = getNextToken(); // zatial nech to zhltne token za dvojbodkou,
         return param_vol_zost();
     }
 
     else if (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8){    //ked nacita vyraz string,double,int,(...
-        printf("precendecna analyza vo func parametroch\n");
+        printf("precedencna\n");
+        if (reduce_exp() == false){
+            return false;
+        }
         unget_token(current_token2);        //vratime token a zacneme precedencnu analyzu vyrazu    
         return param_vol_zost();
     }
@@ -371,6 +380,7 @@ bool sekvencia(){
     else if(current_token.type == 1){
         return idnutie();
     }
+    return false;
     //TODO dalsie mozne neterminaly zo sekvencie
 }
 

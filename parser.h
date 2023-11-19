@@ -1,6 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 #include "scanner.h"
+#include "precedence.h"
 
 extern struct Token current_token;
 void parser();
