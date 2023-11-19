@@ -14,8 +14,13 @@ void token_print(){
 }
 
 void unget_token(struct Token token){
-    for (int i = strlen(token.attribute) - 1; i >= 0; i--) {
-        ungetc((unsigned char)token.attribute[i], file);
+    if (token.type == 0){
+        ungetc(EOF, file);
+    }
+    else{
+        for (int i = strlen(token.attribute) - 1; i >= 0; i--) {
+            ungetc((unsigned char)token.attribute[i], file);
+        }
     }
 }
 
@@ -171,6 +176,7 @@ bool priradenie_prave(){
         if (parameter_volania() == false){
             return false;
         }
+        current_token = getNextToken();
         return (current_token.type == 21) ? true : false;                   // )
     }
 
@@ -307,7 +313,7 @@ bool param_vol_zost(){
 
 bool parameter_volania(){
     current_token = getNextToken();                             // malo by byt id alebo zaciatok vyrazu
-    current_token2 = getNextToken();                           // ak je dvojbodka je to volanie f(with: sth)
+    current_token2 = getNextToken();                           //: ak je dvojbodka je to volanie f(with: sth)
     
     if (current_token.type == 1 && current_token2.type == 12){              // id :                   
         //return parse_vyraz()&&param_vol_zost()
@@ -321,21 +327,17 @@ bool parameter_volania(){
         unget_token(current_token2);        //vratime token a zacneme precedencnu analyzu vyrazu    
         return param_vol_zost();
     }
-    else if (current_token.type == 21){         //epsilon prechod, asi vyuzitie FOLLOW
-        unget_token(current_token2);
-        unget_token(current_token);
-        return true;
-    }
-    return false;
+    unget_token(current_token2);
+    unget_token(current_token);
+    return true;
 }
 
 bool priradenie_zost(){
     current_token = getNextToken();                             
-    printf("%s\n", current_token.attribute);
+    //printf("%s\n", current_token.attribute);
 
     if (current_token.type == 20 && parameter_volania()){       // ( paramter    
         current_token = getNextToken();
-        printf("%s\n", current_token.attribute);
         return (current_token.type == 21) ? true : false;       // )
     }
 
@@ -350,7 +352,7 @@ bool idnutie(){
 }
 
 bool sekvencia(){
-    token_print();
+    //token_print();
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
         return letnutie();
     }
@@ -363,24 +365,36 @@ bool sekvencia(){
     else if (strcmp(current_token.attribute, "if") == 0 && current_token.type == 4){
         return ifnutie();
     }
-    else if (current_token.type == 1){
-        return idnutie();
-    }
     else if (strcmp(current_token.attribute, "func") == 0 && current_token.type == 4){
         return func_declar();
     }
-    return false;
+    else if(current_token.type == 1){
+        return idnutie();
+    }
     //TODO dalsie mozne neterminaly zo sekvencie
 }
 
 void parser(){
-    current_token = getNextToken();
-    if (sekvencia() == true){
-        printf("ok");
+    while (1){
+        current_token = getNextToken();
+        printf("%d\n", current_token.type);
+        printf("%s\n", current_token.attribute);
+        if (current_token.type == 0 && strcmp(current_token.attribute, "END") == 0){
+            printf("ok");
+            break;
+        }
+        else if (sekvencia() == false){
+            printf("Syntax Error");
+            break;
+        }
     }
-    else{
-        printf("Syntax Error");
-    }
+    // current_token = getNextToken();
+    // if (sekvencia() == true){
+    //     printf("ok");
+    // }
+    // else{
+    //     printf("Syntax Error");
+    // }
     // while (current_token.type != 0)
     // {
     //      printf("Type: %d     ", current_token.type);
@@ -389,3 +403,4 @@ void parser(){
     // }
     
 }
+    
