@@ -1,6 +1,118 @@
 #include "parser.h"
 #include "compiler.h"
 
+bool func_declar(){
+    current_token = getNextToken();
+    if (current_token.type != 1){               // id
+        return false;
+    }
+    current_token = getNextToken();
+    if (current_token.type != 20){              // (
+        return false;
+    }
+    if (parametre() == false){                  // parametre
+            return false;
+    }
+    current_token = getNextToken();
+    if (current_token.type != 21){              // )
+            return false;
+    }
+    if (sipka_typ() == false){                  // ->typ
+            return false;
+    }
+    current_token = getNextToken();
+    if (current_token.type != 22){              // {
+        return false;        
+    }
+    current_token = getNextToken();
+    if (sekvencia() == false){                  // sekvencia
+        return false;
+    }
+    current_token = getNextToken();
+    if (current_token.type != 23){              // }
+        return false;
+    }
+    return true;
+}
+
+bool parametre(){
+    current_token = getNextToken();
+    if (current_token.type == 1 ||current_token.type == 15)
+    {
+        return parameter() && param_zostatok();
+    }
+    else if (current_token.type == 20)               // (
+    {
+        unget_token(current_token);
+        return true;
+    }
+    return false;
+}
+
+bool parameter(){
+    // token uz je nacitany
+    if (current_token.type == 1)                    // id
+    {
+        return zbytok_param();
+    }
+    else if (current_token.type == 15)              // _
+    {
+        current_token = getNextToken();
+        if (current_token.type != 1)                // id
+        {
+            return false;
+        }
+        current_token = getNextToken();
+        if (current_token.type != 12)                // :
+        {
+            return false;
+        }
+        return typ();
+    }
+    return false;
+}
+
+bool param_zostatok(){
+    current_token = getNextToken();
+    if (current_token.type == 13)                   // ,
+    {
+        current_token = getNextToken();
+        return parameter() && param_zostatok();
+    }
+    else if (current_token.type == 20)              // epsilon
+    {
+        unget_token(current_token);
+        return true;
+    }
+    return false;
+}
+
+bool zbytok_param(){
+    current_token = getNextToken();
+    if (current_token.type == 1 || current_token.type == 15)
+    {
+        current_token = getNextToken();
+        if (current_token.type == 12)
+        {
+            return typ();
+        }
+        return false;
+    }
+    return false;
+}
+
+bool sipka_typ(){
+    current_token = getNextToken();
+    if (current_token.type = 11)
+    {
+        return typ();
+    }
+    else if(current_token.type == 22){          // epsilon
+        unget_token(current_token);
+        return true;
+    }
+    return false;
+}
 // bool parametre(){
 //     return paramete() && ciarka() && parametre();
 // }
@@ -248,6 +360,9 @@ bool sekvencia(){
     }
     else if (current_token.type == 1){
         return idnutie();
+    }
+    else if (strcmp(current_token.attribute, "func") == 0 && current_token.type == 4){
+        return func_declar();
     }
     return false;
     //TODO dalsie mozne neterminaly zo sekvencie
