@@ -17,6 +17,7 @@ bool zbytok_param();
 bool sipka_typ();
 bool typ();
 
+bool parametre_volania();
 bool letnutie();
 bool parameter_volania();
 bool param_vol_zost();
