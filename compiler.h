@@ -26,6 +26,6 @@ typedef enum {
 } ErrorCode;
 
 void handle_error(int error);
-extern ErrorCode error;
+// extern ErrorCode error;
 extern FILE *file;
 #endif
