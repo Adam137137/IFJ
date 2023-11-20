@@ -16,7 +16,7 @@
 bool reduce_exp(){
     // uz je nacitany token vyrazu -> pojde do while
     DLList list;
-    DLL_init(&list);
+    DLL_Init(&list);
     DLL_InsertLast(&list, '$');
     while (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7)    // stale sme vo vyraze
     {

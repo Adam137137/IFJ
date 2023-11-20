@@ -84,18 +84,6 @@ DLLElementPtr DLL_TopTerminal(DLList *list, bool firstIteration){
 		if(list->activeElement == NULL){
 			return NULL;
 		}
-		DLL_TopTerminal(list, false);
-	}
-}
-
-void main(){
-	DLList list;
-	DLL_Init(&list);
-	DLL_InsertLast(&list, '$');
-	DLL_InsertLast(&list, 'E');
-	DLL_InsertLast(&list, '<');
-	DLL_InsertLast(&list, 'F');
-	DLL_InsertLast(&list, '>');
-	DLLElementPtr top = DLL_TopTerminal(&list, true);
-	printf("%c\n", top->data);
+		return DLL_TopTerminal(list, false);
+	}	
 }

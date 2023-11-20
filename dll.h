@@ -1,3 +1,5 @@
+#ifndef DLL_H
+#define DLL_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -14,16 +16,17 @@ typedef struct {
     DLLElementPtr lastElement;
 } DLList;
 
-void DLL_init(DLList *);
+void DLL_Init( DLList *list );
 
-void DLL_Dispose( DLList * );
+void DLL_Dispose( DLList *list );
 
-void DLL_InsertLast( DLList *, char );
+void DLL_InsertLast( DLList *list, char data );
 
-void DLL_Last( DLList * );
+void DLL_Last( DLList *list );
 
-void DLL_InsertAfter( DLList *, char );
+void DLL_InsertAfter( DLList *list, char data );
 
-char DLL_GetValue( DLList *);
+char DLL_GetValue( DLList *list);
 
-DLLElementPtr DLL_TopTerminal(DLList *, bool );
+DLLElementPtr DLL_TopTerminal(DLList *list, bool firstIteration);
+#endif

@@ -38,5 +38,15 @@ int main(int argc, char *argv[]){
     // }
     // tree_dispose(&root);
 
+    // 	DLList list;
+    // 	DLL_Init(&list);
+    // 	DLL_InsertLast(&list, '$');
+    // 	DLL_InsertLast(&list, 'E');
+    // 	DLL_InsertLast(&list, '<');
+    // 	DLL_InsertLast(&list, 'F');
+    // 	DLL_InsertLast(&list, '>');
+    // 	DLLElementPtr top = DLL_TopTerminal(&list, true);
+    // 	printf("%c\n", top->data);
+
     return 0;
 }
