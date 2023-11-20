@@ -4,7 +4,7 @@
 bool stop = false;
 struct Token current_token, current_token2;
 
-bool ladenie = 1;
+bool ladenie = 0;
 void token_print(){
     if (ladenie)
     {
@@ -420,9 +420,10 @@ void parser(){
     // }
     // while (current_token.type != 0)
     // {
-    //      printf("Type: %d     ", current_token.type);
-    //      printf("Attribute: %s\n", current_token.attribute);
-    //      current_token = getNextToken();
+    //     printf("Type: %d     ", current_token.type);
+    //     printf("Attribute: %s         ", current_token.attribute);
+    //     printf("prvy: %d\n", (int)current_token.first_in_line);
+    //     current_token = getNextToken();
     // }
     
 }

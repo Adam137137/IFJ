@@ -7,7 +7,6 @@ int main(int argc, char *argv[]){
     (void) argv;
     file = fopen("test.txt", "r");
     parser();
-    puts("");
 
     // strom testy
     // btree_node *root = NULL;

@@ -4,6 +4,7 @@
 char *key_words[] = {"Double","Double?", "else", "func", "if", "Int", "Int?", "let", "nil", "return", "String", "String?", "var", "while"};
 char *built_in_functions[] = {"readString", "readInt", "readDouble", "write", "Int2Double", "Double2Int", "length", "substring", "ord", "chr"};
 char string [100];
+bool integerWithE = false;
 
 void string_reset(char *string){
     for (size_t i = 0; i < 100; i++)
@@ -37,13 +38,10 @@ bool IsItBuiltIn (char *c){
 
 struct Token getNextToken(){
     struct Token token;
-
-    char state = 's';
-
+    token.first_in_line = false;
     
-    string_reset(string);
-    int string_pos = 0;
-
+    char state = 's';
+    bool first_in_new_line = false;
     int comments_inside_count = 0;
 
     // 1  - identifikator                    napr.: Position_01
@@ -54,7 +52,7 @@ struct Token getNextToken(){
     // 6  - operatory porovnavacie
     // 7  - string
     // 8  - string """
-    // 
+    // 9  - ??
     // 10 - priradenie (=)
     // 11 - ->
     // 12 - :
@@ -67,7 +65,9 @@ struct Token getNextToken(){
     // 20 - {
     // 21 - }
     
-    bool integerWithE = false;
+    string_reset(string);
+    int string_pos = 0;
+
     char c = ' ';
     while (c  != EOF)
     {
@@ -77,12 +77,24 @@ struct Token getNextToken(){
         case 's':
             if (isalpha(c) || c =='_')
             {   
+                if (first_in_new_line)
+                {
+                    token.first_in_line = true;
+                    first_in_new_line = false;
+                }
+                
                 state=1;
                 string[string_pos]=c;
                 string_pos++;
             }
             else if ('0' <=  c && c <= '9')
             {
+                if (first_in_new_line)
+                {
+                    token.first_in_line = true;
+                    first_in_new_line = false;
+                }
+
                 state=10;
                 string[string_pos]=c;
                 string_pos++;
@@ -172,6 +184,11 @@ struct Token getNextToken(){
                 token.type = 12;
                 token.attribute = ":";
                 return token;
+            }
+            else if (c == '\n')
+            {
+                // puts("prvy");
+                first_in_new_line =  true;
             }
             
             break;
@@ -402,7 +419,16 @@ struct Token getNextToken(){
             token.type = 6;
             token.attribute = ">=";
             return token;
-
+        case 50:
+            if (c == '?'){
+                token.type = 9;
+                token.attribute = "??";
+                return token;
+            }
+            else{
+                printf("lexical errorsss\n");
+            }
+            break;
         case 60:                                           //string
             if (c == '"'){
                 token.type = 7;

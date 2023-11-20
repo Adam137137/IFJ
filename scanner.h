@@ -16,6 +16,7 @@ struct Token
 {
     int type;
     char *attribute;
+    bool first_in_line;
 };
 
 struct Token getNextToken();
