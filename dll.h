@@ -26,7 +26,9 @@ void DLL_Last( DLList *list );
 
 void DLL_InsertAfter( DLList *list, char data );
 
-char DLL_GetValue( DLList *list);
+char DLL_DeleteLast( DLList *list);
+
+
 
 DLLElementPtr DLL_TopTerminal(DLList *list, bool firstIteration);
 #endif

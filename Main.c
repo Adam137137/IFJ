@@ -6,7 +6,7 @@ int main(int argc, char *argv[]){
     (void) argc;
     (void) argv;
     file = fopen("test.txt", "r");
-    parser(file);
+    parser();
     puts("");
 
     // strom testy

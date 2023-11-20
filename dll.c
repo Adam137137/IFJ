@@ -1,4 +1,5 @@
 #include "dll.h"
+#include "compiler.h"
 
 void DLL_Init( DLList *list ) {
 	list->activeElement = NULL;
@@ -19,7 +20,7 @@ void DLL_Dispose( DLList *list ) {
 void DLL_InsertLast( DLList *list, char data ) {
 	DLLElementPtr cache = malloc(sizeof(struct DLLElement));
 	if(cache == NULL){
-		exit(99);
+		handle_error(99);
 	}
 	cache->data = data;
 	if(list->lastElement == NULL){	//If the list is empty
@@ -45,6 +46,9 @@ void DLL_InsertAfter( DLList *list, char data ) {
 		return;
 	}
 	DLLElementPtr cache = malloc(sizeof(struct DLLElement));
+	if(cache == NULL){
+		handle_error(99);
+	}
 	cache->data = data;
 	cache->nextElement = list->activeElement->nextElement;
 	cache->previousElement = list->activeElement;
@@ -58,11 +62,24 @@ void DLL_InsertAfter( DLList *list, char data ) {
 	}
 }
 
-char DLL_GetValue( DLList *list) {
-	if(list->activeElement == NULL){	//Check if the list is active
+char DLL_DeleteLast( DLList *list ) {
+	if(list->lastElement == NULL){
 		return 0;
 	}
-    return list->activeElement->data;
+	if(list->activeElement == list->lastElement){
+		list->activeElement = NULL;
+	}
+	DLLElementPtr cache = list->lastElement;
+	list->lastElement = list->lastElement->previousElement;
+	
+	if(list->lastElement != NULL){
+		list->lastElement->nextElement = NULL;
+	}
+	else{	//If last element was the only element in list, set first element to NULL aswell
+		list->firstElement = NULL;
+	}
+	return cache->data;
+	free(cache);
 }
 
 //Function to find the top most terminal on "stack" and return pointer to it
@@ -85,5 +102,5 @@ DLLElementPtr DLL_TopTerminal(DLList *list, bool firstIteration){
 			return NULL;
 		}
 		return DLL_TopTerminal(list, false);
-	}	
+	}
 }

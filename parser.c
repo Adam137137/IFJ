@@ -4,7 +4,7 @@
 bool stop = false;
 struct Token current_token, current_token2;
 
-bool ladenie = 0;
+bool ladenie = 1;
 void token_print(){
     if (ladenie)
     {
@@ -168,9 +168,10 @@ bool dvojbodka_typ(){
 }
 
 bool priradenie_prave(){
+    token_print();
     current_token = getNextToken();
     current_token2 = getNextToken();
-    
+    token_print();
     if (current_token.type == 1 && current_token2.type == 20){              // id (
         if (parametre_volania() == false){
             return false;
@@ -178,13 +179,15 @@ bool priradenie_prave(){
         current_token = getNextToken();
         return (current_token.type == 21) ? true : false;                   // )
     }
-
     else if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7){
         printf("expression will be reduced:\n");
+        token_print();
+        unget_token(current_token2);                       //toto asi treba dat pred reduce_exp
         if (reduce_exp() == false){                         //tu uz su nacitane rovno prve dva tokeny
             return false;
         }
-        unget_token(current_token2);                        //toto asi treba dat pred reduce_exp
+        printf("tu\n");
+        token_print();
         return true;
     }
     return false;
@@ -387,6 +390,9 @@ bool sekvencia(){
     else if(current_token.type == 1){
         return idnutie();
     }
+    else if(current_token.type == 2 || current_token.type == 3){
+        return reduce_exp();
+    }
     return false;
     //TODO dalsie mozne neterminaly zo sekvencie
 }
@@ -394,8 +400,8 @@ bool sekvencia(){
 void parser(){
     while (1){
         current_token = getNextToken();
-        printf("%d\n", current_token.type);
-        printf("%s\n", current_token.attribute);
+        //printf("%d\n", current_token.type);
+        //printf("%s\n", current_token.attribute);
         if (current_token.type == 0 && strcmp(current_token.attribute, "END") == 0){
             printf("ok");
             break;
