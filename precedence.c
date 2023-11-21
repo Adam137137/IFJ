@@ -26,10 +26,11 @@ bool reduce_exp(){
     DLLElementPtr topTerminal;
     DLL_Init(&list);
     DLL_InsertLast(&list, '$');
+    char token_char;
+    int counter = 0;    //When token is '(' add 1, when ')' sub 1
     while (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 5 || current_token.type == 20 || current_token.type == 21)    // stale sme vo vyraze
     {
-        int counter = 0;    //When token is '(' add 1, when ')' sub 1
-        char token_char = (current_token.attribute)[0];
+        token_char = (current_token.attribute)[0];
         if(token_char == '('){
             counter++;
         }
@@ -111,29 +112,31 @@ bool reduce_exp(){
                 reduce(&list);
             }
         }
-        else if(token_char == 32 || token_char == 9 || token_char == 10 || token_char == 13){   //White chars
-            printf("top: %c\n", topTerminal->data);
-            if(topTerminal->data == '$'){
-                return true;
-            }
-            else{
-                // printf("Redukcia5\n");
-                // DLL_PrintList(&list);
-                reduce(&list);
-            }
-        }
+        // else if(token_char == 32 || token_char == 9 || token_char == 10 || token_char == 13){   //White chars
+        //     printf("top: %c\n", topTerminal->data);
+        //     if(topTerminal->data == '$'){
+        //         return true;
+        //     }
+        //     else{
+        //         // printf("Redukcia5\n");
+        //         // DLL_PrintList(&list);
+        //         reduce(&list);
+        //     }
+        // }
         
         // ak sa neda urobit vyraz return false
         current_token = getNextToken();
     }
     unget_token(current_token);
     topTerminal = DLL_TopTerminal(&list, true);
-    while(topTerminal->data != '$'){
+    if(counter == 0 && token_char == ')'){
+        while(topTerminal->data != '$'){
         // printf("TOP: %c\n", topTerminal->data);
         // printf("koniec\n");
         // DLL_PrintList(&list);
         reduce(&list);
         topTerminal = DLL_TopTerminal(&list, true);
+        }
     }
     
     // nacitany token uz nie je vyraz ale nieco ine, treba ho asi vratit
