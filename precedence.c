@@ -32,7 +32,7 @@ bool reduce_exp(){
         if(current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7){
             token_char = 'i';
         }
-        printf("%c\n", token_char);
+        printf("token = %c\n", token_char);
         // TODO: nacitat dalsie tokeny a zistit ci ide o validny vyraz
         topTerminal =  DLL_TopTerminal(&list, true);
         if(token_char == '+' || token_char == '-'){ 
@@ -40,6 +40,8 @@ bool reduce_exp(){
                 pushLess(&list, token_char);
             }
             else{
+                printf("Redukcia\n");
+                DLL_PrintList(&list);
                 reduce(&list);
             }
         }
@@ -48,6 +50,8 @@ bool reduce_exp(){
                 pushLess(&list, token_char);
             }
             else{
+                printf("Redukcia\n");
+                DLL_PrintList(&list);
                 reduce(&list);
             }
         }
@@ -62,6 +66,11 @@ bool reduce_exp(){
                 //Free
                 DLL_Dispose(&list);
                 handle_error(2);
+            }
+            else{
+                printf("Redukcia\n");
+                DLL_PrintList(&list);
+                reduce(&list);
             }
         }
         else if(token_char == 'i'){
@@ -81,7 +90,9 @@ bool reduce_exp(){
                 handle_error(2);
             }
             else{
-                pushLess(&list, token_char);
+                printf("Redukcia\n");
+                DLL_PrintList(&list);
+                reduce(&list);
             }
         }
         
@@ -104,12 +115,39 @@ void pushEqual(DLList *list, char c){
 }
 
 void reduce(DLList *list){
-    char cache[4];  //Temporary array to store items from "stack" before reducing
+    char cache[4] = {'\0', '\0', '\0', '\0'};  //Temporary array to store items from "stack" before reducing
     for(int i = 0; list->lastElement->data != '<'; i++){
         cache[i] = DLL_DeleteLast(list);
+        // printf("tmp = %d\n", cache[i]);
+        // printf("preco = %d\n", i);
+
     }
-    for(int j = 0; cache[j] != '\0'; j++){
-        printf("%c", cache[j]);
-        printf("\n");
+    // printf("cache[1] = %c\n", cache[1]);
+    DLL_DeleteLast(list);
+    // for(int j = 0; cache[j] != '\0'; j++){
+    //     // printf("test %d\n", j);
+    //     // printf("redukuj = %d", cache[j]);
+    //     // printf("\n");
+    //     // printf("top = %c\n", list->lastElement->data);
+    // }
+    printf("cache = \"%s\"\n", cache);
+    if(strcmp(cache, "E+E") == 0){
+        printf("Pravidlo 1\n");
     }
+    else if(strcmp(cache, "E-E") == 0){
+        printf("Pravidlo 2\n");
+    }
+    else if(strcmp(cache, "E*E") == 0){
+        printf("Pravidlo 3\n");
+    }
+    else if(strcmp(cache, "E/E") == 0){
+        printf("Pravidlo 4\n");
+    }
+    else if(strcmp(cache, "(E)") == 0){
+        printf("Pravidlo 5\n");
+    }
+    else if(strcmp(cache, "i") == 0){
+        printf("Pravidlo 6\n");
+    }
+    DLL_InsertLast(list, 'E');
 }

@@ -104,3 +104,18 @@ DLLElementPtr DLL_TopTerminal(DLList *list, bool firstIteration){
 		return DLL_TopTerminal(list, false);
 	}
 }
+
+void DLL_PrintList(DLList *list){
+	DLLElementPtr currentElement = list->lastElement;
+	if (currentElement == NULL)
+	{
+		printf(" none (list is empty)");
+	}
+
+	while (currentElement != NULL)
+	{
+		printf(" %c", currentElement->data);
+		currentElement = currentElement->previousElement;
+	}
+	printf("\n");
+}
