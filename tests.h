@@ -1,4 +1,4 @@
-
+#include "compiler.h"
 
 void tests_init(int);
 void test_letnutie();

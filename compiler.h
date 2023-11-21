@@ -10,6 +10,7 @@
 #include "parser.h"
 #include "precedence.h"
 #include "dll.h"
+#include "tests.h"
 
 typedef enum {
     NO_ERROR = 0,
