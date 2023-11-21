@@ -1,12 +1,26 @@
 #include "compiler.h"
 FILE *file = NULL;
-
+bool testovanie = true;
 
 int main(int argc, char *argv[]){
     (void) argc;
     (void) argv;
-    file = fopen("test.txt", "r");
-    parser();
+    if (testovanie)
+    {
+        printf("Compiler - testing script:\n\n");
+        for (int i = 0; i < 3; i++)
+        {
+            tests_init(i);
+            file = fopen("test.txt", "r");
+            parser();
+        }
+    }
+    else{
+        file = fopen("prekladany_subor.txt", "r");
+        parser();
+    }
+
+    
 
     // strom testy
     // btree_node *root = NULL;

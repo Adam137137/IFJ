@@ -180,13 +180,12 @@ bool priradenie_prave(){
         return (current_token.type == 21) ? true : false;                   // )
     }
     else if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7){
-        printf("expression will be reduced:\n");
+        //printf("expression will be reduced:\n");
         token_print();
         unget_token(current_token2);                       //toto asi treba dat pred reduce_exp
         if (reduce_exp() == false){                         //tu uz su nacitane rovno prve dva tokeny
             return false;
         }
-        printf("tu\n");
         token_print();
         return true;
     }
@@ -229,7 +228,7 @@ bool varnutie(){
 }
 
 bool relacia(){
-    printf("precedencna\n");
+    //printf("precedencna\n");
     if (reduce_exp() == false){
         return false;
     }
@@ -323,7 +322,7 @@ bool parameter_volania(){
     current_token2 = getNextToken();                           //: ak je dvojbodka je to volanie f(with: sth)
     
     if (current_token2.type == 12){              // id :                   
-        printf("precedencna\n"); 
+        //printf("precedencna\n"); 
         current_token = getNextToken();                   // otazka je ze ci chceme nacitat token uz to alebo az v reduce_exp
         if (reduce_exp() == false){
             return false;
@@ -332,7 +331,7 @@ bool parameter_volania(){
     }
     else if (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8){    //ked nacita vyraz string,double,int,(...
         unget_token(current_token2);            //vratime token a zacneme precedencnu analyzu vyrazu
-        printf("precedencnaa\n");
+        //printf("precedencnaa\n");
         if (reduce_exp() == false){
             return false;
         }
@@ -403,11 +402,11 @@ void parser(){
         //printf("%d\n", current_token.type);
         //printf("%s\n", current_token.attribute);
         if (current_token.type == 0 && strcmp(current_token.attribute, "END") == 0){
-            printf("ok");
+            printf("ok\n\n");
             break;
         }
         else if (sekvencia() == false){
-            printf("Syntax Error");
+            printf("Syntax Error\n\n");
             break;
         }
     }
