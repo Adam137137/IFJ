@@ -4,8 +4,8 @@
 bool stop = false;
 struct Token current_token, current_token2;
 
-bool ladenie = 0;
-void token_print(){
+bool ladenie = 1;
+void token_print(){             // ladenie zapnut ! ! !
     if (ladenie)
     {
         printf("%s\n", current_token.attribute);
@@ -59,7 +59,7 @@ bool func_declar(){
 
 bool parametre(){
     current_token = getNextToken();
-    token_print();
+    // token_print();
     if (current_token.type == 1 ||current_token.type == 15)
     {
         return parameter() && param_zostatok();
@@ -86,7 +86,7 @@ bool parameter(){
             return false;
         }
         current_token = getNextToken();
-        token_print();
+        //token_print();
         if (current_token.type != 12)                // :
         {
             return false;
@@ -98,7 +98,7 @@ bool parameter(){
 
 bool param_zostatok(){
     current_token = getNextToken();
-    token_print();
+    //token_print();
     if (current_token.type == 13)                   // ,
     {
         current_token = getNextToken();
@@ -116,11 +116,11 @@ bool zbytok_param(){
     current_token = getNextToken();
     if (current_token.type == 1 || current_token.type == 15)
     {
-        token_print();
+        //token_print();
         current_token = getNextToken();
         if (current_token.type == 12)           // :
         {
-            token_print();
+            //token_print();
             return typ();
         }
         return false;
@@ -143,7 +143,7 @@ bool sipka_typ(){
 
 bool typ(){
     current_token = getNextToken();
-    token_print();
+    //token_print();
     if (current_token.type == 4 && ( 
         strcmp(current_token.attribute, "Int") == 0 ||
         strcmp(current_token.attribute, "String") == 0 ||
@@ -168,25 +168,24 @@ bool dvojbodka_typ(){
 }
 
 bool priradenie_prave(){
-    token_print();
+    //token_print();
     current_token = getNextToken();
     current_token2 = getNextToken();
-    token_print();
     if (current_token.type == 1 && current_token2.type == 20){              // id (
         if (parametre_volania() == false){
             return false;
         }
         current_token = getNextToken();
-        return (current_token.type == 21) ? true : false;                   // )
+        return (current_token.type == 21);                   // )
     }
     else if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7){
         //printf("expression will be reduced:\n");
-        token_print();
+        //token_print();
         unget_token(current_token2);                       //toto asi treba dat pred reduce_exp
         if (reduce_exp() == false){                         //tu uz su nacitane rovno prve dva tokeny
             return false;
         }
-        token_print();
+        //token_print();
         return true;
     }
     return false;
@@ -208,7 +207,7 @@ bool rovna_sa__priradenie(){
 }
 bool letnutie(){
     current_token = getNextToken();
-    token_print();
+    //token_print();
     if (current_token.type == 1){
         return dvojbodka_typ() && rovna_sa__priradenie();
     }
@@ -410,13 +409,15 @@ void parser(){
             break;
         }
     }
-    // current_token = getNextToken();
     // if (sekvencia() == true){
     //     printf("ok");
     // }
     // else{
     //     printf("Syntax Error");
     // }
+
+
+    // current_token = getNextToken();
     // while (current_token.type != 0)
     // {
     //     printf("Type: %d     ", current_token.type);

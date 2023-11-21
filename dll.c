@@ -82,6 +82,13 @@ char DLL_DeleteLast( DLList *list ) {
 	free(cache);
 }
 
+char DLL_GetLast( DLList *list){
+	if(list->lastElement == NULL){
+		handle_error(99);
+	}
+	return list->lastElement->data;
+}
+
 //Function to find the top most terminal on "stack" and return pointer to it
 //fisrtIteration tells us if we have to set active element to last or not, when calling set to true
 //Return NULL if there is no terminal, unlikely to happen (missing $)

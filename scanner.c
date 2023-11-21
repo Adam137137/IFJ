@@ -218,7 +218,8 @@ struct Token getNextToken(){
                     token.type = 1;
                 }
 
-                token.attribute = string;
+                token.attribute = string_dup(string);
+                
                 return token;
             }
             break;
@@ -242,7 +243,7 @@ struct Token getNextToken(){
             else{
                 ungetc(c, file);
                 token.type = 2;
-                token.attribute = string;
+                token.attribute = string_dup(string);
                 return token;
             }
             break;
@@ -272,7 +273,7 @@ struct Token getNextToken(){
             else{
                 ungetc(c,file);
                 token.type = 3;                     // FLOAT
-                token.attribute = string;
+                token.attribute = string_dup(string);
                 return token;
             }
             break;
@@ -316,7 +317,7 @@ struct Token getNextToken(){
                 else{
                     token.type = 3;
                 }
-                token.attribute = string;
+                token.attribute = string_dup(string);
                 return token;
             }
             break;
@@ -432,7 +433,7 @@ struct Token getNextToken(){
         case 60:                                           //string
             if (c == '"'){
                 token.type = 7;
-                token.attribute = string;
+                token.attribute = string_dup(string);
                 return token;  
             }
             else if (c > (char)31 && c != 92){

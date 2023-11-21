@@ -1,13 +1,13 @@
 #include "compiler.h"
 FILE *file = NULL;
-bool testovanie = true;
+bool testovanie = false;
 
 int main(int argc, char *argv[]){
     (void) argc;
     (void) argv;
     if (testovanie)
     {
-        printf("Compiler - testing script:\n\n");
+        //printf("Compiler - testing script:\n\n");
         for (int i = 0; i < 3; i++)
         {
             tests_init(i);
@@ -16,7 +16,7 @@ int main(int argc, char *argv[]){
         }
     }
     else{
-        file = fopen("prekladany_subor.txt", "r");
+        file = fopen("test.txt", "r");
         parser();
     }
 
