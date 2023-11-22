@@ -31,7 +31,8 @@ bool reduce_exp(){
     while (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 5 || current_token.type == 20 || current_token.type == 21)    // stale sme vo vyraze
     {
         token_char = (current_token.attribute)[0];
-        token_print();
+        //printf("nacitanie : %c \n", token_char);
+        //token_print();
         if(token_char == '('){
             counter++;
         }
@@ -47,25 +48,27 @@ bool reduce_exp(){
             if(token_char == '+' || token_char == '-'){ 
                 if(topTerminal->data == '(' || topTerminal->data == '$'){
                     pushLess(&list, token_char);
-                    // DLL_PrintList(&list);
+                    //DLL_PrintList(&list);
                 }
                 else{
-                    // printf("Redukcia1\n");
-                    // DLL_PrintList(&list);
+                    //printf("Redukcia1\n");
+                    //DLL_PrintList(&list);
                     //printf("first: %c\n Last: \n", topTerminal->data);
                     reduce(&list);
+                    unget_token(current_token);
                 }
             }
             else if(token_char == '*' || token_char == '/'){
                 if(topTerminal->data == '+' || topTerminal->data == '-' || topTerminal->data == '(' || topTerminal->data == '$'){
                     pushLess(&list, token_char);
-                    // DLL_PrintList(&list);
+                    //DLL_PrintList(&list);
                 }
                 else{
-                    // printf("Redukcia2\n");
-                    // DLL_PrintList(&list);
+                    printf("Redukcia2\n");
+                    //DLL_PrintList(&list);
                     //printf("first: %c\n Last: \n", topTerminal->data);
                     reduce(&list);
+                    unget_token(current_token);
                 }
             }
             else if(token_char == '('){
@@ -77,9 +80,10 @@ bool reduce_exp(){
                 else{
                     pushLess(&list, token_char);
                 }
-                // DLL_PrintList(&list);
+                //DLL_PrintList(&list);
             }
             else if(token_char == ')'){
+                //printf("%c \n", topTerminal->data);
                 if(topTerminal->data == '('){
                     if(DLL_GetLast(&list) == '('){
                         DLL_Dispose(&list);
@@ -87,7 +91,7 @@ bool reduce_exp(){
                         handle_error(2);
                     }
                     DLL_InsertLast(&list, token_char);
-                    // DLL_PrintList(&list);
+                    //DLL_PrintList(&list);
                 }
                 else if(topTerminal->data == '$'){
                     //Free
@@ -96,10 +100,12 @@ bool reduce_exp(){
                     handle_error(2);
                 }
                 else{
-                    // printf("Redukcia3\n");
-                    // DLL_PrintList(&list);
+                    //printf("Redukcia3\n");
                     //printf("first: %c\n Last: \n", topTerminal->data);
                     reduce(&list);
+                    // DLL_PrintList(&list);
+                    unget_token(current_token);      // ... 2hours of debugging
+                    counter++;                      // after putting ')' back to input, incrementing bracket counter, so after next token we have correct counting of brackets 
                 }
             }
             else if(token_char == 'i'){
@@ -111,7 +117,7 @@ bool reduce_exp(){
                 }
                 else{
                     pushLess(&list, token_char);
-                    // DLL_PrintList(&list);
+                    //DLL_PrintList(&list);
                 }
             }
             else if(token_char == '$'){
@@ -122,10 +128,11 @@ bool reduce_exp(){
                     handle_error(2);
                 }
                 else{
-                    // printf("Redukcia4\n");
-                    // DLL_PrintList(&list);
+                    //printf("Redukcia4\n");
+                    //DLL_PrintList(&list);
                     //printf("first: %c\n Last: \n", topTerminal->data);
                     reduce(&list);
+                    unget_token(current_token);
                 }
             }
         }
@@ -134,12 +141,11 @@ bool reduce_exp(){
     puts("posledny token:");
     token_print();
     unget_token(current_token);
-    token_print();
     topTerminal = DLL_TopTerminal(&list, true);
         while(topTerminal->data != '$'){
         // printf("TOP: %c\n", topTerminal->data);
-        // printf("koniec\n");
-        // DLL_PrintList(&list);
+        //printf("koniec\n");
+        //DLL_PrintList(&list);
         reduce(&list);
         topTerminal = DLL_TopTerminal(&list, true);
         }
@@ -195,7 +201,6 @@ void reduce(DLList *list){
         printf("Pravidlo 6\n");
     }
     DLL_InsertLast(list, 'E');
-    // printf("List po redukcii:");
-    // DLL_PrintList(list);
-    unget_token(current_token);
+    //printf("List po redukcii:");
+    //DLL_PrintList(list);
 }
