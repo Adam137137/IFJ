@@ -277,7 +277,7 @@ bool ifnutie(){
     if (current_token.type != 22){                                                  // {
         return false;        
     }
-    current_token = getNextToken();
+    //current_token = getNextToken();
     if (sekvencia() == false){                                                      // sekvencia
         return false;
     }
@@ -293,7 +293,7 @@ bool ifnutie(){
     if (current_token.type != 22){                                                  // {
         return false;        
     }
-    current_token = getNextToken();
+    //current_token = getNextToken();
     if (sekvencia() == false){                                                      // sekvencia
         return false;
     }
@@ -367,49 +367,79 @@ bool priradenie_zost(){
 bool idnutie(){
     return priradenie_zost();
 }
-
 bool sekvencia(){
-    //token_print();
+    current_token = getNextToken();
+    token_print();
     dvojbodka_typ_neni = false;
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
-        return letnutie();
+        if (letnutie() == false){
+            return false;
+        }
+        sekvencia();
+        current_token = getNextToken();             //after each recursive call, we have to update token
+        if (current_token.type == 0){
+            return true;
+        }
     }
-    else if (strcmp(current_token.attribute, "var") == 0 && current_token.type == 4){
+    if (strcmp(current_token.attribute, "var") == 0 && current_token.type == 4){
         return varnutie();
     }
-    else if (strcmp(current_token.attribute, "while") == 0 && current_token.type == 4){
+    if (strcmp(current_token.attribute, "while") == 0 && current_token.type == 4){
         return whilnutie();
     }
-    else if (strcmp(current_token.attribute, "if") == 0 && current_token.type == 4){
-        return ifnutie();
+    if (strcmp(current_token.attribute, "if") == 0 && current_token.type == 4){
+        if (ifnutie()== false){
+            return false;
+        }
+        sekvencia();
+        current_token = getNextToken();     //after each recursive call, we have to update token         
+        if (current_token.type == 0){
+            return true;
+        }
     }
-    else if (strcmp(current_token.attribute, "func") == 0 && current_token.type == 4){
+    if (strcmp(current_token.attribute, "func") == 0 && current_token.type == 4){
         return func_declar();
     }
-    else if(current_token.type == 1){
+    if(current_token.type == 1){
         return idnutie();
     }
-    else if(current_token.type == 2 || current_token.type == 3){
-        return reduce_exp();
+    //else if(current_token.type == 2 || current_token.type == 3){
+        //return reduce_exp();
+    //}
+    if (current_token.type == 23){
+        unget_token(current_token);
+        return true;
     }
-    return false;
+    if(current_token.type == 0){
+        return true;
+    }
+    else{
+        return false;
+    }
+    return true;
     //TODO dalsie mozne neterminaly zo sekvencie
 }
 
 void parser(){
-    while (1){
-        current_token = getNextToken();
-        //printf("%d\n", current_token.type);
-        //printf("%s\n", current_token.attribute);
-        if (current_token.type == 0 && strcmp(current_token.attribute, "END") == 0){
-            printf("ok\n\n");
-            break;
-        }
-        else if (sekvencia() == false){
-            printf("Syntax Error\n\n");
-            break;
-        }
+    if (sekvencia() == true){
+        printf("OK");
     }
+    else{
+        printf("Syntax Error");
+    }
+    // while (1){
+    //     current_token = getNextToken();
+    //     //printf("%d\n", current_token.type);
+    //     //printf("%s\n", current_token.attribute);
+    //     if (current_token.type == 0 && strcmp(current_token.attribute, "END") == 0){
+    //         printf("ok\n\n");
+    //         break;
+    //     }
+    //     else if (sekvencia() == false){
+    //         printf("Syntax Error\n\n");
+    //         break;
+    //     }
+    // }
     // if (sekvencia() == true){
     //     printf("ok");
     // }
