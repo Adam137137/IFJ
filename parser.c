@@ -4,7 +4,7 @@
 bool dvojbodka_typ_neni = false;
 struct Token current_token, current_token2;
 
-bool ladenie = 0;
+bool ladenie = 1;
 void token_print(){             // ladenie zapnut ! ! !
     if (ladenie)
     {
@@ -227,7 +227,17 @@ bool varnutie(){
 }
 
 bool relacia(){
-    //printf("precedencna\n");
+    //printf("relacia -> precedencna\n");
+    if (reduce_exp() == false){
+        return false;
+    }
+    current_token = getNextToken();
+    //token_print();
+    if (current_token.type != 6)
+    {
+        return false;
+    }
+    current_token = getNextToken();
     if (reduce_exp() == false){
         return false;
     }
@@ -370,7 +380,7 @@ bool idnutie(){
 
 bool sekvencia(){
     current_token = getNextToken();
-    token_print();
+    //token_print();
     dvojbodka_typ_neni = false;
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
         if (letnutie() == false){

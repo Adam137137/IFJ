@@ -62,8 +62,8 @@ struct Token getNextToken(){
     // 16 - vstavana funkcia
     // 20 - (
     // 21 - )
-    // 20 - {
-    // 21 - }
+    // 22 - {
+    // 23 - }
     
     string_reset(string);
     int string_pos = 0;
@@ -549,7 +549,7 @@ struct Token getNextToken(){
             
             else{                                           //  delenie
                 ungetc(c,file);
-                token.type = 3;
+                token.type = 5;
                 token.attribute = "/";
                 return token;
             }
