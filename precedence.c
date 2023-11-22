@@ -43,7 +43,7 @@ bool reduce_exp(){
             token_char = 'i';
         }
 
-        if(!(counter < 0)){
+        if((counter >= 0)){
             topTerminal =  DLL_TopTerminal(&list, true);
             if(token_char == '+' || token_char == '-'){ 
                 if(topTerminal->data == '(' || topTerminal->data == '$'){
@@ -136,6 +136,11 @@ bool reduce_exp(){
                 }
             }
         }
+        else{
+            // token_print();
+            counter++;                      // ")" doesnt belong to expresion, so we uncount it
+            break;
+        }
         current_token = getNextToken();
     }
     // puts("posledny token:");
@@ -144,6 +149,8 @@ bool reduce_exp(){
         DLL_Dispose(&list);
         handle_error(2);
     }
+    //puts("ungetujeme token co uz neni vyraz:");
+    //token_print();
     unget_token(current_token);
     topTerminal = DLL_TopTerminal(&list, true);
         while(topTerminal->data != '$'){

@@ -4,7 +4,7 @@
 bool dvojbodka_typ_neni = false;
 struct Token current_token, current_token2;
 
-bool ladenie = 1;
+bool ladenie = 0;
 void token_print(){             // ladenie zapnut ! ! !
     if (ladenie)
     {
