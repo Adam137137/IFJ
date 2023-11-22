@@ -1,7 +1,7 @@
 #include "parser.h"
 #include "compiler.h"
 
-bool stop = false;
+bool dvojbodka_typ_neni = false;
 struct Token current_token, current_token2;
 
 bool ladenie = 1;
@@ -162,7 +162,7 @@ bool dvojbodka_typ(){
     if (strcmp(current_token.attribute, ":") == 0 && current_token.type == 12){     //ked nacita : tak urcime typ
         return typ();
     }
-    stop = true;                       //epsilon pravidlo - ked nacita hocico ine okrem dvojbodky, poznacime ze typ bol vynechany
+    dvojbodka_typ_neni = true;                       //epsilon pravidlo - ked nacita hocico ine okrem dvojbodky, poznacime ze typ bol vynechany
     unget_token(current_token);
     return true;
 }
@@ -196,7 +196,7 @@ bool rovna_sa__priradenie(){
     if (current_token.type == 10 && strcmp(current_token.attribute, "=") == 0){
         return priradenie_prave();
     }
-    else if(stop == true){              //ked bola vypustena deklaracia typu nemozeme vypustit priradenie
+    else if(dvojbodka_typ_neni){              //ked bola vypustena deklaracia typu nemozeme vypustit priradenie
         return false;
     }
     else{
@@ -370,6 +370,7 @@ bool idnutie(){
 
 bool sekvencia(){
     //token_print();
+    dvojbodka_typ_neni = false;
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
         return letnutie();
     }
