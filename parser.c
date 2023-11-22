@@ -380,7 +380,7 @@ bool idnutie(){
 
 bool sekvencia(){
     current_token = getNextToken();
-    //token_print();
+    token_print();
     dvojbodka_typ_neni = false;
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
         if (letnutie() == false){
