@@ -367,6 +367,7 @@ bool priradenie_zost(){
 bool idnutie(){
     return priradenie_zost();
 }
+
 bool sekvencia(){
     current_token = getNextToken();
     token_print();
@@ -375,57 +376,55 @@ bool sekvencia(){
         if (letnutie() == false){
             return false;
         }
-        sekvencia();
-        current_token = getNextToken();             //after each recursive call, we have to update token
-        if (current_token.type == 0){
-            return true;
+    }
+    else if (strcmp(current_token.attribute, "var") == 0 && current_token.type == 4){
+        if (varnutie() == false){
+            return false;
         }
     }
-    if (strcmp(current_token.attribute, "var") == 0 && current_token.type == 4){
-        return varnutie();
+    else if (strcmp(current_token.attribute, "while") == 0 && current_token.type == 4){
+        if (whilnutie() == false){
+            return false;
+        }
     }
-    if (strcmp(current_token.attribute, "while") == 0 && current_token.type == 4){
-        return whilnutie();
-    }
-    if (strcmp(current_token.attribute, "if") == 0 && current_token.type == 4){
+    else if (strcmp(current_token.attribute, "if") == 0 && current_token.type == 4){
         if (ifnutie()== false){
             return false;
         }
-        sekvencia();
-        current_token = getNextToken();     //after each recursive call, we have to update token         
-        if (current_token.type == 0){
-            return true;
+    }
+    else if (strcmp(current_token.attribute, "func") == 0 && current_token.type == 4){
+        if (func_declar() == false){
+            return false;
         }
     }
-    if (strcmp(current_token.attribute, "func") == 0 && current_token.type == 4){
-        return func_declar();
-    }
-    if(current_token.type == 1){
-        return idnutie();
+    else if(current_token.type == 1){
+        if (idnutie() == false){
+            return false;
+        }
     }
     //else if(current_token.type == 2 || current_token.type == 3){
         //return reduce_exp();
     //}
-    if (current_token.type == 23){
+    else if (current_token.type == 23){                 //epsion prechod
         unget_token(current_token);
         return true;
     }
-    if(current_token.type == 0){
+    else if(current_token.type == 0){
         return true;
     }
     else{
         return false;
     }
-    return true;
+    return sekvencia();
     //TODO dalsie mozne neterminaly zo sekvencie
 }
 
 void parser(){
     if (sekvencia() == true){
-        printf("OK");
+        printf("OK\n");
     }
     else{
-        printf("Syntax Error");
+        printf("Syntax Error\n");
     }
     // while (1){
     //     current_token = getNextToken();
