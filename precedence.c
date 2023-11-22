@@ -142,6 +142,10 @@ bool reduce_exp(){
             break;
         }
         current_token = getNextToken();
+        if (current_token.first_in_line == true){
+            break;
+        }
+        
     }
     // puts("posledny token:");
     // token_print();
