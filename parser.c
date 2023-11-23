@@ -458,6 +458,7 @@ bool sekvencia(){
 
 void parser(){
     if (sekvencia() == true){
+        return;
         // printf("OK\n");
     }
     else{

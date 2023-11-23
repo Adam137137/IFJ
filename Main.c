@@ -16,9 +16,10 @@ int main(int argc, char *argv[]){
         }
     }
     else{
-        file = fopen("test.txt", "r");
+        file = stdin;
         parser();
     }
+    return 0;
 
     
 
@@ -60,6 +61,4 @@ int main(int argc, char *argv[]){
     // 	DLL_InsertLast(&list, '>');
     // 	DLLElementPtr top = DLL_TopTerminal(&list, true);
     // 	printf("%c\n", top->data);
-
-    return 0;
 }

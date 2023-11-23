@@ -154,7 +154,7 @@ bool reduce_exp(){
         current_token = getNextToken();
         if(token_char == 'i'){
             if (current_token.first_in_line == true){
-                printf("test\n");
+                //printf("test\n");
                 break;
             }
         }
