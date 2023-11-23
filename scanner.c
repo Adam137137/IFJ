@@ -270,8 +270,7 @@ struct Token getNextToken(){
                 state = 12;
             }
             else{
-                printf("lexical error\n");
-                //return LEXICAL_ERROR;
+                handle_error(LEXICAL_ERROR);
             }
             break;
         
@@ -304,7 +303,7 @@ struct Token getNextToken(){
                 state = 14;
             }
             else{
-                printf("Lexical error\n");
+                handle_error(LEXICAL_ERROR);
             }
             break;
 
@@ -315,7 +314,7 @@ struct Token getNextToken(){
                 state = 15;
             }
             else{
-                printf("Lexical error\n");
+                handle_error(LEXICAL_ERROR);
             }
             break;
         case 15:
@@ -443,7 +442,7 @@ struct Token getNextToken(){
                 return token;
             }
             else{
-                printf("lexical errorsss\n");
+                handle_error(LEXICAL_ERROR);
             }
             break;
         case 60:                                           //string
@@ -460,7 +459,7 @@ struct Token getNextToken(){
                 state = 65;
             }
             else{
-                printf("lexical errorsss\n");
+                handle_error(LEXICAL_ERROR);
             }
             break;
         case 65:
@@ -500,7 +499,7 @@ struct Token getNextToken(){
             }
 
             else{
-                printf("lexical error");
+                handle_error(LEXICAL_ERROR);
             }
             break;          // TODO
 
@@ -509,7 +508,7 @@ struct Token getNextToken(){
                 state = 67;
             }
             else{
-                printf("lexical error");
+                handle_error(LEXICAL_ERROR);
             }
             break;
         case 67:
@@ -533,7 +532,7 @@ struct Token getNextToken(){
                 state = 69;
             }
             else{
-                printf("lexical error");
+                handle_error(LEXICAL_ERROR);
             }
             //ungetc(c3,file);
             //ungetc(c, file);
@@ -544,7 +543,7 @@ struct Token getNextToken(){
                 state = 60;
             }
             else{
-                printf("lexicalerror");
+                handle_error(LEXICAL_ERROR);
             }
             break;
 
@@ -612,7 +611,8 @@ struct Token getNextToken(){
             break;
 
         default:
-            //printf("error");
+            fprintf(stderr, "this state was not implemented\n");
+            handle_error(99);       
             break;
         }
 

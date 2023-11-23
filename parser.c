@@ -441,10 +441,10 @@ bool sekvencia(){
 
 void parser(){
     if (sekvencia() == true){
-        printf("OK\n");
+        // printf("OK\n");
     }
     else{
-        printf("Syntax Error\n");
+        handle_error(SYNTAX_ERROR);
     }
     // while (1){
     //     current_token = getNextToken();

@@ -84,7 +84,7 @@ bool reduce_exp(){
             else if(token_char == '('){
                 if(topTerminal->data == ')' || topTerminal->data == 'i'){
                     DLL_Dispose(&list);
-                    printf("test72\n");
+                    // printf("test72\n");
                     handle_error(2);
                 }
                 else{
@@ -97,7 +97,7 @@ bool reduce_exp(){
                 if(topTerminal->data == '('){
                     if(DLL_GetLast(&list) == '('){
                         DLL_Dispose(&list);
-                        printf("test84\n");
+                        // printf("test84\n");
                         handle_error(2);
                     }
                     DLL_InsertLast(&list, token_char);
@@ -106,7 +106,7 @@ bool reduce_exp(){
                 else if(topTerminal->data == '$'){
                     //Free
                     DLL_Dispose(&list);
-                    printf("test92\n");
+                    // printf("test92\n");
                     handle_error(2);
                 }
                 else{
@@ -122,7 +122,7 @@ bool reduce_exp(){
                 if(topTerminal->data == ')' || topTerminal->data == 'i'){
                     //Free
                     DLL_Dispose(&list);
-                    printf("test105\n");
+                    // printf("test105\n");
                     handle_error(2);
                 }
                 else{
@@ -134,7 +134,7 @@ bool reduce_exp(){
                 if(topTerminal->data == '(' || topTerminal->data == '$'){
                     //Free
                     DLL_Dispose(&list);
-                    printf("test116\n");
+                    // printf("test116\n");
                     handle_error(2);
                 }
                 else{
@@ -207,24 +207,24 @@ void reduce(DLList *list){
     //     // printf("top = %c\n", list->lastElement->data);
     // }
     // printf("cache = \"%s\"\n", cache);
-    if(strcmp(cache, "E+E") == 0){
-        printf("Pravidlo 1\n");
-    }
-    else if(strcmp(cache, "E-E") == 0){
-        printf("Pravidlo 2\n");
-    }
-    else if(strcmp(cache, "E*E") == 0){
-        printf("Pravidlo 3\n");
-    }
-    else if(strcmp(cache, "E/E") == 0){
-        printf("Pravidlo 4\n");
-    }
-    else if(strcmp(cache, "(E)") == 0){
-        printf("Pravidlo 5\n");
-    }
-    else if(strcmp(cache, "i") == 0){
-        printf("Pravidlo 6\n");
-    }
+    // if(strcmp(cache, "E+E") == 0){
+    //     printf("Pravidlo 1\n");
+    // }
+    // else if(strcmp(cache, "E-E") == 0){
+    //     printf("Pravidlo 2\n");
+    // }
+    // else if(strcmp(cache, "E*E") == 0){
+    //     printf("Pravidlo 3\n");
+    // }
+    // else if(strcmp(cache, "E/E") == 0){
+    //     printf("Pravidlo 4\n");
+    // }
+    // else if(strcmp(cache, "(E)") == 0){
+    //     printf("Pravidlo 5\n");
+    // }
+    // else if(strcmp(cache, "i") == 0){
+    //     printf("Pravidlo 6\n");
+    // }
     DLL_InsertLast(list, 'E');
     // printf("List po redukcii:");
     // DLL_PrintList(list);
