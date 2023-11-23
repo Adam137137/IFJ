@@ -12,6 +12,7 @@
 #include "compiler.h"
 
 bool dvojbodka_typ_neni = false;
+bool return_neni = false;
 struct Token current_token, current_token2;
 
 bool ladenie = 1;
@@ -32,7 +33,17 @@ void unget_token(struct Token token){
         }
     }
 }
-
+bool returnovanie(){
+    if (current_token.type == 4 && strcmp(current_token.attribute,"return") == 0){
+        current_token = getNextToken();             // prvy token do precedencnej
+        return reduce_exp();
+    }
+    else if (current_token.type == 23){             //epsilon prechod
+        unget_token(current_token);
+        return true;
+    }
+    return false;
+}
 bool func_declar(){
     current_token = getNextToken();
     if (current_token.type != 1){               // id
@@ -57,7 +68,12 @@ bool func_declar(){
         return false;        
     }
     current_token = getNextToken();
+    return_neni = true;
     if (sekvencia() == false){                  // sekvencia
+        return false;
+    }
+    current_token = getNextToken();             
+    if (returnovanie() == false){               // return
         return false;
     }
     current_token = getNextToken();
@@ -188,7 +204,7 @@ bool priradenie_prave(){
         current_token = getNextToken();
         return (current_token.type == 21);                   // )
     }
-    else if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7){
+    else if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7 || current_token.type == 8 || current_token.type == 20){
         //printf("expression will be reduced:\n");
         //token_print();
         unget_token(current_token2);                       //toto asi treba dat pred reduce_exp
@@ -348,7 +364,7 @@ bool parameter_volania(){
         }
         return true;
     }
-    else if (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8){    //ked nacita vyraz string,double,int,(...
+    else if (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8 || current_token.type == 20){    //ked nacita vyraz string,double,int,(...
         unget_token(current_token2);            //vratime token a zacneme precedencnu analyzu vyrazu
         //printf("precedencnaa\n");
         if (reduce_exp() == false){
@@ -390,7 +406,7 @@ bool idnutie(){
 
 bool sekvencia(){
     current_token = getNextToken();
-    token_print();
+    //token_print();
     dvojbodka_typ_neni = false;
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
         if (letnutie() == false){
@@ -417,7 +433,7 @@ bool sekvencia(){
             return false;
         }
     }
-    else if(current_token.type == 1){
+    else if(current_token.type == 1 || current_token.type == 16){
         if (idnutie() == false){
             return false;
         }
@@ -425,8 +441,9 @@ bool sekvencia(){
     //else if(current_token.type == 2 || current_token.type == 3){
         //return reduce_exp();
     //}
-    else if (current_token.type == 23){                 //epsion prechod
+    else if (current_token.type == 23 || (current_token.type == 4 && strcmp(current_token.attribute, "return") == 0 && return_neni == true)){                 //epsion prechod
         unget_token(current_token);
+        return_neni = false;
         return true;
     }
     else if(current_token.type == 0){
@@ -475,6 +492,5 @@ void parser(){
     //     printf("prvy: %d\n", (int)current_token.first_in_line);
     //     current_token = getNextToken();
     // }
-    
 }
     

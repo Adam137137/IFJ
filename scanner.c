@@ -50,7 +50,7 @@ bool IsItBuiltIn (char *c){
 struct Token getNextToken(){
     struct Token token;
     token.first_in_line = false;
-    
+    bool viac_riadkovy_string = false;                  
     char state = 's';
     bool first_in_new_line = false;
     int comments_inside_count = 0;
@@ -157,13 +157,14 @@ struct Token getNextToken(){
                 char c3 =getc(file);
                 if (c2 == '"' && c3 == '"')
                 {
-                    state = 70;
+                    viac_riadkovy_string = true;
+                    state = 60;
                 }
                 else{
                     state = 60;
+                    ungetc(c3,file);
+                    ungetc(c2,file);
                 }
-                ungetc(c3,file);
-                ungetc(c2,file);
             }
             else if (c == '(')
             {
@@ -446,14 +447,29 @@ struct Token getNextToken(){
             }
             break;
         case 60:                                           //string
-            if (c == '"'){
+            if (c == '"' && viac_riadkovy_string == false){             //ked nie je viacriadkovy string tak staci 1x" na ukoncenie
                 token.type = 7;
                 token.attribute = string_dup(string);
                 return token;  
             }
-            else if (c > (char)31 && c != 92){
+            else if (c == '"' && viac_riadkovy_string == true){
+                char c2 = getc(file); char c3 =  getc(file);                             
+                if (c2 == '"' && c3 == '"'){            //ukoncenie viacriaddkoveho stringu
+                    token.type = 8;
+                    token.attribute = string_dup(string);
+                    return token;
+                }
+                else{
+                    handle_error(LEXICAL_ERROR);
+                }
+            }
+            else if (c > (char)31 && c != 92 && c != 34){               // v stringu nemoze byt " bez opacneho lomitka
                 string[string_pos]=c;
                 string_pos++;
+            }
+            else if ((c == 10) && viac_riadkovy_string == true){           // viacriadkovy string moze mat v sebe \n znaky 
+                string[string_pos]=c;
+                string_pos++; 
             }
             else if (c == '\\'){
                 state = 65;

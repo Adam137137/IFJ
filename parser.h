@@ -16,11 +16,22 @@ bool param_zostatok();
 bool zbytok_param();
 bool sipka_typ();
 bool typ();
+bool ifnutie();
+bool podmienka();
+bool relacia();
 
 bool parametre_volania();
 bool letnutie();
+bool varnutie();
+bool whilnutie();
 bool parameter_volania();
 bool param_vol_zost();
 bool priradenie_prave();
+bool returnovanie();
+bool idnutie();
+bool priradenie_zost();
+bool rovna_sa__priradenie();
+bool dvojbodka_typ();
+bool typ();
 
 #endif
