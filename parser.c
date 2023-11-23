@@ -1,3 +1,13 @@
+/*
+ * Projekt: Implementace překladače imperativního jazyka IFJ23
+ *
+ * autori suboru:
+ * 247112 - Peter Gvozdjak
+ * xvarsa01 - Adam Varsanyi
+ * xperec00 - Mario Perecz
+ * 
+*/
+
 #include "parser.h"
 #include "compiler.h"
 

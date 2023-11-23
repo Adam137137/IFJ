@@ -1,3 +1,12 @@
+/*
+ * Projekt: Implementace překladače imperativního jazyka IFJ23
+ *
+ * autori suboru: 
+ * xperec00 - Mario Perecz
+ * 
+*/
+
+
 #include "symtable.h"
 
 char *string_dup(char *string){

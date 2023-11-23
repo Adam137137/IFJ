@@ -1,3 +1,13 @@
+/*
+ * Projekt: Implementace překladače imperativního jazyka IFJ23
+ *
+ * autori suboru:
+ * xvarsa01 - Adam Varsanyi
+ * 247112 - Peter Gvozdjak
+ *
+ * 
+*/
+
 #include "scanner.h"
 #include "compiler.h"
 
@@ -5,6 +15,7 @@ char *key_words[] = {"Double","Double?", "else", "func", "if", "Int", "Int?", "l
 char *built_in_functions[] = {"readString", "readInt", "readDouble", "write", "Int2Double", "Double2Int", "length", "substring", "ord", "chr"};
 char string [100];
 bool integerWithE = false;
+int a;
 
 void string_reset(char *string){
     for (size_t i = 0; i < 100; i++)
@@ -71,6 +82,11 @@ struct Token getNextToken(){
     char c = ' ';
     while (c  != EOF)
     {
+        if (string_pos ==98)
+        {
+            handle_error(99);
+        }
+        
         c = getc(file);
         switch (state)
         {

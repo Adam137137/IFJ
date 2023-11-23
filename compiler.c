@@ -1,3 +1,11 @@
+/*
+ * Projekt: Implementace překladače imperativního jazyka IFJ23
+ *
+ * autori suboru: 
+ * xperec00 - Mario Perecz
+ * 
+*/
+
 #include "compiler.h"
 
 // NO_ERROR = 0,

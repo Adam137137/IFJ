@@ -1,3 +1,13 @@
+/*
+ * Projekt: Implementace překladače imperativního jazyka IFJ23
+ *
+ * autori suboru: 
+ * xlusti03 - Tomas Lustik
+ * 247112 - Peter Gvozdjak
+ * xvarsa01 - Adam Varsanyi
+ * xperec00 - Mario Perecz
+ * 
+*/
 #include "precedence.h"
 #include "compiler.h"
 #include "dll.h"
