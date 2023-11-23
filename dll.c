@@ -147,7 +147,7 @@ char DLL_DeleteLast( DLList *list ) {
 char DLL_DeleteAfter( DLList *list ) {
 	//Check if the list is active or active element is the last element in list
 	if(list->activeElement == NULL || list->activeElement == list->lastElement){
-		return;
+		return 0;
 	}
 	DLLElementPtr cache = list->activeElement->nextElement;
 	list->activeElement->nextElement = cache->nextElement;
@@ -165,7 +165,7 @@ char DLL_DeleteAfter( DLList *list ) {
 char DLL_DeleteBefore( DLList *list ) {
 	//Check if the list is active or active element is the first element in list
 	if(list->activeElement == NULL || list->activeElement == list->firstElement){
-		return;
+		return 0;
 	}
 	DLLElementPtr cache = list->activeElement->previousElement;
 	list->activeElement->previousElement = cache->previousElement;

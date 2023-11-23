@@ -152,8 +152,11 @@ bool reduce_exp(){
             break;
         }
         current_token = getNextToken();
-        if (current_token.first_in_line == true){
-            break;
+        if(token_char == 'i'){
+            if (current_token.first_in_line == true){
+                printf("test\n");
+                break;
+            }
         }
         
     }
@@ -191,7 +194,7 @@ void pushEqual(DLList *list, char c){
 }
 
 void reduce(DLList *list){
-    char cache[4] = {'\0', '\0', '\0', '\0'};  //Temporary array to store items from "stack" before reducing
+    char cache[4] = {'\0', '\0', '\0', '\0'};  //Temporary array to store items from "stack" before reducing, warning beacuse of unfinished code
     for(int i = 0; list->lastElement->data != '<'; i++){
         cache[i] = DLL_DeleteLast(list);
         // printf("tmp = %d\n", cache[i]);
