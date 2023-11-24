@@ -16,6 +16,8 @@ char *built_in_functions[] = {"readString", "readInt", "readDouble", "write", "I
 char string [100];
 bool integerWithE = false;
 int a;
+char c2;
+char c3;
 
 void string_reset(char *string){
     for (size_t i = 0; i < 100; i++)
@@ -153,8 +155,8 @@ struct Token getNextToken(){
             }
 
             else if (c == '"'){
-                char c2 =getc(file);
-                char c3 =getc(file);
+                c2 =getc(file);
+                c3 =getc(file);
                 if (c2 == '"' && c3 == '"')
                 {
                     viac_riadkovy_string = true;
@@ -453,7 +455,7 @@ struct Token getNextToken(){
                 return token;  
             }
             else if (c == '"' && viac_riadkovy_string == true){
-                char c2 = getc(file); char c3 =  getc(file);                             
+                c2 = getc(file); c3 =  getc(file);                             
                 if (c2 == '"' && c3 == '"'){            //ukoncenie viacriaddkoveho stringu
                     token.type = 8;
                     token.attribute = string_dup(string);
@@ -528,7 +530,7 @@ struct Token getNextToken(){
             }
             break;
         case 67:
-            char c3 = getc(file);
+            c3 = getc(file);
             if (97 <= c && c <= 102){
                 c= c-32; 
             }
@@ -592,7 +594,7 @@ struct Token getNextToken(){
             }
             break;            
         case 95:                                                // "/*" - blokovy koementar
-            char c2 =getc(file);                         //precitam o jeden znak viac aby som sa vedel rozhodnut
+            c2 =getc(file);                         //precitam o jeden znak viac aby som sa vedel rozhodnut
             //printf("%d", c);
             //printf("%d\n", c2);
             if (c == '*' && c2 == '/')
