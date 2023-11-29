@@ -32,7 +32,7 @@ typedef struct btree_node{                      // structure of node
 
 char *string_dup(char *string);
 void insert(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, char *func_param, int func_num_of_param, char *return_type);
-bool search(btree_node *root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, char *func_param, int func_num_of_param, char *return_type);
+btree_node *search(btree_node *root, char *name_of_symbol);
 // void node_delete(btree_node **root, int token_type);
 void tree_dispose(btree_node **root);
 void printtree(btree_node *root, int level);
