@@ -6,6 +6,10 @@
 
 typedef struct DLLElement {
     char data;
+    char type;
+    int valueI;
+    double valueD;
+    char *string;
     struct DLLElement *previousElement;
     struct DLLElement *nextElement;
 } *DLLElementPtr;
@@ -31,6 +35,8 @@ char DLL_DeleteLast( DLList *list);
 void DLL_PrintList( DLList *list);
 
 char DLL_GetLast( DLList *list);
+
+void DLL_InsertValueLast(DLList *list, int type, char *value);
 
 DLLElementPtr DLL_TopTerminal(DLList *list, bool firstIteration);
 #endif

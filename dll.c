@@ -54,6 +54,25 @@ void DLL_InsertLast( DLList *list, char data ) {
 	}
 }
 
+void DLL_InsertValueLast(DLList *list, int type, char *value){
+	if(type == 1){
+		list->lastElement->type = 'V';
+		list->lastElement->string = value;
+	}
+	else if(type == 2){
+		list->lastElement->type = 'I';
+		list->lastElement->valueI = atoi(value);
+	}
+	else if(type == 3){
+		list->lastElement->type = 'D';
+		list->lastElement->valueD = strtod(value, NULL);
+	}
+	else{	//type==7
+		list->lastElement->type = 'S';
+		list->lastElement->string = value;
+	}
+}
+
 void DLL_First( DLList *list ) {
 	list->activeElement = list->firstElement;
 }
