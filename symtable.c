@@ -87,6 +87,10 @@ btree_node *rotate_left(btree_node *root){
     return new_root; 
 }
 
+void init(btree_node **root) {
+  *root = NULL;
+}
+
 btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, char *func_param, int func_num_of_param, char *return_type){
     btree_node *node = (btree_node *)malloc(sizeof(btree_node));
     if(node == NULL){                           // check for allocation
