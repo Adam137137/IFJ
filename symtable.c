@@ -8,15 +8,16 @@
 
 
 #include "symtable.h"
+#include "compiler.h"
 
 char *string_dup(char *string){
     if(string == NULL){
-        return NULL;
+        handle_error(INTERNAL_ERROR);
     }
 
     char *copied_string = malloc((strlen(string) + 1 )*sizeof(char));
     if(copied_string == NULL){
-        return NULL;
+        handle_error(INTERNAL_ERROR);
     }
     strcpy(copied_string, string);
     return copied_string;
@@ -27,6 +28,27 @@ int maximum(int a, int b){
         return a;
     }
     return b;
+}
+
+// negative number => we will go to right subtree, positive number => we will go to left subtree
+int lexicographic_compare(char *node_identifier, char *new_identifier){
+    int i = 0;
+    int result;
+    while(new_identifier[i] != '\0'){
+        result = node_identifier[i] - new_identifier[i];  
+        if(result == 0){
+            i++;
+        }
+    }
+    if(result == 0){                                            // case when we reach null terminator in new_identifier and they look identical
+        if(strlen(node_identifier) > strlen(new_identifier)){  // we have to determine whether they are the same word or new_identifier is a prefix to node_identifier
+            return -2;                                          // just return any negative number
+        }
+        else{
+            return 0;                 // identical names of variables
+        }
+    }
+    return result;    
 }
 
 int height_of_node(btree_node *root){
@@ -65,27 +87,61 @@ btree_node *rotate_left(btree_node *root){
     return new_root; 
 }
 
-btree_node *create_node(int token_type, int key, char *name_of_symbol, char *func_param, int func_num_of_param){
+btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, char *func_param, int func_num_of_param, char *return_type){
     btree_node *node = (btree_node *)malloc(sizeof(btree_node));
     if(node == NULL){                           // check for allocation
-        return NULL;                            // podla zadania sa vracia 99, ale to je dobra chujovina potom
+        handle_error(INTERNAL_ERROR);                            
     }
-    node->token_type = token_type;
-    node->key = key;
+    
     node->name_of_symbol = string_dup(name_of_symbol);                // duplicating the string given, allocating memmory for it and adding it to tree
     if(node->name_of_symbol == NULL){
         free(node);
-        return NULL;                                // podla zadania sa vracia 99, ale to je dobra chujovina potom
+        handle_error(INTERNAL_ERROR);                                
     }
+
+    node->token_type = token_type;
+    node->inicialized = inicialized;
+
+    node->data_type = string_dup(data_type);
+    if(node->data_type == NULL){
+        free(node);
+        free(node->name_of_symbol);
+        handle_error(INTERNAL_ERROR);
+    }
+    
+    node->let = let;
+    node->value_int = value_int;
+
+    node->value_string = string_dup(value_string);
+    if(node->value_string == NULL){
+        free(node);
+        free(node->name_of_symbol);
+        free(node->data_type);
+        handle_error(INTERNAL_ERROR);
+    }
+
+    node->value_double = value_double;
 
     node->func_param = string_dup(func_param);
     if(node->func_param == NULL){
         free(node);
         free(node->name_of_symbol);
-        return NULL;
+        free(node->data_type);
+        free(node->value_string);
+        handle_error(INTERNAL_ERROR);
     }
 
     node->func_num_of_param = func_num_of_param;
+
+    node->return_type = string_dup(return_type);
+    if(node->return_type == NULL){
+        free(node);
+        free(node->name_of_symbol);
+        free(node->data_type);
+        free(node->value_string);
+        free(node->func_param);
+        handle_error(INTERNAL_ERROR);        
+    }
 
     // node->height = 0;                               // aj bez tohto to tam da implicitne 0, ale v debuggeri to nedalo nic
     node->left = NULL;
@@ -93,83 +149,85 @@ btree_node *create_node(int token_type, int key, char *name_of_symbol, char *fun
     return node;
 }
 
-void insert(btree_node **root, int token_type, int key, char *name_of_symbol, char *func_param, int func_num_of_param){
+void insert(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, char *func_param, int func_num_of_param, char *return_type){
     if(*root == NULL){
-        *root = create_node(token_type, key, name_of_symbol, func_param, func_num_of_param);
+        *root = create_node(name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, func_param, func_num_of_param, return_type);
     }
     else{
-        if(key < (*root)->key){
-            insert(&((*root)->left), token_type, key, name_of_symbol, func_param, func_num_of_param);    
+        if(lexicographic_compare((*root)->name_of_symbol, name_of_symbol) < 0){
+            insert(&((*root)->right), name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, func_param, func_num_of_param, return_type);    
         }
-        else if(key > (*root)->key){
-            insert(&((*root)->right), token_type, key, name_of_symbol, func_param, func_num_of_param);
+        else if(lexicographic_compare((*root)->name_of_symbol, name_of_symbol) > 0){
+            insert(&((*root)->left), name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, func_param, func_num_of_param, return_type);
+        }
+        else{
+            //handle_error();  TO DO
         }
         (*root)->height = height_of_node(*root);
         int factor = balance_factor(*root);
-        if(factor == 2 && key < (*root)->left->key){                             // LL case
+        if(factor == 2 && lexicographic_compare((*root)->left->name_of_symbol, name_of_symbol) > 0){      // LL case
             *root = rotate_right(*root);
         }
 
-        if(factor == -2 && key > (*root)->right->key){                          // RR case
+        if(factor == -2 && lexicographic_compare((*root)->right->name_of_symbol, name_of_symbol) < 0){    // RR case
             *root = rotate_left(*root);
         }
 
-        if(factor == 2 && key > (*root)->left->key){                             // LR case
+        if(factor == 2 && lexicographic_compare((*root)->left->name_of_symbol, name_of_symbol) < 0){      // LR case
             (*root)->left = rotate_left((*root)->left);
             *root = rotate_right(*root);
         }
 
-        if(factor == -2 && key < (*root)->right->key){                          // RL case
+        if(factor == -2 && lexicographic_compare((*root)->right->name_of_symbol, name_of_symbol) > 0){    // RL case
             (*root)->right = rotate_right((*root)->right);
             *root = rotate_left(*root);
         }
     }
 }
 
-// token_type to know which tree, searching through keys, and returning true or false whether it found it, other params are for returning the values
-bool search(btree_node *root, int token_type, int key, char **name_of_symbol, char **func_param, int *func_num_of_param){
-    if (root == NULL){                          // case, when the key is not there
+// lexicographicly comparing identifiers and returning true or false whether it found it, other params are for returning the values
+bool search(btree_node *root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, char *func_param, int func_num_of_param, char *return_type){
+    if (root == NULL){                          // case, when identifier not found
+        puts("nenasli sme");
         return false;
     }
 
-    if (root->token_type != token_type){        // checking if we are in a good tree
-        return false;
-    }
-    
-    if (root->key == key){                             // found the key, returning valuse in variables
-        *name_of_symbol = string_dup(root->name_of_symbol);                 // duplicating the string given, allocating memmory for it, will be returned in param
-        if(*name_of_symbol == NULL){
-            return false;
-        }
+    if (strcmp(root->name_of_symbol, name_of_symbol) == 0){                 // found the key, returning valuse in variables
+        // TO DO
         
-        if(strlen(root->func_param) > 0){                   // check whether we have an empty string = a function has parameters
-            *func_param = string_dup(root->func_param);
-            if(*func_param == NULL){
-                free(*name_of_symbol);
-                return false;
-            }
-        }
-        else{
-            *func_param = NULL;
-        }
+        // duplicating the string given, allocating memmory for it, will be returned in param
+        
+        
+        // if(strlen(root->func_param) > 0){                   // check whether we have an empty string = a function has parameters
+        //     *func_param = string_dup(root->func_param);
+        //     if(*func_param == NULL){
+        //         free(*name_of_symbol);
+        //         return false;
+        //     }
+        // }
+        // else{
+        //     *func_param = NULL;
+        // }
 
-        if(func_num_of_param != 0){                                 // toto mozeme teoreticky spojit s tym hore
-            *func_num_of_param = root->func_num_of_param;
-        }
+        // if(func_num_of_param != 0){                                 // toto mozeme teoreticky spojit s tym hore
+        //     *func_num_of_param = root->func_num_of_param;
+        // }
+        puts("nasli sme");
         return true;
     }
-    else if (root->key != key){                                 // recurs
-        if(key < root->key){
-            return search(root->left, token_type, key, name_of_symbol, func_param, func_num_of_param);
+    else if (strcmp(root->name_of_symbol, name_of_symbol) != 0){          // recurs 
+        if(lexicographic_compare(root->name_of_symbol, name_of_symbol) > 0){
+            return search(root->left, name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, func_param, func_num_of_param, return_type);
         }
-        else if (key > root->key){
-            return search(root->right, token_type, key, name_of_symbol, func_param, func_num_of_param);
+        else if (lexicographic_compare(root->name_of_symbol, name_of_symbol) < 0){
+            return search(root->right, name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, func_param, func_num_of_param, return_type);
         }
-        
     }
     return false;     // idk ci to tu musi byt
 }
 
+// skipped for now
+/*
 void replace_highest_in_left_tree(btree_node **root, btree_node *target){
     if((*root)->right == NULL){                                                         // case where, we do not have right child, this is the node, that will replace targer
         
@@ -273,7 +331,7 @@ void node_delete(btree_node **root, int token_type, int key){
         }                                        
     }
 }
-
+*/
 void tree_dispose(btree_node **root) {
     if((*root) != NULL){
         tree_dispose(&((*root)->left));
@@ -304,7 +362,6 @@ void printtree(btree_node *root, int level){
         return;
     }
     printtab(level);
-    printf("root key : %d\n", root->key);
     printf("root name_of_symbol : %s\n", root->name_of_symbol);
     printf("height: %d\n", root->height);
     printtab(level);

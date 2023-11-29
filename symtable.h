@@ -7,20 +7,33 @@
 #include <stdbool.h>
 
 typedef struct btree_node{                      // structure of node
-    int token_type;                             // pre klucove slova : to bude 4, ak to tam nebude, novy strom kde toto bude 1                            
-    int key;                                    // identifier
-    char *name_of_symbol;                       // attribute
-    char *func_param;
+    char *name_of_symbol;                       // identifier
+    int token_type;                             // variable (1) / func (4),  if it is variable we check 
+    
+    // only in variable 
+    bool inicialized;                                                  
+    char *data_type;                            // int, double, string                           
+    bool let;                                   // if we use let, this is true or in let it is var
+    int value_int;                              // if data_type is int
+    char *value_string;                         // if data_type is string
+    double value_double;                        // if data_type is double
+
+    // only in functions
+    char *func_param;                           // params of func
     int func_num_of_param;
+    char *return_type;
+
+    
+    
     struct btree_node *left;                    // pointer to left child
     struct btree_node *right;                   // pointer to right child
     int height;                                 // height of node
 } btree_node;
 
 char *string_dup(char *string);
-void insert(btree_node **root, int token_type, int key, char *name_of_symbol, char *func_param, int func_num_of_param);
-bool search(btree_node *root, int token_type, int key, char **name_of_symbol, char **func_param, int *func_num_of_param);
-void node_delete(btree_node **root, int token_type, int key);
+void insert(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, char *func_param, int func_num_of_param, char *return_type);
+bool search(btree_node *root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, char *func_param, int func_num_of_param, char *return_type);
+// void node_delete(btree_node **root, int token_type);
 void tree_dispose(btree_node **root);
 void printtree(btree_node *root, int level);
 #endif
