@@ -44,13 +44,22 @@ bool returnovanie(){
     }
     return false;
 }
-bool func_declar(){
+bool func_declar(bool prvy_prechod){            // ak prvy_prechod == true => spracovavame hlavicky funckii 
     return_neni = true;
     
     current_token = getNextToken();
     if (current_token.type != 1){               // id
         return false;
     }
+
+    if (prvy_prechod)
+    {
+        init(&"current_token.attribute");
+        insert(&current_token.attribute, current_token.attribute, 1, false, "", false, 0, "", 0, "", 0, "");
+        // TODO ukazatele na stromy
+    }
+    
+
     current_token = getNextToken();
     if (current_token.type != 20){              // (
         return false;
@@ -429,7 +438,7 @@ bool sekvencia(){
         }
     }
     else if (strcmp(current_token.attribute, "func") == 0 && current_token.type == 4){
-        if (func_declar() == false){
+        if (func_declar(false) == false){
             return false;
         }
     }

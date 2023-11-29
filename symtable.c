@@ -35,10 +35,14 @@ int lexicographic_compare(char *node_identifier, char *new_identifier){
     int i = 0;
     int result;
     while(new_identifier[i] != '\0'){
-        result = node_identifier[i] - new_identifier[i];  
+        result = node_identifier[i] - new_identifier[i]; 
         if(result == 0){
             i++;
         }
+        else{
+            return result;
+        }
+        
     }
     if(result == 0){                                            // case when we reach null terminator in new_identifier and they look identical
         if(strlen(node_identifier) > strlen(new_identifier)){  // we have to determine whether they are the same word or new_identifier is a prefix to node_identifier
@@ -85,6 +89,10 @@ btree_node *rotate_left(btree_node *root){
     root->height = height_of_node(root);
     new_root->height = height_of_node(new_root);
     return new_root; 
+}
+
+void init(btree_node **root) {
+  *root = NULL;
 }
 
 btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, char *func_param, int func_num_of_param, char *return_type){
@@ -185,45 +193,26 @@ void insert(btree_node **root, char *name_of_symbol, int token_type, bool inicia
     }
 }
 
-// lexicographicly comparing identifiers and returning true or false whether it found it, other params are for returning the values
-bool search(btree_node *root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, char *func_param, int func_num_of_param, char *return_type){
+// lexicographicly comparing identifiers and returning pointer to node it has found it, else returns NULL
+btree_node *search(btree_node *root, char *name_of_symbol){
     if (root == NULL){                          // case, when identifier not found
         puts("nenasli sme");
-        return false;
+        return NULL;
     }
 
-    if (strcmp(root->name_of_symbol, name_of_symbol) == 0){                 // found the key, returning valuse in variables
-        // TO DO
-        
-        // duplicating the string given, allocating memmory for it, will be returned in param
-        
-        
-        // if(strlen(root->func_param) > 0){                   // check whether we have an empty string = a function has parameters
-        //     *func_param = string_dup(root->func_param);
-        //     if(*func_param == NULL){
-        //         free(*name_of_symbol);
-        //         return false;
-        //     }
-        // }
-        // else{
-        //     *func_param = NULL;
-        // }
-
-        // if(func_num_of_param != 0){                                 // toto mozeme teoreticky spojit s tym hore
-        //     *func_num_of_param = root->func_num_of_param;
-        // }
+    if (strcmp(root->name_of_symbol, name_of_symbol) == 0){                 // identifier found
         puts("nasli sme");
-        return true;
+        return root;
     }
     else if (strcmp(root->name_of_symbol, name_of_symbol) != 0){          // recurs 
         if(lexicographic_compare(root->name_of_symbol, name_of_symbol) > 0){
-            return search(root->left, name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, func_param, func_num_of_param, return_type);
+            return search(root->left, name_of_symbol);
         }
         else if (lexicographic_compare(root->name_of_symbol, name_of_symbol) < 0){
-            return search(root->right, name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, func_param, func_num_of_param, return_type);
+            return search(root->right, name_of_symbol);
         }
     }
-    return false;     // idk ci to tu musi byt
+    return NULL;  
 }
 
 // skipped for now
