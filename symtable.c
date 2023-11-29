@@ -35,10 +35,14 @@ int lexicographic_compare(char *node_identifier, char *new_identifier){
     int i = 0;
     int result;
     while(new_identifier[i] != '\0'){
-        result = node_identifier[i] - new_identifier[i];  
+        result = node_identifier[i] - new_identifier[i]; 
         if(result == 0){
             i++;
         }
+        else{
+            return result;
+        }
+        
     }
     if(result == 0){                                            // case when we reach null terminator in new_identifier and they look identical
         if(strlen(node_identifier) > strlen(new_identifier)){  // we have to determine whether they are the same word or new_identifier is a prefix to node_identifier
