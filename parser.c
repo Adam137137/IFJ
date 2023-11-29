@@ -45,6 +45,8 @@ bool returnovanie(){
     return false;
 }
 bool func_declar(){
+    return_neni = true;
+    
     current_token = getNextToken();
     if (current_token.type != 1){               // id
         return false;
@@ -67,12 +69,10 @@ bool func_declar(){
     if (current_token.type != 22){              // {
         return false;        
     }
-    current_token = getNextToken();
-    return_neni = true;
     if (sekvencia() == false){                  // sekvencia
         return false;
-    }
-    current_token = getNextToken();             
+    }             
+    current_token = getNextToken();
     if (returnovanie() == false){               // return
         return false;
     }
@@ -458,8 +458,8 @@ bool sekvencia(){
 
 void parser(){
     if (sekvencia() == true){
+        puts("OK");
         return;
-        // printf("OK\n");
     }
     else{
         handle_error(SYNTAX_ERROR);
