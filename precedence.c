@@ -85,7 +85,7 @@ bool reduce_exp(){
                 if(topTerminal->data == ')' || topTerminal->data == 'i'){
                     DLL_Dispose(&list);
                     // printf("test72\n");
-                    handle_error(2);
+                    handle_error(SYNTAX_ERROR);
                 }
                 else{
                     pushLess(&list, token_char);
@@ -98,7 +98,7 @@ bool reduce_exp(){
                     if(DLL_GetLast(&list) == '('){
                         DLL_Dispose(&list);
                         // printf("test84\n");
-                        handle_error(2);
+                        handle_error(SYNTAX_ERROR);
                     }
                     DLL_InsertLast(&list, token_char);
                     //DLL_PrintList(&list);
@@ -107,7 +107,7 @@ bool reduce_exp(){
                     //Free
                     DLL_Dispose(&list);
                     // printf("test92\n");
-                    handle_error(2);
+                    handle_error(SYNTAX_ERROR);
                 }
                 else{
                     //printf("Redukcia3\n");
@@ -123,7 +123,7 @@ bool reduce_exp(){
                     //Free
                     DLL_Dispose(&list);
                     // printf("test105\n");
-                    handle_error(2);
+                    handle_error(SYNTAX_ERROR);
                 }
                 else{
                     pushLess(&list, token_char);
@@ -135,7 +135,7 @@ bool reduce_exp(){
                     //Free
                     DLL_Dispose(&list);
                     // printf("test116\n");
-                    handle_error(2);
+                    handle_error(SYNTAX_ERROR);
                 }
                 else{
                     // printf("Redukcia4\n");
@@ -164,7 +164,7 @@ bool reduce_exp(){
     // token_print();
     if(counter != 0){               // parenthesis not closed properly
         DLL_Dispose(&list);
-        handle_error(2);
+        handle_error(SYNTAX_ERROR);
     }
     //puts("ungetujeme token co uz neni vyraz:");
     //token_print();

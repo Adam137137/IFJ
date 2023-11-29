@@ -21,7 +21,7 @@ void DLL_InsertFirst( DLList *list, int data ) {
 	DLLElementPtr cache = list->firstElement;
 	list->firstElement = malloc(sizeof(struct DLLElement));
 	if(list->firstElement == NULL){
-		handle_error(99);
+		handle_error(INTERNAL_ERROR);
 	}
 	list->firstElement->data = data;
 	list->firstElement->nextElement = cache;
@@ -37,7 +37,7 @@ void DLL_InsertFirst( DLList *list, int data ) {
 void DLL_InsertLast( DLList *list, char data ) {
 	DLLElementPtr cache = malloc(sizeof(struct DLLElement));
 	if(cache == NULL){
-		handle_error(99);
+		handle_error(INTERNAL_ERROR);
 	}
 	cache->data = data;
 	if(list->lastElement == NULL){	//If the list is empty
@@ -68,7 +68,7 @@ void DLL_InsertAfter( DLList *list, char data ) {
 	}
 	DLLElementPtr cache = malloc(sizeof(struct DLLElement));
 	if(cache == NULL){
-		handle_error(99);
+		handle_error(INTERNAL_ERROR);
 	}
 	cache->data = data;
 	cache->nextElement = list->activeElement->nextElement;
@@ -89,7 +89,7 @@ void DLL_InsertBefore( DLList *list, int data ) {
 	}
 	DLLElementPtr cache = malloc(sizeof(struct DLLElement));
 	if(cache == NULL){
-		handle_error(99);
+		handle_error(INTERNAL_ERROR);
 	}
 	cache->data = data;
 	cache->previousElement = list->activeElement->previousElement;
@@ -181,14 +181,14 @@ char DLL_DeleteBefore( DLList *list ) {
 
 char DLL_GetFirst( DLList *list, int *dataPtr ) {
 	if(list->firstElement == NULL){
-		handle_error(99);
+		handle_error(INTERNAL_ERROR);
 	}
 	return list->firstElement->data;
 }
 
 char DLL_GetLast( DLList *list){
 	if(list->lastElement == NULL){
-		handle_error(99);
+		handle_error(INTERNAL_ERROR);
 	}
 	return list->lastElement->data;
 }

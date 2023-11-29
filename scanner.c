@@ -86,7 +86,7 @@ struct Token getNextToken(){
     {
         if (string_pos ==98)
         {
-            handle_error(99);
+            handle_error(INTERNAL_ERROR);
         }
         
         c = getc(file);
@@ -630,7 +630,7 @@ struct Token getNextToken(){
 
         default:
             fprintf(stderr, "this state was not implemented\n");
-            handle_error(99);       
+            handle_error(INTERNAL_ERROR);       
             break;
         }
 
