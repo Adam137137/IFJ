@@ -95,7 +95,7 @@ void init(btree_node **root) {
     *root = NULL;
 }
 
-btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, param_struct_t paramsArray[10], int func_num_of_param, char return_type){
+btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double){
     btree_node *node = (btree_node *)malloc(sizeof(btree_node));
     if(node == NULL){                           // check for allocation
         handle_error(INTERNAL_ERROR);                            
@@ -135,9 +135,9 @@ btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, 
         node->paramsArray[i].identif = NULL;
         node->paramsArray[i].type = '\0';
     }
-    node->func_num_of_param = func_num_of_param;
+    node->func_num_of_param = 0;
 
-    node->return_type = return_type;
+    node->return_type = '\0';
 
     // node->height = 0;                               // aj bez tohto to tam da implicitne 0, ale v debuggeri to nedalo nic
     node->left = NULL;
@@ -178,16 +178,53 @@ void insert_params(btree_node **root, char *name_of_funcion, int which_attribute
         }
     }
 }
-void insert(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, param_struct_t paramsArray[10], int func_num_of_param, char return_type){
+
+void insert_variable(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double){
     if(*root == NULL){
-        *root = create_node(name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, paramsArray, func_num_of_param, return_type);
+        *root = create_node(name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double);
     }
     else{
         if(lexicographic_compare((*root)->name_of_symbol, name_of_symbol) < 0){
-            insert(&((*root)->right), name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, paramsArray, func_num_of_param, return_type);    
+            insert_variable(&((*root)->right), name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double);    
         }
         else if(lexicographic_compare((*root)->name_of_symbol, name_of_symbol) > 0){
-            insert(&((*root)->left), name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, paramsArray, func_num_of_param, return_type);
+            insert_variable(&((*root)->left), name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double);
+        }
+        else{
+            //handle_error();  TO DO
+        }
+        (*root)->height = height_of_node(*root);
+        int factor = balance_factor(*root);
+        if(factor == 2 && lexicographic_compare((*root)->left->name_of_symbol, name_of_symbol) > 0){      // LL case
+            *root = rotate_right(*root);
+        }
+
+        if(factor == -2 && lexicographic_compare((*root)->right->name_of_symbol, name_of_symbol) < 0){    // RR case
+            *root = rotate_left(*root);
+        }
+
+        if(factor == 2 && lexicographic_compare((*root)->left->name_of_symbol, name_of_symbol) < 0){      // LR case
+            (*root)->left = rotate_left((*root)->left);
+            *root = rotate_right(*root);
+        }
+
+        if(factor == -2 && lexicographic_compare((*root)->right->name_of_symbol, name_of_symbol) > 0){    // RL case
+            (*root)->right = rotate_right((*root)->right);
+            *root = rotate_left(*root);
+        }
+    }
+}
+
+void insert_func(btree_node **root, char *name_of_symbol, int token_type){
+    if(*root == NULL){
+        *root = create_node(name_of_symbol, token_type, false, "", false, 0, "", 0);
+    }
+    else{
+        if(lexicographic_compare((*root)->name_of_symbol, name_of_symbol) < 0){
+            insert_func(&((*root)->right), name_of_symbol, token_type);    
+        }
+        else if(lexicographic_compare((*root)->name_of_symbol, name_of_symbol) > 0){
+            insert_func(&((*root)->left), name_of_symbol, token_type);
         }
         else{
             //handle_error();  TO DO
