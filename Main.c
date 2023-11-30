@@ -50,11 +50,11 @@ int main(int argc, char *argv[]){
         prvy_prechod = false;
         DLL_PrintList2(&symtable_stack);
         puts("\n\n");
-        printtree(symtable_stack.firstElement->treeRoot, 0);
         
         rewind(stdin);
         clearerr(stdin);
         parser();
+        printtree(symtable_stack.firstElement->treeRoot, 0);
         // puts("druhe spustenie skoncilo");
     }
     return 0;

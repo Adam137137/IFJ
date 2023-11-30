@@ -316,11 +316,18 @@ bool rovna_sa__priradenie(){
 }
 bool letnutie(){
     current_token = getNextToken();
-    //token_print();
+    char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type == 1){
-        //insert_variable();
+        insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, true, "", true);
 
-        return dvojbodka_typ() && rovna_sa__priradenie();
+        if (dvojbodka_typ() == false){
+            return false;
+        }
+        if (rovna_sa__priradenie() == false){
+            return false;
+        }
+        free(name_of_node);
+        return true;
     }
     else{
         return false;
@@ -328,9 +335,19 @@ bool letnutie(){
 }
 
 bool varnutie(){
-    current_token = getNextToken(file);
+    current_token = getNextToken();
+    char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type == 1){
-        return dvojbodka_typ(file) && rovna_sa__priradenie(file);
+        insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, true, "", false);
+
+        if (dvojbodka_typ() == false){
+            return false;
+        }
+        if (rovna_sa__priradenie() == false){
+            return false;
+        }
+        free(name_of_node);
+        return true;
     }
     else{
         return false;
