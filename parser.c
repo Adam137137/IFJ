@@ -59,7 +59,7 @@ bool func_declar(){
             meno[i].identif = NULL;
             meno[i].type = '\0' ;
         }
-        insert(&tree_main, name_of_node, 1, false, "", false, 0, "", 0, meno, 0, "");
+        insert(&tree_main, name_of_node, 1, false, "", false, 0, "", 0, meno, 0, '\0');
         // TODO ukazatele na stromy
     }
 
@@ -75,7 +75,7 @@ bool func_declar(){
     if (current_token.type != 21){              // )
             return false;
     }
-    if (sipka_typ() == false){                  // ->typ
+    if (sipka_typ(name_of_node) == false){                  // ->typ
         return false;
     }
     current_token = getNextToken();
@@ -186,11 +186,11 @@ bool zbytok_param(char *name_of_node){
     return false;
 }
 
-bool sipka_typ(){
+bool sipka_typ(char *name_of_node){
     current_token = getNextToken();
     if (current_token.type == 11)
     {
-        return typ();
+        return typ(name_of_node);
     }
     else if(current_token.type == 22){          // {
         unget_token(current_token);
@@ -198,8 +198,12 @@ bool sipka_typ(){
     }
     return false;
 }
-
-bool typ(){
+/**
+ * toto volanie nastane pri urceni return typu pri deklaracii funckie alebo pri letnuti / varnuti
+ * 
+ * pri letnuti / varnuti iba urci typ, ale nikam nezapisuje
+*/
+bool typ(char *name_of_node){
     current_token = getNextToken();
     //token_print();
     if (current_token.type == 4 && ( 
@@ -210,6 +214,11 @@ bool typ(){
         strcmp(current_token.attribute, "String?") == 0 ||
         strcmp(current_token.attribute, "Double?") == 0))
     {
+        if (prvy_prechod && !(strcmp(name_of_node, "\0") == 0 ))                    // ak typ cita pri urceni return typu funkcie tak ho aj ulozi do nodu
+        {
+            insert_return_typ(&tree_main, name_of_node, current_token.attribute[0]);
+        }
+        
         return true;
     }
     return false;
@@ -241,7 +250,7 @@ bool typ_of_param(char *name_of_node){
 bool dvojbodka_typ(){
     current_token = getNextToken();
     if (strcmp(current_token.attribute, ":") == 0 && current_token.type == 12){     //ked nacita : tak urcime typ
-        return typ("ERROR");
+        return typ("\0");
     }
     dvojbodka_typ_neni = true;                       //epsilon pravidlo - ked nacita hocico ine okrem dvojbodky, poznacime ze typ bol vynechany
     unget_token(current_token);

@@ -27,7 +27,7 @@ typedef struct btree_node{                      // structure of node
     // only in functions
     param_struct_t paramsArray[10];             // array of params in func               TODO !!!!!
     int func_num_of_param;
-    char *return_type;
+    char return_type;
 
     
     
@@ -38,8 +38,9 @@ typedef struct btree_node{                      // structure of node
 
 char *string_dup(char *string);
 void init(btree_node **root);
+void insert_return_typ(btree_node **root, char *name_of_funcion, char return_type);
 void insert_params(btree_node **root, char *name_of_symbol, int which_attribute, char *atribute);
-void insert(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, param_struct_t paramsArray[10], int func_num_of_param, char *return_type);
+void insert(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, param_struct_t paramsArray[10], int func_num_of_param, char return_type);
 btree_node *search(btree_node *root, char *name_of_symbol);
 // void node_delete(btree_node **root, int token_type);
 void tree_dispose(btree_node **root);

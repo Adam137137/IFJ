@@ -95,7 +95,7 @@ void init(btree_node **root) {
     *root = NULL;
 }
 
-btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, param_struct_t paramsArray[10], int func_num_of_param, char *return_type){
+btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, param_struct_t paramsArray[10], int func_num_of_param, char return_type){
     btree_node *node = (btree_node *)malloc(sizeof(btree_node));
     if(node == NULL){                           // check for allocation
         handle_error(INTERNAL_ERROR);                            
@@ -137,19 +137,21 @@ btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, 
     }
     node->func_num_of_param = func_num_of_param;
 
-    node->return_type = string_dup(return_type);
-    if(node->return_type == NULL){
-        free(node);
-        free(node->name_of_symbol);
-        free(node->data_type);
-        free(node->value_string);
-        handle_error(INTERNAL_ERROR);        
-    }
+    node->return_type = return_type;
 
     // node->height = 0;                               // aj bez tohto to tam da implicitne 0, ale v debuggeri to nedalo nic
     node->left = NULL;
     node->right = NULL;
     return node;
+}
+void insert_return_typ(btree_node **root, char *name_of_funcion, char return_type){
+    if(*root == NULL){
+       handle_error(INTERNAL_ERROR);                    //nemala by byt NULL, lebo iba upadtujeme nodu dopisanim return typu
+    }
+    else{
+        btree_node *temp = search(*root, name_of_funcion);
+        temp->return_type = return_type;
+    }
 }
 void insert_params(btree_node **root, char *name_of_funcion, int which_attribute, char *atribute){
     if(*root == NULL){
@@ -176,7 +178,7 @@ void insert_params(btree_node **root, char *name_of_funcion, int which_attribute
         }
     }
 }
-void insert(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, param_struct_t paramsArray[10], int func_num_of_param, char *return_type){
+void insert(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, param_struct_t paramsArray[10], int func_num_of_param, char return_type){
     if(*root == NULL){
         *root = create_node(name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, paramsArray, func_num_of_param, return_type);
     }
@@ -368,7 +370,7 @@ void printtree(btree_node *root, int level){
     }
     printtab(level);
     printf("root name_of_symbol : %s\n", root->name_of_symbol);
-    printf("params:              name: %s               identif: %s            typ: %c\n", root->paramsArray[0].name, root->paramsArray[0].identif, root->paramsArray[0].type);
+    printf("params:           name: %s             identif: %s         typ: %c       return type: %c \n", root->paramsArray[0].name, root->paramsArray[0].identif, root->paramsArray[0].type, root->return_type);
     printf("height: %d\n", root->height);
     printtab(level);
     
