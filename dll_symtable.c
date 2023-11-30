@@ -1,25 +1,20 @@
 #include "dll_symtable.h"
 
 void DLL_Init2( DLList2 *list ) {
-	list->activeElement = NULL;
 	list->firstElement = NULL;
-	list->lastElement = NULL;
 }
 
 void DLL_InsertFirst2( DLList2 *list) {
-	DLLElementPtr2 cache = list->firstElement;
+	DLLElementPtr2 tmp = list->firstElement;
 	list->firstElement = malloc(sizeof(struct DLLElement2));
 	if(list->firstElement == NULL){
 		handle_error(INTERNAL_ERROR);
 	}
     list->firstElement->treeRoot = NULL;                    //inicializacia pointru na strom NULL
-	list->firstElement->nextElement = cache;
+	list->firstElement->nextElement = tmp;
 	list->firstElement->previousElement = NULL;
-	if(cache != NULL){	//Set ex-first element's pointer to new element
-		cache->previousElement = list->firstElement;
-	}
-	else{	//If inserted element is the sole element in list, set it to be the last element aswell
-		list->lastElement = list->firstElement;
+	if(tmp != NULL){	//Set ex-first element's pointer to new element
+		tmp->previousElement = list->firstElement;
 	}
 }
 
@@ -27,17 +22,12 @@ void DLL_DeleteFirst2( DLList2 *list ) {
 	if(list->firstElement == NULL){
 		return;
 	}
-	if(list->activeElement == list->firstElement){
-		list->activeElement = NULL;
-	}
+	DLLElementPtr2 tmp = list->firstElement;
 	list->firstElement = list->firstElement->nextElement;
-
 	if(list->firstElement != NULL){
-		list->firstElement->previousElement = NULL;		
+		list->firstElement->previousElement = NULL;
 	}
-	else{	//If first element was the only element in list, set last element to NULL aswell
-		list->lastElement = NULL;
-	}
+	free(tmp);
 }
 btree_node* find_declaration_of_variable(DLList2 *list, char *name_of_id){      //vrati node s name_of_id
     DLLElementPtr2 tmp;
@@ -53,16 +43,10 @@ btree_node* find_declaration_of_variable(DLList2 *list, char *name_of_id){      
             return search_node;
         }
     }
-    search_node =  search(tree_main, name_of_id);               //posledna sanca ze premenna je globalna v globalnom ramci
-    if (search_node != NULL){
-        return search_node;
-    }
-    else{
-        return NULL;                        //ked to nie je ani v globalnom ramci vrati NULL
-    }             
+    return NULL;                        //ked to nie je ani v globalnom ramci vrati NULL             
 }
 void DLL_PrintList2(DLList2 *list){
-	DLLElementPtr2 currentElement = list->lastElement;
+	DLLElementPtr2 currentElement = list->firstElement;
 	if (currentElement == NULL)
 	{
 		printf(" none (list is empty)");
@@ -71,7 +55,7 @@ void DLL_PrintList2(DLList2 *list){
 	while (currentElement != NULL)
 	{
         printf("%s", currentElement->treeRoot->name_of_symbol);
-		currentElement = currentElement->previousElement;
+		currentElement = currentElement->nextElement;
 	}
 	printf("\n");
 }

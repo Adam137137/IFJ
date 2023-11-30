@@ -1,6 +1,5 @@
 #include "compiler.h"
 FILE *file = NULL;
-btree_node *tree_main = NULL;
 bool prvy_prechod;
 DLList2 symtable_stack;
 bool testovanie = false;
@@ -45,10 +44,13 @@ int main(int argc, char *argv[]){
     }
     else{
         file = stdin;
+        DLL_InsertFirst2(&symtable_stack);
         first_analysis_parser();
         puts("prve spustenie skoncilo");
         prvy_prechod = false;
-        printtree(tree_main, 0);
+        DLL_PrintList2(&symtable_stack);
+        puts("\n\n");
+        printtree(symtable_stack.firstElement->treeRoot, 0);
         
         rewind(stdin);
         clearerr(stdin);

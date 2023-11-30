@@ -179,16 +179,16 @@ void insert_params(btree_node **root, char *name_of_funcion, int which_attribute
     }
 }
 
-void insert_variable(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double){
+void insert_variable(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let){
     if(*root == NULL){
-        *root = create_node(name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double);
+        *root = create_node(name_of_symbol, token_type, inicialized, data_type, let, 0, "", 0);
     }
     else{
         if(lexicographic_compare((*root)->name_of_symbol, name_of_symbol) < 0){
-            insert_variable(&((*root)->right), name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double);    
+            insert_variable(&((*root)->right), name_of_symbol, token_type, inicialized, data_type, let);    
         }
         else if(lexicographic_compare((*root)->name_of_symbol, name_of_symbol) > 0){
-            insert_variable(&((*root)->left), name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double);
+            insert_variable(&((*root)->left), name_of_symbol, token_type, inicialized, data_type, let);
         }
         else{
             //handle_error();  TO DO

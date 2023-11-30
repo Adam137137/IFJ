@@ -13,8 +13,6 @@ typedef struct DLLElement2 {
 
 typedef struct {
     DLLElementPtr2 firstElement;
-    DLLElementPtr2 activeElement;
-    DLLElementPtr2 lastElement;
 } DLList2;
 
 void DLL_PrintList2(DLList2 *list);

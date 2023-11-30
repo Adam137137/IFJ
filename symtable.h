@@ -40,7 +40,7 @@ char *string_dup(char *string);
 void init(btree_node **root);
 void insert_return_typ(btree_node **root, char *name_of_funcion, char return_type);
 void insert_params(btree_node **root, char *name_of_symbol, int which_attribute, char *atribute);
-void insert_variable(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double);
+void insert_variable(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let);
 void insert_func(btree_node **root, char *name_of_symbol, int token_type);
 btree_node *search(btree_node *root, char *name_of_symbol);
 // void node_delete(btree_node **root, int token_type);

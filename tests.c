@@ -48,7 +48,23 @@ void test_whilnutie(){
     fprintf(file, "%s", string);
     printf("%s\n",string);
 }
+void toto_preslo(){
+//     if  2+1 != 3{
+//     if 3+4 <6 {
+//         var id : Int
+//     }
+//     else{
+//         x = 5+1*(6-4)
+//     }
+//     let id = foo (with:2/3)
+// }
+// else{
 
+// }
+    char string []= "dopis si to tam \n";
+    fprintf(file, "%s", string);
+    printf("%s\n",string);
+}
 void test_scanner(){
 
     test_letnutie();

@@ -53,14 +53,7 @@ bool func_declar(){
     }
 
     if (prvy_prechod){
-        param_struct_t meno[10];
-        for (int i = 0; i < 10; i++) {
-            meno[i].name = NULL;
-            meno[i].identif = NULL;
-            meno[i].type = '\0' ;
-        }
-        insert(&tree_main, name_of_node, 1, false, "", false, 0, "", 0, meno, 0, '\0');
-        // TODO ukazatele na stromy
+        insert_func(&symtable_stack.firstElement->treeRoot, name_of_node, 1);
     }
 
 
@@ -129,7 +122,7 @@ bool parameter(char *name_of_node){
     {
         if (prvy_prechod)
         {
-            insert_params(&tree_main, name_of_node, 1, current_token.attribute);
+            insert_params(&symtable_stack.firstElement->treeRoot, name_of_node, 1, current_token.attribute);
         }
         
         return zbytok_param(name_of_node);
@@ -138,7 +131,7 @@ bool parameter(char *name_of_node){
     {
         if (prvy_prechod)
         {
-            insert_params(&tree_main, name_of_node, 1, current_token.attribute);
+            insert_params(&symtable_stack.firstElement->treeRoot, name_of_node, 1, current_token.attribute);
         }
         
         current_token = getNextToken();
@@ -148,7 +141,7 @@ bool parameter(char *name_of_node){
         }
         if (prvy_prechod)
         {
-            insert_params(&tree_main, name_of_node, 2, current_token.attribute);
+            insert_params(&symtable_stack.firstElement->treeRoot, name_of_node, 2, current_token.attribute);
         }
         current_token = getNextToken();
         //token_print();
@@ -184,7 +177,7 @@ bool zbytok_param(char *name_of_node){
         // token_print();
         if (prvy_prechod)
         {
-            insert_params(&tree_main, name_of_node, 2, current_token.attribute);
+            insert_params(&symtable_stack.firstElement->treeRoot, name_of_node, 2, current_token.attribute);
         }
 
         current_token = getNextToken();
@@ -227,7 +220,7 @@ bool typ(char *name_of_node){
     {
         if (prvy_prechod && !(strcmp(name_of_node, "\0") == 0 ))                    // ak typ cita pri urceni return typu funkcie tak ho aj ulozi do nodu
         {
-            insert_return_typ(&tree_main, name_of_node, current_token.attribute[0]);
+            insert_return_typ(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.attribute[0]);
         }
         
         return true;
@@ -251,7 +244,7 @@ bool typ_of_param(char *name_of_node){
     {
         if (prvy_prechod)
         {
-            insert_params(&tree_main, name_of_node, 3, current_token.attribute);
+            insert_params(&symtable_stack.firstElement->treeRoot, name_of_node, 3, current_token.attribute);
         }
         return true;
     }
@@ -276,7 +269,7 @@ bool priradenie_prave(){
     if (current_token.type == 1 && current_token2.type == 20){              // id (
         name_of_node = string_dup(current_token.attribute);
         
-        btree_node *temp = search(tree_main, name_of_node);
+        btree_node *temp = search(symtable_stack.firstElement->treeRoot, name_of_node);
         if (temp == NULL)
         {
             puts("funkcia neexistuje");
@@ -320,6 +313,8 @@ bool letnutie(){
     current_token = getNextToken();
     //token_print();
     if (current_token.type == 1){
+        //insert_variable();
+
         return dvojbodka_typ() && rovna_sa__priradenie();
     }
     else{
@@ -482,7 +477,7 @@ bool priradenie_zost(){
     current_token = getNextToken();                             
 
     if (current_token.type == 20){                               // ( paramter
-        btree_node *temp = search(tree_main, name_of_node);
+        btree_node *temp = search(symtable_stack.firstElement->treeRoot, name_of_node);
         free(name_of_node);
         if (temp == NULL)
         {
