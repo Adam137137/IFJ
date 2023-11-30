@@ -268,15 +268,20 @@ bool priradenie_prave(){
     current_token2 = getNextToken();
     if (current_token.type == 1 && current_token2.type == 20){              // id (
         name_of_node = string_dup(current_token.attribute);
-        
+        //printf("%s", name_of_node);
         btree_node *temp = search(symtable_stack.firstElement->treeRoot, name_of_node);
         if (temp == NULL)
         {
             puts("funkcia neexistuje");
             handle_error(SEMANTIC_UNDEFINED_FUNCTION);
         }
-        if (parametre_volania(temp) == false){
+        int num_of_params = 0;
+        if (parametre_volania(temp, &num_of_params) == false){
             return false;
+        }
+        if (num_of_params < temp->func_num_of_param){
+            printf("Pocet volanych parametrov je mensi ako pri deklaracii\n");
+            handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
         free(name_of_node);
         current_token = getNextToken();
@@ -436,14 +441,14 @@ bool param_vol_zost(btree_node *temp, int* num_of_params){
 
 bool parameter_volania(btree_node *temp, int* num_of_params){           // temp je ukazatel na uzol kde je nazov nasej funkcie
     (*num_of_params)++;                                                    //conuter parametrov
-    printf("Kolkaty parameter: %d\n", (*num_of_params));
+    //printf("Kolkaty parameter: %d\n", (*num_of_params));
     if (*num_of_params > temp->func_num_of_param){
         printf("Pocet parametrov vo volani je vacsi ako v deklaracii\n");
         handle_error(SEMANTIC_PARAMETER_MISMATCH);
     }
     current_token2 = getNextToken();    //: ak je dvojbodka je to volanie f(with: sth)
 
-    if (current_token2.type == 12 && (strcmp(temp->paramsArray[(*num_of_params)-1].name, "_") != 0)){              // id :                   
+    if (current_token2.type == 12 && (strcmp(temp->paramsArray[(*num_of_params)-1].name, "_") != 0)){              // id : a v deklaracii nemoze byt _                  
         //printf("precedencna\n");
         
         if (strcmp(temp->paramsArray[(*num_of_params)-1].name,current_token.attribute) != 0){     //ked je identifikator ale nezhodouje sa  
