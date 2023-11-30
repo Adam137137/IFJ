@@ -204,26 +204,26 @@ void reduce(DLList *list){
     }
     // printf("cache[1] = %c\n", cache[1]);
     DLL_DeleteLast(list);
-    printf("cache = \"%s\"\n", cache);
-    if(strcmp(cache, "E+E") == 0){
-        printf("Pravidlo 1\n");
-    }
-    else if(strcmp(cache, "E-E") == 0){
-        printf("Pravidlo 2\n");
-    }
-    else if(strcmp(cache, "E*E") == 0){
-        printf("Pravidlo 3\n");
-    }
-    else if(strcmp(cache, "E/E") == 0){
-        printf("Pravidlo 4\n");
-    }
-    else if(strcmp(cache, "(E)") == 0){
-        printf("Pravidlo 5\n");
-    }
-    else if(strcmp(cache, "i") == 0){
-        printf("Pravidlo 6\n");
-    }
-    DLL_InsertLast(list, 'E');
+    // printf("cache = \"%s\"\n", cache);
+    // if(strcmp(cache, "E+E") == 0){
+    //     printf("Pravidlo 1\n");
+    // }
+    // else if(strcmp(cache, "E-E") == 0){
+    //     printf("Pravidlo 2\n");
+    // }
+    // else if(strcmp(cache, "E*E") == 0){
+    //     printf("Pravidlo 3\n");
+    // }
+    // else if(strcmp(cache, "E/E") == 0){
+    //     printf("Pravidlo 4\n");
+    // }
+    // else if(strcmp(cache, "(E)") == 0){
+    //     printf("Pravidlo 5\n");
+    // }
+    // else if(strcmp(cache, "i") == 0){
+    //     printf("Pravidlo 6\n");
+    // }
     // printf("List po redukcii:");
     // DLL_PrintList(list);
+    DLL_InsertLast(list, 'E');
 }

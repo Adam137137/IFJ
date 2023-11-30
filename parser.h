@@ -9,7 +9,7 @@ void token_print();
 void unget_token(struct Token);
 
 bool sekvencia();
-bool func_declar(bool);
+bool func_declar();
 bool parametre();
 bool parameter();
 bool param_zostatok();

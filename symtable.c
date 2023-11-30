@@ -92,10 +92,10 @@ btree_node *rotate_left(btree_node *root){
 }
 
 void init(btree_node **root) {
-  *root = NULL;
+    *root = NULL;
 }
 
-btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, char *func_param, int func_num_of_param, char *return_type){
+btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, param_struct_t paramsArray[10], int func_num_of_param, char *return_type){
     btree_node *node = (btree_node *)malloc(sizeof(btree_node));
     if(node == NULL){                           // check for allocation
         handle_error(INTERNAL_ERROR);                            
@@ -130,15 +130,11 @@ btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, 
 
     node->value_double = value_double;
 
-    node->func_param = string_dup(func_param);
-    if(node->func_param == NULL){
-        free(node);
-        free(node->name_of_symbol);
-        free(node->data_type);
-        free(node->value_string);
-        handle_error(INTERNAL_ERROR);
+    for (int i = 0; i < 10; i++) {
+        node->paramsArray[i].name = NULL;
+        node->paramsArray[i].identif = NULL;
+        node->paramsArray[i].type = '\0';
     }
-
     node->func_num_of_param = func_num_of_param;
 
     node->return_type = string_dup(return_type);
@@ -147,7 +143,6 @@ btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, 
         free(node->name_of_symbol);
         free(node->data_type);
         free(node->value_string);
-        free(node->func_param);
         handle_error(INTERNAL_ERROR);        
     }
 
@@ -156,17 +151,41 @@ btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, 
     node->right = NULL;
     return node;
 }
-
-void insert(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, char *func_param, int func_num_of_param, char *return_type){
+void insert_params(btree_node **root, char *name_of_symbol, int which_attribute, char *atribute){
     if(*root == NULL){
-        *root = create_node(name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, func_param, func_num_of_param, return_type);
+       handle_error(INTERNAL_ERROR);                    //nemala by byt NULL, lebo iba upadtujeme nodu dopisanim parametrov
+    }
+    else{
+        btree_node *temp = search(*root, name_of_symbol);
+        int i = 0;
+        while (temp->paramsArray[i].type != '\0')       // snazi sa najst najblizsie volne miesto pre ulozenie parametrov
+        {
+            i++;
+        }
+        temp->func_num_of_param = i+1;
+        if (which_attribute == 1)                       // meno
+        {
+            temp->paramsArray[i].name = atribute;
+        }
+        else if (which_attribute == 2)                  // identifik
+        {
+            temp->paramsArray[i].identif = atribute;
+        }
+        else{                                           // typ
+            temp->paramsArray[i].type = atribute[0];
+        }
+    }
+}
+void insert(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, param_struct_t paramsArray[10], int func_num_of_param, char *return_type){
+    if(*root == NULL){
+        *root = create_node(name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, paramsArray, func_num_of_param, return_type);
     }
     else{
         if(lexicographic_compare((*root)->name_of_symbol, name_of_symbol) < 0){
-            insert(&((*root)->right), name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, func_param, func_num_of_param, return_type);    
+            insert(&((*root)->right), name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, paramsArray, func_num_of_param, return_type);    
         }
         else if(lexicographic_compare((*root)->name_of_symbol, name_of_symbol) > 0){
-            insert(&((*root)->left), name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, func_param, func_num_of_param, return_type);
+            insert(&((*root)->left), name_of_symbol, token_type, inicialized, data_type, let, value_int, value_string, value_double, paramsArray, func_num_of_param, return_type);
         }
         else{
             //handle_error();  TO DO
@@ -196,12 +215,12 @@ void insert(btree_node **root, char *name_of_symbol, int token_type, bool inicia
 // lexicographicly comparing identifiers and returning pointer to node it has found it, else returns NULL
 btree_node *search(btree_node *root, char *name_of_symbol){
     if (root == NULL){                          // case, when identifier not found
-        puts("nenasli sme");
+        // puts("nenasli sme");
         return NULL;
     }
 
     if (strcmp(root->name_of_symbol, name_of_symbol) == 0){                 // identifier found
-        puts("nasli sme");
+        // puts("nasli sme");
         return root;
     }
     else if (strcmp(root->name_of_symbol, name_of_symbol) != 0){          // recurs 
@@ -328,10 +347,7 @@ void tree_dispose(btree_node **root) {
         
         if((*root)->name_of_symbol != NULL){
             free((*root)->name_of_symbol);
-        }
-        if((*root)->func_param != NULL){                        // checking if it is not an empty string
-            free((*root)->func_param);
-        }
+        }                                               // checking if it is not an empty string
         free(*root);
         (*root) = NULL;
         return;

@@ -44,7 +44,7 @@ bool returnovanie(){
     }
     return false;
 }
-bool func_declar(bool prvy_prechod){            // ak prvy_prechod == true => spracovavame hlavicky funckii 
+bool func_declar(){
     return_neni = true;
     
     current_token = getNextToken();
@@ -52,13 +52,17 @@ bool func_declar(bool prvy_prechod){            // ak prvy_prechod == true => sp
         return false;
     }
 
-    if (prvy_prechod)
-    {
-        init(&"current_token.attribute");
-        insert(&current_token.attribute, current_token.attribute, 1, false, "", false, 0, "", 0, "", 0, "");
+    if (prvy_prechod){
+        param_struct_t meno[10];
+        for (int i = 0; i < 10; i++) {
+            meno[i].name = NULL;
+            meno[i].identif = NULL;
+            meno[i].type = '\0' ;
+        }
+        insert(&tree_main, current_token.attribute, 1, false, "", false, 0, "", 0, meno, 0, "");
         // TODO ukazatele na stromy
     }
-    
+
 
     current_token = getNextToken();
     if (current_token.type != 20){              // (
@@ -111,6 +115,7 @@ bool parameter(){
     // token uz je nacitany
     if (current_token.type == 1)                    // id
     {
+        // insert();
         return zbytok_param();
     }
     else if (current_token.type == 15)              // _

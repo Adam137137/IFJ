@@ -29,4 +29,6 @@ typedef enum {
 void handle_error(int error);
 // extern ErrorCode error;
 extern FILE *file;
+extern btree_node *tree_main;
+extern bool prvy_prechod;
 #endif
