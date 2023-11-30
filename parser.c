@@ -420,11 +420,12 @@ bool ifnutie(){
     return true;
 }
 
-bool param_vol_zost(){
+bool param_vol_zost(btree_node *temp, int* num_of_params){
     current_token = getNextToken();
     if (current_token.type == 13){                  // ,
         current_token = getNextToken();             // id,string,int...(proste dalsi param)
-        return parameter_volania() && param_vol_zost();
+        //(*num_of_params)++;
+        return parameter_volania(temp, num_of_params) && param_vol_zost(temp, num_of_params);
     }
     else if (current_token.type == 21){
         unget_token(current_token);                 // epsilon prechod musime vratit nacitany token naspat
@@ -433,17 +434,33 @@ bool param_vol_zost(){
     return false;
 }
 
-bool parameter_volania(){
-    current_token2 = getNextToken();                           //: ak je dvojbodka je to volanie f(with: sth)
-    
-    if (current_token2.type == 12){              // id :                   
-        //printf("precedencna\n"); 
-        current_token = getNextToken();                   // otazka je ze ci chceme nacitat token uz to alebo az v reduce_exp
+bool parameter_volania(btree_node *temp, int* num_of_params){           // temp je ukazatel na uzol kde je nazov nasej funkcie
+    (*num_of_params)++;                                                    //conuter parametrov
+    printf("Kolkaty parameter: %d\n", (*num_of_params));
+    if (*num_of_params > temp->func_num_of_param){
+        printf("Pocet parametrov vo volani je vacsi ako v deklaracii\n");
+        handle_error(SEMANTIC_PARAMETER_MISMATCH);
+    }
+    current_token2 = getNextToken();    //: ak je dvojbodka je to volanie f(with: sth)
+
+    if (current_token2.type == 12 && (strcmp(temp->paramsArray[(*num_of_params)-1].name, "_") != 0)){              // id :                   
+        //printf("precedencna\n");
+        
+        if (strcmp(temp->paramsArray[(*num_of_params)-1].name,current_token.attribute) != 0){     //ked je identifikator ale nezhodouje sa  
+            printf("Mena parametrov sa nezhoduju\n");
+            handle_error(SEMANTIC_PARAMETER_MISMATCH);
+        }
+        
+        current_token = getNextToken();                   // token do precedencnej
         if (reduce_exp() == false){
             return false;
         }
         return true;
     }
+    else if (current_token2.type == 12 && strcmp(temp->paramsArray[*(num_of_params)-1].name, "_") == 0){          //ked v zavolani fce nie je identifikator_param a v deklaracii fce je
+        printf("Meno parametru nema byt ale je\n");
+        handle_error(SEMANTIC_PARAMETER_MISMATCH);
+    } 
     else if (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8 || current_token.type == 20){    //ked nacita vyraz string,double,int,(...
         unget_token(current_token2);            //vratime token a zacneme precedencnu analyzu vyrazu
         //printf("precedencnaa\n");
@@ -454,17 +471,19 @@ bool parameter_volania(){
     }
     return false;
 }
-bool parametre_volania(btree_node *temp){
+bool parametre_volania(btree_node *temp, int* num_of_params){
     current_token = getNextToken();
+    //printf("%s\n", current_token.attribute);
     if (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8){    //ked nacita vyraz string,double,int,(...
-        return parameter_volania() && param_vol_zost();
+        return parameter_volania(temp, num_of_params) && param_vol_zost(temp,num_of_params);
     }
     else if (current_token.type == 21){         // epsilon )
+        // printf("somtu");
         
-        if (temp->func_num_of_param != 0)
-        {
-            handle_error(SEMANTIC_PARAMETER_MISMATCH);
-        }
+        // if (temp->func_num_of_param != 0)
+        // {
+        //     handle_error(SEMANTIC_PARAMETER_MISMATCH);
+        // }
 
         unget_token(current_token);
         return true;
@@ -484,10 +503,14 @@ bool priradenie_zost(){
             puts("funkcia neexistuje");
             handle_error(SEMANTIC_UNDEFINED_FUNCTION);
         }
-        
-        if (parametre_volania(temp) == false)
+        int num_of_params = 0;
+        if (parametre_volania(temp, &num_of_params) == false)
         {
             return false;
+        }
+        if (num_of_params < temp->func_num_of_param){
+            printf("Pocet volanych parametrov je mensi ako pri deklaracii\n");
+            handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
         current_token = getNextToken();
         return (current_token.type == 21);                      // )
