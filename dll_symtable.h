@@ -24,5 +24,6 @@ void DLL_DeleteFirst2( DLList2 *list );
 btree_node* find_declaration_of_variable(DLList2 *list, char *name_of_id);
 
 
+extern DLList2 symtable_stack;
 
 #endif

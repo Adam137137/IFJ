@@ -78,6 +78,17 @@ bool func_declar(){
     if (sipka_typ(name_of_node) == false){                  // ->typ
         return false;
     }
+
+
+    if (prvy_prechod)
+    {
+        free(name_of_node);
+        return true;
+    }
+    
+
+
+
     current_token = getNextToken();
     if (current_token.type != 22){              // {
         return false;        
@@ -258,13 +269,23 @@ bool dvojbodka_typ(){
 }
 
 bool priradenie_prave(){
+    char *name_of_node = "\0";
     //token_print();
     current_token = getNextToken();
     current_token2 = getNextToken();
     if (current_token.type == 1 && current_token2.type == 20){              // id (
-        if (parametre_volania() == false){
+        name_of_node = string_dup(current_token.attribute);
+        
+        btree_node *temp = search(tree_main, name_of_node);
+        if (temp == NULL)
+        {
+            puts("funkcia neexistuje");
+            handle_error(SEMANTIC_UNDEFINED_FUNCTION);
+        }
+        if (parametre_volania(temp) == false){
             return false;
         }
+        free(name_of_node);
         current_token = getNextToken();
         return (current_token.type == 21);                   // )
     }
@@ -438,12 +459,18 @@ bool parameter_volania(){
     }
     return false;
 }
-bool parametre_volania(){
+bool parametre_volania(btree_node *temp){
     current_token = getNextToken();
     if (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8){    //ked nacita vyraz string,double,int,(...
         return parameter_volania() && param_vol_zost();
     }
     else if (current_token.type == 21){         // epsilon )
+        
+        if (temp->func_num_of_param != 0)
+        {
+            handle_error(SEMANTIC_PARAMETER_MISMATCH);
+        }
+
         unget_token(current_token);
         return true;
     }
@@ -451,14 +478,28 @@ bool parametre_volania(){
 }
 
 bool priradenie_zost(){
+    char *name_of_node = string_dup(current_token.attribute);
     current_token = getNextToken();                             
 
-    if (current_token.type == 20 && parametre_volania()){       // ( paramter    
+    if (current_token.type == 20){                               // ( paramter
+        btree_node *temp = search(tree_main, name_of_node);
+        free(name_of_node);
+        if (temp == NULL)
+        {
+            puts("funkcia neexistuje");
+            handle_error(SEMANTIC_UNDEFINED_FUNCTION);
+        }
+        
+        if (parametre_volania(temp) == false)
+        {
+            return false;
+        }
         current_token = getNextToken();
-        return (current_token.type == 21) ? true : false;       // )
+        return (current_token.type == 21);                      // )
+    
     }
-
     else if (current_token.type == 10){                         // =
+        free(name_of_node);
         return priradenie_prave();
     }
     return false;

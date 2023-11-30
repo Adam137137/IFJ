@@ -32,5 +32,4 @@ void handle_error(int error);
 extern FILE *file;
 extern btree_node *tree_main;
 extern bool prvy_prechod;
-extern DLList2 symtable_stack;
 #endif

@@ -30,7 +30,6 @@ void DLL_DeleteFirst2( DLList2 *list ) {
 	if(list->activeElement == list->firstElement){
 		list->activeElement = NULL;
 	}
-	DLLElementPtr2 cache = list->firstElement;
 	list->firstElement = list->firstElement->nextElement;
 
 	if(list->firstElement != NULL){
