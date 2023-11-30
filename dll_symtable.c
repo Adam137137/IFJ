@@ -29,17 +29,17 @@ void DLL_DeleteFirst2( DLList2 *list ) {
 	}
 	free(tmp);
 }
-btree_node* find_declaration_of_variable(DLList2 *list, char *name_of_id){      //vrati node s name_of_id
+btree_node* find_declaration(DLList2 *list, char *name_of_id){      //vrati node s name_of_id
     DLLElementPtr2 tmp;
     btree_node *search_node;               //hladana noda s name_of_id
     tmp = list->firstElement;
-    while (tmp != NULL || tmp->treeRoot->token_type != 4){                 // dokym nenarazime na funkciu
+    while (tmp != NULL){                 // dokym nenarazime na funkciu
         search_node =  search(tmp->treeRoot, name_of_id);
         if (search_node == NULL){
             tmp = tmp->nextElement;
         }
         else{
-            printf("Nasli sme premennu v tabulke - kontrola typu atd.");
+            // printf("Nasli sme premennu v tabulke - kontrola typu atd.\n");
             return search_node;
         }
     }
@@ -54,7 +54,7 @@ void DLL_PrintList2(DLList2 *list){
 
 	while (currentElement != NULL)
 	{
-        printf("%s", currentElement->treeRoot->name_of_symbol);
+        printf("%s    ", currentElement->treeRoot->name_of_symbol);
 		currentElement = currentElement->nextElement;
 	}
 	printf("\n");

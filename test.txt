@@ -19,7 +19,7 @@ func factorial(_ n : Int) -> Int {
     else{
         x = 5+1*(6-4)
     }
-    let id = foo (with:2/3)
+    let id = foo (2/3)
     return
 }
 
@@ -34,7 +34,7 @@ if  2+1 != 3{
     else{
         x = 5+1*(6-4)
     }
-    let id = foo (with:2/3)
+    let id = foo (2/3)
 }
 else{
 

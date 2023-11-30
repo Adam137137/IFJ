@@ -46,14 +46,16 @@ int main(int argc, char *argv[]){
         file = stdin;
         DLL_InsertFirst2(&symtable_stack);
         first_analysis_parser();
+        DLL_PrintList2(&symtable_stack);
         puts("prve spustenie skoncilo");
         prvy_prechod = false;
-        DLL_PrintList2(&symtable_stack);
         puts("\n\n");
         
         rewind(stdin);
         clearerr(stdin);
         parser();
+        puts("po vymazaniu");
+        DLL_PrintList2(&symtable_stack);
         printtree(symtable_stack.firstElement->treeRoot, 0);
         // puts("druhe spustenie skoncilo");
     }

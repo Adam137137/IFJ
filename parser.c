@@ -97,6 +97,8 @@ bool func_declar(){
         return false;
     }
     free(name_of_node);
+    puts("pred vymazanim");
+    DLL_PrintList2(&symtable_stack);
     DLL_DeleteFirst2(&symtable_stack);
     return true;
 }
@@ -269,7 +271,7 @@ bool priradenie_prave(){
     if (current_token.type == 1 && current_token2.type == 20){              // id (
         name_of_node = string_dup(current_token.attribute);
         //printf("%s", name_of_node);
-        btree_node *temp = search(symtable_stack.firstElement->treeRoot, name_of_node);
+        btree_node *temp = find_declaration(&symtable_stack, name_of_node);
         if (temp == NULL)
         {
             puts("funkcia neexistuje");
@@ -518,7 +520,7 @@ bool priradenie_zost(){
     current_token = getNextToken();                             
 
     if (current_token.type == 20){                               // ( paramter
-        btree_node *temp = search(symtable_stack.firstElement->treeRoot, name_of_node);
+        btree_node *temp = find_declaration(&symtable_stack, name_of_node);
         free(name_of_node);
         if (temp == NULL)
         {
