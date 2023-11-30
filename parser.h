@@ -10,12 +10,13 @@ void unget_token(struct Token);
 
 bool sekvencia();
 bool func_declar();
-bool parametre();
-bool parameter();
-bool param_zostatok();
-bool zbytok_param();
+bool parametre(char *name_of_node);
+bool parameter(char *name_of_node);
+bool param_zostatok(char *name_of_node);
+bool zbytok_param(char *name_of_node);
 bool sipka_typ();
 bool typ();
+bool typ_of_param(char *name_of_node);
 bool ifnutie();
 bool podmienka();
 bool relacia();

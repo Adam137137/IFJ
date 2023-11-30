@@ -46,8 +46,8 @@ bool returnovanie(){
 }
 bool func_declar(){
     return_neni = true;
-    
     current_token = getNextToken();
+    char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type != 1){               // id
         return false;
     }
@@ -59,7 +59,7 @@ bool func_declar(){
             meno[i].identif = NULL;
             meno[i].type = '\0' ;
         }
-        insert(&tree_main, current_token.attribute, 1, false, "", false, 0, "", 0, meno, 0, "");
+        insert(&tree_main, name_of_node, 1, false, "", false, 0, "", 0, meno, 0, "");
         // TODO ukazatele na stromy
     }
 
@@ -68,7 +68,7 @@ bool func_declar(){
     if (current_token.type != 20){              // (
         return false;
     }
-    if (parametre() == false){                  // parametre
+    if (parametre(name_of_node) == false){                  // parametre
             return false;
     }
     current_token = getNextToken();
@@ -76,7 +76,7 @@ bool func_declar(){
             return false;
     }
     if (sipka_typ() == false){                  // ->typ
-            return false;
+        return false;
     }
     current_token = getNextToken();
     if (current_token.type != 22){              // {
@@ -84,7 +84,7 @@ bool func_declar(){
     }
     if (sekvencia() == false){                  // sekvencia
         return false;
-    }             
+    }
     current_token = getNextToken();
     if (returnovanie() == false){               // return
         return false;
@@ -93,15 +93,16 @@ bool func_declar(){
     if (current_token.type != 23){              // }
         return false;
     }
+    free(name_of_node);
     return true;
 }
 
-bool parametre(){
+bool parametre(char *name_of_node){
     current_token = getNextToken();
     // token_print();
     if (current_token.type == 1 ||current_token.type == 15)
     {
-        return parameter() && param_zostatok();
+        return parameter(name_of_node) && param_zostatok(name_of_node);
     }
     else if (current_token.type == 21)               // )
     {
@@ -111,19 +112,32 @@ bool parametre(){
     return false;
 }
 
-bool parameter(){
+bool parameter(char *name_of_node){
     // token uz je nacitany
     if (current_token.type == 1)                    // id
     {
-        // insert();
-        return zbytok_param();
+        if (prvy_prechod)
+        {
+            insert_params(&tree_main, name_of_node, 1, current_token.attribute);
+        }
+        
+        return zbytok_param(name_of_node);
     }
     else if (current_token.type == 15)              // _
     {
+        if (prvy_prechod)
+        {
+            insert_params(&tree_main, name_of_node, 1, current_token.attribute);
+        }
+        
         current_token = getNextToken();
         if (current_token.type != 1)                // id
         {
             return false;
+        }
+        if (prvy_prechod)
+        {
+            insert_params(&tree_main, name_of_node, 2, current_token.attribute);
         }
         current_token = getNextToken();
         //token_print();
@@ -131,18 +145,18 @@ bool parameter(){
         {
             return false;
         }
-        return typ();
+        return typ_of_param(name_of_node);
     }
     return false;
 }
 
-bool param_zostatok(){
+bool param_zostatok(char *name_of_node){
     current_token = getNextToken();
     //token_print();
     if (current_token.type == 13)                   // ,
     {
         current_token = getNextToken();
-        return parameter() && param_zostatok();
+        return parameter(name_of_node) && param_zostatok(name_of_node);
     }
     else if (current_token.type == 21)              // epsilon
     {
@@ -152,16 +166,20 @@ bool param_zostatok(){
     return false;
 }
 
-bool zbytok_param(){
+bool zbytok_param(char *name_of_node){
     current_token = getNextToken();
     if (current_token.type == 1 || current_token.type == 15)
     {
-        //token_print();
+        // token_print();
+        if (prvy_prechod)
+        {
+            insert_params(&tree_main, name_of_node, 2, current_token.attribute);
+        }
+
         current_token = getNextToken();
         if (current_token.type == 12)           // :
         {
-            //token_print();
-            return typ();
+            return typ_of_param(name_of_node);
         }
         return false;
     }
@@ -196,11 +214,34 @@ bool typ(){
     }
     return false;
 }
+/**
+ * toto volanie nastane iba z deklaracie funkcie od samotnych parametrov
+ * 
+ * pri prvom prechode analyzy bude aktualizovat nodu stromu
+*/
+bool typ_of_param(char *name_of_node){
+    current_token = getNextToken();
+    if (current_token.type == 4 && ( 
+        strcmp(current_token.attribute, "Int") == 0 ||
+        strcmp(current_token.attribute, "String") == 0 ||
+        strcmp(current_token.attribute, "Double") == 0 ||
+        strcmp(current_token.attribute, "Int?") == 0 ||
+        strcmp(current_token.attribute, "String?") == 0 ||
+        strcmp(current_token.attribute, "Double?") == 0))
+    {
+        if (prvy_prechod)
+        {
+            insert_params(&tree_main, name_of_node, 3, current_token.attribute);
+        }
+        return true;
+    }
+    return false;
+}
 
 bool dvojbodka_typ(){
     current_token = getNextToken();
     if (strcmp(current_token.attribute, ":") == 0 && current_token.type == 12){     //ked nacita : tak urcime typ
-        return typ();
+        return typ("ERROR");
     }
     dvojbodka_typ_neni = true;                       //epsilon pravidlo - ked nacita hocico ine okrem dvojbodky, poznacime ze typ bol vynechany
     unget_token(current_token);
@@ -420,7 +461,6 @@ bool idnutie(){
 
 bool sekvencia(){
     current_token = getNextToken();
-    //token_print();
     dvojbodka_typ_neni = false;
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
         if (letnutie() == false){
@@ -455,9 +495,12 @@ bool sekvencia(){
     //else if(current_token.type == 2 || current_token.type == 3){
         //return reduce_exp();
     //}
-    else if (current_token.type == 23 || (current_token.type == 4 && strcmp(current_token.attribute, "return") == 0 && return_neni == true)){                 //epsion prechod
+    else if (current_token.type == 23 || (current_token.type == 4 && strcmp(current_token.attribute, "return") == 0 )){                 //epsion prechod
         unget_token(current_token);
-        return_neni = false;
+        if (current_token.type == 4)                        //precitali sme return
+        {
+            return_neni = false;
+        }
         return true;
     }
     else if(current_token.type == 0){

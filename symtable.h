@@ -17,8 +17,8 @@ typedef struct btree_node{                      // structure of node
     int token_type;                             // variable (1) / func (4),  if it is variable we check 
     
     // only in variable 
-    bool inicialized;                                                  
-    char *data_type;                            // int, double, string                           
+    bool inicialized;
+    char *data_type;                            // int, double, string
     bool let;                                   // if we use let, this is true or in let it is var
     int value_int;                              // if data_type is int
     char *value_string;                         // if data_type is string
@@ -38,6 +38,7 @@ typedef struct btree_node{                      // structure of node
 
 char *string_dup(char *string);
 void init(btree_node **root);
+void insert_params(btree_node **root, char *name_of_symbol, int which_attribute, char *atribute);
 void insert(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double, param_struct_t paramsArray[10], int func_num_of_param, char *return_type);
 btree_node *search(btree_node *root, char *name_of_symbol);
 // void node_delete(btree_node **root, int token_type);

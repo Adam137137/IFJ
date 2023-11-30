@@ -151,12 +151,12 @@ btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, 
     node->right = NULL;
     return node;
 }
-void insert_params(btree_node **root, char *name_of_symbol, int which_attribute, char *atribute){
+void insert_params(btree_node **root, char *name_of_funcion, int which_attribute, char *atribute){
     if(*root == NULL){
        handle_error(INTERNAL_ERROR);                    //nemala by byt NULL, lebo iba upadtujeme nodu dopisanim parametrov
     }
     else{
-        btree_node *temp = search(*root, name_of_symbol);
+        btree_node *temp = search(*root, name_of_funcion);
         int i = 0;
         while (temp->paramsArray[i].type != '\0')       // snazi sa najst najblizsie volne miesto pre ulozenie parametrov
         {
@@ -368,6 +368,7 @@ void printtree(btree_node *root, int level){
     }
     printtab(level);
     printf("root name_of_symbol : %s\n", root->name_of_symbol);
+    printf("params:              name: %s               identif: %s            typ: %c\n", root->paramsArray[0].name, root->paramsArray[0].identif, root->paramsArray[0].type);
     printf("height: %d\n", root->height);
     printtab(level);
     
