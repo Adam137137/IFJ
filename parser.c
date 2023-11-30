@@ -52,9 +52,10 @@ bool func_declar(){
         return false;
     }
 
-    if (prvy_prechod){
-        insert_func(&symtable_stack.firstElement->treeRoot, name_of_node, 1);
+    if (!prvy_prechod){
+        DLL_InsertFirst2(&symtable_stack);
     }
+    insert_func(&symtable_stack.firstElement->treeRoot, name_of_node, 1);
 
 
     current_token = getNextToken();
@@ -72,16 +73,14 @@ bool func_declar(){
         return false;
     }
 
-
-    if (prvy_prechod)
+///////////////////////////////////////
+    if (prvy_prechod)                       // end of first analysis
     {
         free(name_of_node);
         return true;
     }
     
-
-
-
+///////////////////////////////////////
     current_token = getNextToken();
     if (current_token.type != 22){              // {
         return false;        
@@ -98,6 +97,7 @@ bool func_declar(){
         return false;
     }
     free(name_of_node);
+    DLL_DeleteFirst2(&symtable_stack);
     return true;
 }
 
