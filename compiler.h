@@ -11,6 +11,7 @@
 #include "precedence.h"
 #include "dll.h"
 #include "tests.h"
+#include "dll_symtable.h"
 
 typedef enum {
     NO_ERROR = 0,
@@ -31,4 +32,5 @@ void handle_error(int error);
 extern FILE *file;
 extern btree_node *tree_main;
 extern bool prvy_prechod;
+extern DLList2 symtable_stack;
 #endif

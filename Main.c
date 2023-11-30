@@ -2,7 +2,7 @@
 FILE *file = NULL;
 btree_node *tree_main = NULL;
 bool prvy_prechod;
-
+DLList2 symtable_stack;
 bool testovanie = false;
 
 
