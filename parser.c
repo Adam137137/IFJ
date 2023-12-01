@@ -359,9 +359,11 @@ bool priradenie_prave(){
     return false;
 }
 
-bool rovna_sa__priradenie(){
+bool rovna_sa__priradenie(char* name_of_node){
     current_token = getNextToken();                                     // =
     if (current_token.type == 10 && strcmp(current_token.attribute, "=") == 0){
+        btree_node *tmp = find_declaration(&symtable_stack,name_of_node);
+        tmp->inicialized = true;
         return priradenie_prave();
     }
     else if(dvojbodka_typ_neni){              //ked bola vypustena deklaracia typu nemozeme vypustit priradenie
@@ -377,11 +379,11 @@ bool letnutie(){
     current_token = getNextToken();
     char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type == 1){
-        insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, true, '\0', true);
+        insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, false, '\0', true);
         if (dvojbodka_typ(name_of_node) == false){
             return false;
         }
-        if (rovna_sa__priradenie() == false){
+        if (rovna_sa__priradenie(name_of_node) == false){
             return false;
         }
         free(name_of_node);
@@ -400,7 +402,7 @@ bool varnutie(){
         if (dvojbodka_typ(name_of_node) == false){
             return false;
         }
-        if (rovna_sa__priradenie() == false){
+        if (rovna_sa__priradenie(name_of_node) == false){
             return false;
         }
         free(name_of_node);
@@ -636,13 +638,14 @@ bool sekvencia(){
         }
     }
     else if(current_token.type == 1 || current_token.type == 16){
-        // if (find_declaration(&symtable_stack, current_token.attribute) == NULL){        //nenajdeme id false
-        //         printf("Nenasli sme premennu pri idnuti\n");
-        //         handle_error(SEMANTIC_UNDEFINED_VARIABLE);
-        //     }
+        if (find_declaration(&symtable_stack, current_token.attribute) == NULL){        //nenajdeme id false
+                printf("Nenasli sme premennu do ktorej chceme vlozit hodnotu\n");
+                handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
+            }
         if (idnutie() == false){
             return false;
         }
+
     }
     //else if(current_token.type == 2 || current_token.type == 3){
         //return reduce_exp();
