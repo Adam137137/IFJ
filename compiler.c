@@ -35,7 +35,7 @@ void handle_error(int error){
         exit(SYNTAX_ERROR);
         break;
     case SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE:
-        fprintf(stderr,"semantic error: undefined function\n");
+        fprintf(stderr,"semantic error: undefined function or redefined variable\n");
         exit(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
         break;
     case SEMANTIC_PARAMETER_MISMATCH:
