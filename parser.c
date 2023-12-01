@@ -317,7 +317,7 @@ bool priradenie_prave(){
         if (temp == NULL)
         {
             puts("funkcia neexistuje\n");
-            handle_error(SEMANTIC_UNDEFINED_FUNCTION);
+            handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
         }
         int num_of_params = 0;
         if (parametre_volania(temp, &num_of_params) == false){
@@ -333,16 +333,16 @@ bool priradenie_prave(){
     }
     else if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7 || current_token.type == 8 || current_token.type == 20){
         //printf("expression will be reduced:\n");
-        token_print();
+        // token_print();
         //printf("somtu");
         //printf("%d", reduce_exp());
         //printf("%s", current_token.attribute);
-        //unget_token(current_token2);                       //toto asi treba dat pred reduce_exp
+        unget_token(current_token2);                       //toto asi treba dat pred reduce_exp
         //printf("%d", reduce_exp());
         //printf("anoo");
-        //if (reduce_exp() == false){                         //tu uz su nacitane rovno prve dva tokeny
-           // return false;
-        //}
+        if (reduce_exp() == false){                         //tu uz su nacitane rovno prve dva tokeny
+           return false;
+        }
         //token_print();
         return true;
     }
@@ -570,7 +570,7 @@ bool priradenie_zost(){
         if (temp == NULL)
         {
             puts("funkcia neexistuje");
-            handle_error(SEMANTIC_UNDEFINED_FUNCTION);
+            handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
         }
         int num_of_params = 0;
         if (parametre_volania(temp, &num_of_params) == false)
@@ -598,7 +598,7 @@ bool idnutie(){
 
 bool sekvencia(){
     current_token = getNextToken();
-    token_print();
+    // token_print();
     dvojbodka_typ_neni = false;
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
         if (letnutie() == false){

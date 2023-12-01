@@ -199,7 +199,7 @@ void insert_variable(btree_node **root, char *name_of_symbol, int token_type, bo
             insert_variable(&((*root)->left), name_of_symbol, token_type, inicialized, data_type, let);
         }
         else{
-            handle_error(SEMANTIC_UNDEFINED_FUNCTION);
+            handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
         }
         (*root)->height = height_of_node(*root);
         int factor = balance_factor(*root);
@@ -235,7 +235,7 @@ void insert_func(btree_node **root, char *name_of_symbol, int token_type){
             insert_func(&((*root)->left), name_of_symbol, token_type);
         }
         else{
-            handle_error(SEMANTIC_UNDEFINED_FUNCTION);
+            handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
         }
         (*root)->height = height_of_node(*root);
         int factor = balance_factor(*root);

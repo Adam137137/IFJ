@@ -55,7 +55,7 @@ int main(int argc, char *argv[]){
         rewind(stdin);
         clearerr(stdin);
         //insert_variable(&symtable_stack.firstElement->treeRoot, "anoo", current_token.type, true, "", true);
-        //printtree(symtable_stack.firstElement->treeRoot,0);
+        // printtree(symtable_stack.firstElement->treeRoot,0);
         //insert_data_type(&symtable_stack.firstElement->treeRoot, "anoo", 'I');
         parser();
         puts("druhe spustenie skoncilo");
