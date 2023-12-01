@@ -316,7 +316,7 @@ bool priradenie_prave(){
         btree_node *temp = find_declaration(&symtable_stack, name_of_node);
         if (temp == NULL)
         {
-            puts("funkcia neexistuje");
+            puts("funkcia neexistuje\n");
             handle_error(SEMANTIC_UNDEFINED_FUNCTION);
         }
         int num_of_params = 0;
@@ -333,11 +333,16 @@ bool priradenie_prave(){
     }
     else if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7 || current_token.type == 8 || current_token.type == 20){
         //printf("expression will be reduced:\n");
-        //token_print();
-        unget_token(current_token2);                       //toto asi treba dat pred reduce_exp
-        if (reduce_exp() == false){                         //tu uz su nacitane rovno prve dva tokeny
-            return false;
-        }
+        token_print();
+        //printf("somtu");
+        //printf("%d", reduce_exp());
+        //printf("%s", current_token.attribute);
+        //unget_token(current_token2);                       //toto asi treba dat pred reduce_exp
+        //printf("%d", reduce_exp());
+        //printf("anoo");
+        //if (reduce_exp() == false){                         //tu uz su nacitane rovno prve dva tokeny
+           // return false;
+        //}
         //token_print();
         return true;
     }
@@ -593,6 +598,7 @@ bool idnutie(){
 
 bool sekvencia(){
     current_token = getNextToken();
+    token_print();
     dvojbodka_typ_neni = false;
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
         if (letnutie() == false){
@@ -620,6 +626,10 @@ bool sekvencia(){
         }
     }
     else if(current_token.type == 1 || current_token.type == 16){
+        // if (find_declaration(&symtable_stack, current_token.attribute) == NULL){        //nenajdeme id false
+        //         printf("Nenasli sme premennu pri idnuti\n");
+        //         handle_error(SEMANTIC_UNDEFINED_VARIABLE);
+        //     }
         if (idnutie() == false){
             return false;
         }
