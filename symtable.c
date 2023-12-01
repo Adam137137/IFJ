@@ -95,7 +95,7 @@ void init(btree_node **root) {
     *root = NULL;
 }
 
-btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let, int value_int, char *value_string, double value_double){
+btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, char data_type, bool let, int value_int, char *value_string, double value_double){
     btree_node *node = (btree_node *)malloc(sizeof(btree_node));
     if(node == NULL){                           // check for allocation
         handle_error(INTERNAL_ERROR);                            
@@ -110,7 +110,7 @@ btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, 
     node->token_type = token_type;
     node->inicialized = inicialized;
 
-    node->data_type = *data_type;
+    node->data_type = data_type;
     
     node->let = let;
     node->value_int = value_int;
@@ -118,8 +118,9 @@ btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, 
     node->value_string = string_dup(value_string);
     if(node->value_string == NULL){
         free(node);
-        free(node->name_of_symbol);
-        //free(node->data_type);
+        if(node->name_of_symbol != NULL){
+            free(node->name_of_symbol);
+        }    
         handle_error(INTERNAL_ERROR);
     }
 
@@ -139,6 +140,7 @@ btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, 
     node->right = NULL;
     return node;
 }
+
 void insert_data_type(btree_node **root, char *name_of_funcion, char data_type){
     if(*root == NULL){
        handle_error(INTERNAL_ERROR);                    //nemala by byt NULL, lebo iba upadtujeme nodu dopisanim return typu
@@ -158,7 +160,6 @@ void insert_return_typ(btree_node **root, char *name_of_funcion, char return_typ
         temp->return_type = return_type;
     }
 }
-
 
 void insert_params(btree_node **root, char *name_of_funcion, int which_attribute, char *atribute){
     if(*root == NULL){
@@ -186,7 +187,7 @@ void insert_params(btree_node **root, char *name_of_funcion, int which_attribute
     }
 }
 
-void insert_variable(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let){
+void insert_variable(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char data_type, bool let){
     if(*root == NULL){
         *root = create_node(name_of_symbol, token_type, inicialized, data_type, let, 0, "", 0);
     }
@@ -198,7 +199,7 @@ void insert_variable(btree_node **root, char *name_of_symbol, int token_type, bo
             insert_variable(&((*root)->left), name_of_symbol, token_type, inicialized, data_type, let);
         }
         else{
-            //handle_error();  TO DO
+            handle_error(SEMANTIC_UNDEFINED_FUNCTION);
         }
         (*root)->height = height_of_node(*root);
         int factor = balance_factor(*root);
@@ -224,7 +225,7 @@ void insert_variable(btree_node **root, char *name_of_symbol, int token_type, bo
 
 void insert_func(btree_node **root, char *name_of_symbol, int token_type){
     if(*root == NULL){
-        *root = create_node(name_of_symbol, token_type, false, "", false, 0, "", 0);
+        *root = create_node(name_of_symbol, token_type, false, '\0', false, 0, "", 0);
     }
     else{
         if(lexicographic_compare((*root)->name_of_symbol, name_of_symbol) < 0){
@@ -234,7 +235,7 @@ void insert_func(btree_node **root, char *name_of_symbol, int token_type){
             insert_func(&((*root)->left), name_of_symbol, token_type);
         }
         else{
-            //handle_error();  TO DO
+            handle_error(SEMANTIC_UNDEFINED_FUNCTION);
         }
         (*root)->height = height_of_node(*root);
         int factor = balance_factor(*root);

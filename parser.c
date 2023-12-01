@@ -367,7 +367,7 @@ bool letnutie(){
     current_token = getNextToken();
     char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type == 1){
-        insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, true, "", true);
+        insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, true, '\0', true);
         if (dvojbodka_typ(name_of_node) == false){
             return false;
         }
@@ -386,7 +386,7 @@ bool varnutie(){
     current_token = getNextToken();
     char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type == 1){
-        insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, true, "", false);
+        insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, true, '\0', false);
         if (dvojbodka_typ(name_of_node) == false){
             return false;
         }
