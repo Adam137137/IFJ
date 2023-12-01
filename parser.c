@@ -97,8 +97,6 @@ bool func_declar(){
         return false;
     }
     free(name_of_node);
-    puts("pred vymazanim");
-    DLL_PrintList2(&symtable_stack);
     DLL_DeleteFirst2(&symtable_stack);
     return true;
 }
@@ -212,19 +210,63 @@ bool sipka_typ(char *name_of_node){
 bool typ(char *name_of_node){
     current_token = getNextToken();
     //token_print();
-    if (current_token.type == 4 && ( 
-        strcmp(current_token.attribute, "Int") == 0 ||
-        strcmp(current_token.attribute, "String") == 0 ||
-        strcmp(current_token.attribute, "Double") == 0 ||
-        strcmp(current_token.attribute, "Int?") == 0 ||
-        strcmp(current_token.attribute, "String?") == 0 ||
-        strcmp(current_token.attribute, "Double?") == 0))
-    {
-        if (prvy_prechod && !(strcmp(name_of_node, "\0") == 0 ))                    // ak typ cita pri urceni return typu funkcie tak ho aj ulozi do nodu
-        {
+    if (current_token.type == 4 && strcmp(current_token.attribute, "Int") == 0){
+        if (!prvy_prechod){
+            insert_data_type(&symtable_stack.firstElement->treeRoot, name_of_node, 'I');
+        }
+        else{
             insert_return_typ(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.attribute[0]);
         }
-        
+        return true;
+    }
+
+    if (current_token.type == 4 && strcmp(current_token.attribute, "String") == 0){
+        if (!prvy_prechod){
+            insert_data_type(&symtable_stack.firstElement->treeRoot, name_of_node, 'S');
+        }
+        else{
+            insert_return_typ(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.attribute[0]);
+        }
+        return true;
+    }
+
+    if (current_token.type == 4 && strcmp(current_token.attribute, "Double") == 0){
+        if (!prvy_prechod){
+            insert_data_type(&symtable_stack.firstElement->treeRoot, name_of_node, 'D');
+        }
+        else{
+            insert_return_typ(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.attribute[0]);
+        }
+        return true;
+    }
+
+    if (current_token.type == 4 && strcmp(current_token.attribute, "Int?") == 0){
+        if (!prvy_prechod){
+            insert_data_type(&symtable_stack.firstElement->treeRoot, name_of_node, 'T');
+        }                         //odzadu int konci t, znamena ze moze mat aj NIL
+        else{
+            insert_return_typ(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.attribute[0]);
+        }
+        return true;
+    }
+
+    if (current_token.type == 4 && strcmp(current_token.attribute, "String?") == 0){
+        if (!prvy_prechod){
+            insert_data_type(&symtable_stack.firstElement->treeRoot, name_of_node, 'G');
+        }
+        else{
+            insert_return_typ(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.attribute[0]);
+        }
+        return true;
+    }
+
+    if (current_token.type == 4 && strcmp(current_token.attribute, "Double?") == 0){
+        if (!prvy_prechod){
+            insert_data_type(&symtable_stack.firstElement->treeRoot, name_of_node, 'E');
+        }
+        else{
+            insert_return_typ(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.attribute[0]);
+        }
         return true;
     }
     return false;
@@ -253,10 +295,10 @@ bool typ_of_param(char *name_of_node){
     return false;
 }
 
-bool dvojbodka_typ(){
+bool dvojbodka_typ(char *name_of_node){
     current_token = getNextToken();
     if (strcmp(current_token.attribute, ":") == 0 && current_token.type == 12){     //ked nacita : tak urcime typ
-        return typ("\0");
+        return typ(name_of_node);
     }
     dvojbodka_typ_neni = true;                       //epsilon pravidlo - ked nacita hocico ine okrem dvojbodky, poznacime ze typ bol vynechany
     unget_token(current_token);
@@ -264,7 +306,7 @@ bool dvojbodka_typ(){
 }
 
 bool priradenie_prave(){
-    char *name_of_node = "\0";
+    char *name_of_node = '\0';
     //token_print();
     current_token = getNextToken();
     current_token2 = getNextToken();
@@ -321,8 +363,7 @@ bool letnutie(){
     char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type == 1){
         insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, true, "", true);
-
-        if (dvojbodka_typ() == false){
+        if (dvojbodka_typ(name_of_node) == false){
             return false;
         }
         if (rovna_sa__priradenie() == false){
@@ -341,8 +382,7 @@ bool varnutie(){
     char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type == 1){
         insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, true, "", false);
-
-        if (dvojbodka_typ() == false){
+        if (dvojbodka_typ(name_of_node) == false){
             return false;
         }
         if (rovna_sa__priradenie() == false){

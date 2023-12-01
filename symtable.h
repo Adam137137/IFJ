@@ -18,7 +18,7 @@ typedef struct btree_node{                      // structure of node
     
     // only in variable 
     bool inicialized;
-    char *data_type;                            // int, double, string
+    char data_type;                            // int, double, string
     bool let;                                   // if we use let, this is true or in let it is var
     int value_int;                              // if data_type is int
     char *value_string;                         // if data_type is string
@@ -42,6 +42,7 @@ void insert_return_typ(btree_node **root, char *name_of_funcion, char return_typ
 void insert_params(btree_node **root, char *name_of_symbol, int which_attribute, char *atribute);
 void insert_variable(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char *data_type, bool let);
 void insert_func(btree_node **root, char *name_of_symbol, int token_type);
+void insert_data_type(btree_node **root, char *name_of_funcion, char data_type);
 btree_node *search(btree_node *root, char *name_of_symbol);
 // void node_delete(btree_node **root, int token_type);
 void tree_dispose(btree_node **root);

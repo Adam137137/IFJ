@@ -110,12 +110,7 @@ btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, 
     node->token_type = token_type;
     node->inicialized = inicialized;
 
-    node->data_type = string_dup(data_type);
-    if(node->data_type == NULL){
-        free(node);
-        free(node->name_of_symbol);
-        handle_error(INTERNAL_ERROR);
-    }
+    node->data_type = *data_type;
     
     node->let = let;
     node->value_int = value_int;
@@ -124,7 +119,7 @@ btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, 
     if(node->value_string == NULL){
         free(node);
         free(node->name_of_symbol);
-        free(node->data_type);
+        //free(node->data_type);
         handle_error(INTERNAL_ERROR);
     }
 
@@ -144,6 +139,16 @@ btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, 
     node->right = NULL;
     return node;
 }
+void insert_data_type(btree_node **root, char *name_of_funcion, char data_type){
+    if(*root == NULL){
+       handle_error(INTERNAL_ERROR);                    //nemala by byt NULL, lebo iba upadtujeme nodu dopisanim return typu
+    }
+    else{
+        btree_node *temp = search(*root, name_of_funcion);
+        temp->data_type = data_type;
+    }
+}
+
 void insert_return_typ(btree_node **root, char *name_of_funcion, char return_type){
     if(*root == NULL){
        handle_error(INTERNAL_ERROR);                    //nemala by byt NULL, lebo iba upadtujeme nodu dopisanim return typu
@@ -153,6 +158,8 @@ void insert_return_typ(btree_node **root, char *name_of_funcion, char return_typ
         temp->return_type = return_type;
     }
 }
+
+
 void insert_params(btree_node **root, char *name_of_funcion, int which_attribute, char *atribute){
     if(*root == NULL){
        handle_error(INTERNAL_ERROR);                    //nemala by byt NULL, lebo iba upadtujeme nodu dopisanim parametrov

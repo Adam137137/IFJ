@@ -32,7 +32,7 @@ bool returnovanie();
 bool idnutie();
 bool priradenie_zost();
 bool rovna_sa__priradenie();
-bool dvojbodka_typ();
-bool typ();
+bool dvojbodka_typ(char *name_of_node);
+bool typ(char *name_of_node);
 
 #endif

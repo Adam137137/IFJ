@@ -15,7 +15,7 @@ void first_analysis_parser(){
         // printf("prvy: %d\n", (int)current_token.first_in_line);
         
         if (strcmp(current_token.attribute, "func") == 0 && current_token.type == 4){            
-            if (func_declar(true) == false){
+            if (func_declar() == false){
                 handle_error(SYNTAX_ERROR);
             }
 
@@ -46,18 +46,19 @@ int main(int argc, char *argv[]){
         file = stdin;
         DLL_InsertFirst2(&symtable_stack);
         first_analysis_parser();
-        DLL_PrintList2(&symtable_stack);
         puts("prve spustenie skoncilo");
         prvy_prechod = false;
+        //DLL_PrintList2(&symtable_stack);
         puts("\n\n");
+        //printtree(symtable_stack.firstElement->treeRoot, 0);
         
         rewind(stdin);
         clearerr(stdin);
+        //insert_variable(&symtable_stack.firstElement->treeRoot, "anoo", current_token.type, true, "", true);
+        //printtree(symtable_stack.firstElement->treeRoot,0);
+        //insert_data_type(&symtable_stack.firstElement->treeRoot, "anoo", 'I');
         parser();
-        puts("po vymazaniu");
-        DLL_PrintList2(&symtable_stack);
-        printtree(symtable_stack.firstElement->treeRoot, 0);
-        // puts("druhe spustenie skoncilo");
+        puts("druhe spustenie skoncilo");
     }
     return 0;
 
