@@ -65,7 +65,7 @@ bool reduce_exp(){
                     //printf("first: %c\n Last: \n", topTerminal->data);
                     reduce(&list);
                     // DLL_PrintList(&list);
-                    unget_token(current_token);
+                    unget_token(current_token, current_token.first_in_line);
                 }
             }
             else if(token_char == '*' || token_char == '/'){
@@ -78,7 +78,7 @@ bool reduce_exp(){
                     //printf("first: %c\n Last: \n", topTerminal->data);
                     reduce(&list);
                     // DLL_PrintList(&list);
-                    unget_token(current_token);
+                    unget_token(current_token, current_token.first_in_line);
                 }
             }
             else if(token_char == '('){
@@ -114,7 +114,7 @@ bool reduce_exp(){
                     //printf("first: %c\n Last: \n", topTerminal->data);
                     reduce(&list);
                     // DLL_PrintList(&list);
-                    unget_token(current_token);      // ... 2hours of debugging
+                    unget_token(current_token, current_token.first_in_line);      // ... 2hours of debugging
                     counter++;                      // after putting ')' back to input, incrementing bracket counter, so after next token we have correct counting of brackets 
                 }
             }
@@ -143,7 +143,7 @@ bool reduce_exp(){
                     //printf("first: %c\n Last: \n", topTerminal->data);
                     reduce(&list);
                     // DLL_PrintList(&list);
-                    unget_token(current_token);
+                    unget_token(current_token, current_token.first_in_line);
                 }
             }
         }
@@ -169,7 +169,7 @@ bool reduce_exp(){
     }
     //puts("ungetujeme token co uz neni vyraz:");
     //token_print();
-    unget_token(current_token);
+    unget_token(current_token, current_token.first_in_line);
     topTerminal = DLL_TopTerminal(&list, true);
         while(topTerminal->data != '$'){
             // printf("TOP: %c\n", topTerminal->data);

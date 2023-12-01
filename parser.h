@@ -6,7 +6,7 @@
 extern struct Token current_token;
 void parser();
 void token_print();
-void unget_token(struct Token);
+void unget_token(struct Token, bool new_line);
 
 bool sekvencia();
 bool func_declar();

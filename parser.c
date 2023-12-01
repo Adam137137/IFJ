@@ -23,13 +23,16 @@ void token_print(){             // ladenie zapnut ! ! !
     }
 }
 
-void unget_token(struct Token token){
+void unget_token(struct Token token, bool new_line){
     if (token.type == 0){
         ungetc(EOF, file);
     }
     else{
         for (int i = strlen(token.attribute) - 1; i >= 0; i--) {
             ungetc((unsigned char)token.attribute[i], file);
+        }
+        if (new_line){
+            ungetc('\n', file);
         }
     }
 }
@@ -39,7 +42,7 @@ bool returnovanie(){
         return reduce_exp();
     }
     else if (current_token.type == 23){             //epsilon prechod
-        unget_token(current_token);
+        unget_token(current_token, current_token.first_in_line);
         return true;
     }
     return false;
@@ -110,7 +113,7 @@ bool parametre(char *name_of_node){
     }
     else if (current_token.type == 21)               // )
     {
-        unget_token(current_token);
+        unget_token(current_token, current_token.first_in_line);
         return true;
     }
     return false;
@@ -164,7 +167,7 @@ bool param_zostatok(char *name_of_node){
     }
     else if (current_token.type == 21)              // epsilon
     {
-        unget_token(current_token);
+        unget_token(current_token, current_token.first_in_line);
         return true;
     }
     return false;
@@ -197,7 +200,7 @@ bool sipka_typ(char *name_of_node){
         return typ(name_of_node);
     }
     else if(current_token.type == 22){          // {
-        unget_token(current_token);
+        unget_token(current_token, current_token.first_in_line);
         return true;
     }
     return false;
@@ -301,7 +304,7 @@ bool dvojbodka_typ(char *name_of_node){
         return typ(name_of_node);
     }
     dvojbodka_typ_neni = true;                       //epsilon pravidlo - ked nacita hocico ine okrem dvojbodky, poznacime ze typ bol vynechany
-    unget_token(current_token);
+    unget_token(current_token, current_token.first_in_line);
     return true;
 }
 
@@ -337,7 +340,14 @@ bool priradenie_prave(){
         //printf("somtu");
         //printf("%d", reduce_exp());
         //printf("%s", current_token.attribute);
-        unget_token(current_token2);                       //toto asi treba dat pred reduce_exp
+
+        unget_token(current_token2, current_token2.first_in_line);                      //toto asi treba dat pred reduce_exp
+        //printf("Druhy token: %s\n", current_token2.attribute);
+        //printf("First in ine %d\n", current_token2.first_in_line);
+        //current_token = getNextToken();
+        //printf("Druhy token: %s\n", current_token.attribute);
+        //printf("First in ine %d\n", current_token.first_in_line);
+
         //printf("%d", reduce_exp());
         //printf("anoo");
         if (reduce_exp() == false){                         //tu uz su nacitane rovno prve dva tokeny
@@ -358,7 +368,7 @@ bool rovna_sa__priradenie(){
         return false;
     }
     else{
-        unget_token(current_token);          //epsilon prechod vratime nacitany token  
+        unget_token(current_token, current_token.first_in_line);          //epsilon prechod vratime nacitany token  
         return true;
     }
 
@@ -497,7 +507,7 @@ bool param_vol_zost(btree_node *temp, int* num_of_params){
         return parameter_volania(temp, num_of_params) && param_vol_zost(temp, num_of_params);
     }
     else if (current_token.type == 21){
-        unget_token(current_token);                 // epsilon prechod musime vratit nacitany token naspat
+        unget_token(current_token, current_token.first_in_line);                 // epsilon prechod musime vratit nacitany token naspat
         return true;
     }
     return false;
@@ -531,7 +541,7 @@ bool parameter_volania(btree_node *temp, int* num_of_params){           // temp 
         handle_error(SEMANTIC_PARAMETER_MISMATCH);
     } 
     else if (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8 || current_token.type == 20){    //ked nacita vyraz string,double,int,(...
-        unget_token(current_token2);            //vratime token a zacneme precedencnu analyzu vyrazu
+        unget_token(current_token2, current_token2.first_in_line);            //vratime token a zacneme precedencnu analyzu vyrazu
         //printf("precedencnaa\n");
         if (reduce_exp() == false){
             return false;
@@ -554,7 +564,7 @@ bool parametre_volania(btree_node *temp, int* num_of_params){
         //     handle_error(SEMANTIC_PARAMETER_MISMATCH);
         // }
 
-        unget_token(current_token);
+        unget_token(current_token, current_token.first_in_line);
         return true;
     }
     return false;
@@ -638,7 +648,7 @@ bool sekvencia(){
         //return reduce_exp();
     //}
     else if (current_token.type == 23 || (current_token.type == 4 && strcmp(current_token.attribute, "return") == 0 )){                 //epsion prechod
-        unget_token(current_token);
+        unget_token(current_token, current_token.first_in_line);
         if (current_token.type == 4)                        //precitali sme return
         {
             return_neni = false;
