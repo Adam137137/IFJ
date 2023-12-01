@@ -34,6 +34,8 @@ bool reduce_exp(){
     // uz je nacitany token vyrazu -> pojde do while
     DLList list;
     DLLElementPtr topTerminal;
+    btree_node *token_found;              // my token
+    // btree_node *previous_token;
     DLL_Init(&list);
     DLL_InsertLast(&list, '$');
     char token_char;
@@ -53,15 +55,19 @@ bool reduce_exp(){
             if(current_token.type == 1){                // if we get identifier
                 char *name_of_node = '\0';
                 name_of_node = string_dup(current_token.attribute);
-                btree_node *temp = find_declaration(&symtable_stack, name_of_node);
-                if(temp == NULL || temp->inicialized == false){
+                token_found = find_declaration(&symtable_stack, name_of_node);
+                if(token_found == NULL || token_found->inicialized == false){
                     puts("nedeklarovana premenna alebo nedefinovana premenna\n");
                     handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
                 }
+                // puts("som v if");
+                // printf("current token %c\n",token_found->data_type);
             }
             token_char = 'i';
         }
 
+        // printf("previous token %c\n",previous_token->data_type);
+    
         if((counter >= 0)){
             topTerminal =  DLL_TopTerminal(&list, true);
             if(token_char == '+' || token_char == '-'){ 
@@ -72,6 +78,9 @@ bool reduce_exp(){
                 else{
                     // printf("Redukcia1\n");
                     //printf("first: %c\n Last: \n", topTerminal->data);
+                    // if(token_char == '+'){
+                    //     previous_token = token_found;
+                    // }
                     reduce(&list);
                     // DLL_PrintList(&list);
                     unget_token(current_token, current_token.first_in_line);
@@ -135,8 +144,18 @@ bool reduce_exp(){
                     handle_error(SYNTAX_ERROR);
                 }
                 else{
-                    pushLess(&list, token_char);
-                    DLL_InsertValueLast(&list, current_token.type, current_token.attribute);
+
+                    // puts("tu by som mal byt");
+                    // printf("previous token %c\n",previous_token->data_type);
+                    // printf("current token %c\n",token_found->data_type);
+                    // if((previous_token->data_type == 'I' && (token_found->data_type == 'I' || token_found->data_type == 'D')) || (previous_token->data_type == 'S' && token_found->data_type == 'S')){
+                    //     pushLess(&list, token_char);
+                    //     DLL_InsertValueLast(&list, current_token.type, current_token.attribute);
+                    // }
+                    // else{
+                    //     puts("v precedencnej");
+                    //     handle_error(SEMANTIC_TYPE_COMPATIBILITY);
+                    // }
                     // puts("\n");
                     // printf("data %c\n", list.lastElement->data);
                     // printf("typ %c\n", list.lastElement->type);

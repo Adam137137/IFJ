@@ -7,7 +7,7 @@
 #include <stdbool.h>
 
 typedef struct param_struct{
-    char *name;
+    char *name;         
     char * identif;
     char type;
 }param_struct_t;
@@ -27,7 +27,7 @@ typedef struct btree_node{                      // structure of node
     // only in functions
     param_struct_t paramsArray[10];             // array of params in func               TODO !!!!!
     int func_num_of_param;
-    char return_type;
+    char return_type;                           // I (int), D (double), S (string)
 
     
     
