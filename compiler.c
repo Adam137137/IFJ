@@ -42,9 +42,9 @@ void handle_error(int error){
         fprintf(stderr,"semantic error: parameter mismatch\n");
         exit(SEMANTIC_PARAMETER_MISMATCH);
         break;
-    case SEMANTIC_UNDEFINED_VARIABLE:
-        fprintf(stderr,"semantic error: undefined variable\n");
-        exit(SEMANTIC_UNDEFINED_VARIABLE);
+    case SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE:
+        fprintf(stderr,"semantic error: undefined variable or uninitialized variable\n");
+        exit(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
         break;
     case SEMANTIC_RETURN_STATEMENT:
         fprintf(stderr,"semantic error: function not correctly returned\n");
