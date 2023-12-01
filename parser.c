@@ -398,7 +398,7 @@ bool varnutie(){
     current_token = getNextToken();
     char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type == 1){
-        insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, true, '\0', false);
+        insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, false, '\0', false);
         if (dvojbodka_typ(name_of_node) == false){
             return false;
         }
@@ -575,9 +575,8 @@ bool parametre_volania(btree_node *temp, int* num_of_params){
 bool priradenie_zost(){
     char *name_of_node = string_dup(current_token.attribute);
     current_token = getNextToken();                             
-
+    btree_node *temp = find_declaration(&symtable_stack, name_of_node);
     if (current_token.type == 20){                               // ( paramter
-        btree_node *temp = find_declaration(&symtable_stack, name_of_node);
         free(name_of_node);
         if (temp == NULL)
         {
@@ -598,6 +597,7 @@ bool priradenie_zost(){
     
     }
     else if (current_token.type == 10){                         // =
+        temp->inicialized = true;
         free(name_of_node);
         return priradenie_prave();
     }
