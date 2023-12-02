@@ -40,7 +40,6 @@ bool reduce_exp(char *r){
     btree_node *previous_token = NULL;
     char current_type = '\0';
     char return_type = '\0';
-
     DLL_Init(&list);
     DLL_InsertLast(&list, '$');
     char token_char;
@@ -182,23 +181,6 @@ bool reduce_exp(char *r){
                     handle_error(SYNTAX_ERROR);
                 }
                 else{
-
-
-
-
-
-                    // puts("tu by som mal byt");
-                    // if (previous_token != NULL && token_found != NULL){
-                    //     printf("previous token %c\n",previous_token->data_type);
-                    //     printf("current token %c\n",token_found->data_type);
-                    //     if(!(((previous_token->data_type == 'I' || previous_token->data_type == 'D') && (token_found->data_type == 'I' || token_found->data_type == 'D')) || (previous_token->data_type == 'S' && token_found->data_type == 'S'))){
-                    //         puts("v precedencnej");
-                    //         handle_error(SEMANTIC_TYPE_COMPATIBILITY); 
-                    //     }
-                    //     if(token_found->data_type == 'D'){
-                    //         char return_type = token_found->data_type;
-                    //     }
-                    // }
                     pushLess(&list, token_char);
                     DLL_InsertValueLast(&list, current_token.type, current_token.attribute);
                     // puts("\n");
@@ -263,8 +245,6 @@ bool reduce_exp(char *r){
     // nacitany token uz nie je vyraz ale nieco ine, treba ho asi vratit
     DLL_Dispose(&list);
     *r = return_type;             //zapisanie do parametru
-    printf("Somtu");
-    printf("%c", *r);
     return true;
 }
 

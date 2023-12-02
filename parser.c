@@ -44,6 +44,8 @@ bool returnovanie(char *name_of_node){
             return false;
         }
         btree_node *temp = find_declaration(&symtable_stack, name_of_node);
+        printf("V strome nazov funkcie: %s\n", temp->name_of_symbol);
+        printf("V strome return: %c\n", temp->return_type);
         if (temp->return_type != return_t){
             printf("Zla navratova hodnota z funckie\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
@@ -85,7 +87,7 @@ bool func_declar(){
     if (sipka_typ(name_of_node) == false){                  // ->typ
         return false;
     }
-
+    printf("Nastavenie: %c", symtable_stack.firstElement->treeRoot->return_type);
 ///////////////////////////////////////
     if (prvy_prechod)                       // end of first analysis
     {
@@ -234,9 +236,7 @@ bool typ(char *name_of_node){
         if ((current_token.type == 4 && (strcmp(current_token.attribute, "Int") == 0 || strcmp(current_token.attribute, "String") == 0 || strcmp(current_token.attribute, "Double") == 0))  && !(prvy_prechod)){
             insert_data_type(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.attribute[0]);
         }
-        else{
-            insert_return_typ(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.attribute[0]);
-        }
+        insert_return_typ(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.attribute[0]);
         return true;
     }
     return false;
@@ -297,7 +297,6 @@ bool priradenie_prave(char *name_of_node){
             printf("Pocet volanych parametrov je mensi ako pri deklaracii\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
-
         btree_node *node = find_declaration(&symtable_stack, name_of_node);             // porovnanie ci sedia navravtove typy
         if (temp->return_type != node->data_type){
             printf("Funkcia ma zlu navratovu hodnotu do priradenia premennej\n");
@@ -489,12 +488,15 @@ bool parameter_volania(btree_node *temp, int* num_of_params){           // temp 
         handle_error(SEMANTIC_PARAMETER_MISMATCH);
     }
     current_token2 = getNextToken();    //: ak je dvojbodka je to volanie f(with: sth)
-    puts("token");
-    token_print();
-    if ((current_token2.type == 12 && (strcmp(temp->paramsArray[(*num_of_params)-1].name, "_") != 0) && strcmp(temp->paramsArray[(*num_of_params)-1].name,current_token.attribute) == 0) || (current_token2.type != 12 && (strcmp(temp->paramsArray[(*num_of_params)-1].name, "_") == 0))){              // id : a v deklaracii nemoze byt _
+    //printf("%s", current_token2.attribute);
+    if (current_token2.type == 12){
+        if((strcmp(temp->paramsArray[(*num_of_params)-1].name, current_token.attribute) != 0) || (strcmp(temp->paramsArray[(*num_of_params)-1].name, "_") == 0)){
+            printf("Meno parametru nema byt ale je\n");
+            handle_error(SEMANTIC_PARAMETER_MISMATCH);
+        }
         current_token = getNextToken();                   // token do precedencnej
         if (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8 || current_token.type == 20){
-            printf("somtu");
+            
             if (reduce_exp(&return_t) == false){
                 return false;
             }
@@ -505,14 +507,13 @@ bool parameter_volania(btree_node *temp, int* num_of_params){           // temp 
             return true;
         }
     }
-    else if ((current_token2.type == 12 && strcmp(temp->paramsArray[*(num_of_params)-1].name, "_") == 0) || (current_token2.type != 12 && strcmp(temp->paramsArray[*(num_of_params)-1].name, "_") != 0)){          //ked v zavolani fce nie je identifikator_param a v deklaracii fce je
-        printf("Meno parametru nema byt ale je\n");
-        handle_error(SEMANTIC_PARAMETER_MISMATCH);
-    } 
-
     else if (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8 || current_token.type == 20){    //ked nacita vyraz string,double,int,(...
         unget_token(current_token2, current_token2.first_in_line);            //vratime token a zacneme precedencnu analyzu vyrazu
         //printf("precedencnaa\n");
+        if ((strcmp(temp->paramsArray[(*num_of_params)-1].name, "_") != 0)){
+            printf("Vo volani je navyse nazov parametru\n");
+            handle_error(SEMANTIC_PARAMETER_MISMATCH);
+        }
         if (reduce_exp(&return_t) == false){
             return false;
         }
@@ -527,7 +528,6 @@ bool parameter_volania(btree_node *temp, int* num_of_params){           // temp 
 bool parametre_volania(btree_node *temp, int* num_of_params){
     current_token = getNextToken();
     
-    //printf("%s\n", current_token.attribute);
     if (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8){    //ked nacita vyraz string,double,int,(...
         return parameter_volania(temp, num_of_params) && param_vol_zost(temp,num_of_params);
     }
@@ -576,7 +576,7 @@ bool priradenie_zost(){
             printf("Pokus o prepisanie konstanty - let\n");
             handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
         }
-        free(name_of_node);
+        //free(name_of_node);
         return priradenie_prave(name_of_node);
     }
     return false;
