@@ -12,6 +12,7 @@
 #include "dll.h"
 #include "tests.h"
 #include "dll_symtable.h"
+#include "code_generator.h"
 
 typedef enum {
     NO_ERROR = 0,
@@ -27,9 +28,18 @@ typedef enum {
     INTERNAL_ERROR = 99
 } ErrorCode;
 
+typedef struct {
+    char *data;        
+    int size;     
+    int capacity; 
+} dynamic_buffer;
+
 void handle_error(int error);
+void addToDynamicArray(char *code);
+void initDynamicArray();
 // extern ErrorCode error;
 extern FILE *file;
 extern btree_node *tree_main;
 extern bool prvy_prechod;
+extern dynamic_buffer buffer;
 #endif

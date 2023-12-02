@@ -3,7 +3,31 @@ FILE *file = NULL;
 bool prvy_prechod;
 DLList2 symtable_stack;
 bool testovanie = false;
+dynamic_buffer buffer;
 
+void initDynamicArray() {
+    buffer.data = (char *)malloc(1000 * sizeof(char));
+    if (buffer.data == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        free(buffer.data);
+        handle_error(INTERNAL_ERROR);
+    }
+    buffer.size = 0;
+    buffer.capacity = 1000;
+}
+void addToDynamicArray(char *code) {
+    // Zkontrolujte, zda je potřeba realokovat paměť
+    if (buffer.size >= buffer.capacity) {
+        buffer.capacity *= 2;  // Dvojnásobně zvyšte kapacitu
+        buffer.data = (char *)realloc(buffer.data, buffer.capacity * sizeof(char));
+        if (buffer.data == NULL) {
+            fprintf(stderr, "Memory reallocation failed\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    sprintf(buffer.data, "%s", code);
+    buffer.size = strlen(code)+1;
+}
 
 
 void first_analysis_parser(){
@@ -29,37 +53,40 @@ int main(int argc, char *argv[]){
     (void) argv;
         
     prvy_prechod = true;
+    initDynamicArray();
+    generate("Hello World");
+    printf("%d",buffer.size);
 
-    if (testovanie)
-    {
-        file = fopen("test.txt", "r");
-        parser();
-        // printf("Compiler - testing script:\n\n");
-        // for (int i = 0; i < 3; i++)
-        // {
-        //     tests_init(i);
-        //     file = fopen("test.txt", "r");
-        //     parser();
-        // }
-    }
-    else{
-        file = stdin;
-        DLL_InsertFirst2(&symtable_stack);
-        first_analysis_parser();
-        puts("prve spustenie skoncilo");
-        prvy_prechod = false;
-        //DLL_PrintList2(&symtable_stack);
-        puts("\n\n");
-        //printtree(symtable_stack.firstElement->treeRoot, 0);
+    // if (testovanie)
+    // {
+    //     file = fopen("test.txt", "r");
+    //     parser();
+    //     // printf("Compiler - testing script:\n\n");
+    //     // for (int i = 0; i < 3; i++)
+    //     // {
+    //     //     tests_init(i);
+    //     //     file = fopen("test.txt", "r");
+    //     //     parser();
+    //     // }
+    // }
+    // else{
+    //     file = stdin;
+    //     DLL_InsertFirst2(&symtable_stack);
+    //     first_analysis_parser();
+    //     puts("prve spustenie skoncilo");
+    //     prvy_prechod = false;
+    //     //DLL_PrintList2(&symtable_stack);
+    //     puts("\n\n");
+    //     printtree(symtable_stack.firstElement->treeRoot, 0);
         
-        rewind(stdin);
-        clearerr(stdin);
-        //insert_variable(&symtable_stack.firstElement->treeRoot, "anoo", current_token.type, true, "", true);
-        // printtree(symtable_stack.firstElement->treeRoot,0);
-        //insert_data_type(&symtable_stack.firstElement->treeRoot, "anoo", 'I');
-        parser();
-        puts("druhe spustenie skoncilo");
-    }
+    //     rewind(stdin);
+    //     clearerr(stdin);
+    //     //insert_variable(&symtable_stack.firstElement->treeRoot, "anoo", current_token.type, true, "", true);
+    //     // printtree(symtable_stack.firstElement->treeRoot,0);
+    //     //insert_data_type(&symtable_stack.firstElement->treeRoot, "anoo", 'I');
+    //     parser();
+    //     puts("druhe spustenie skoncilo");
+    // }
     return 0;
 
     
