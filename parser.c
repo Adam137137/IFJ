@@ -15,6 +15,7 @@ bool dvojbodka_typ_neni = false;
 bool return_neni = false;
 struct Token current_token, current_token2;
 char return_t;
+int frame_counter = 0;
 
 bool ladenie = 1;
 void token_print(){             // ladenie zapnut ! ! !
@@ -44,8 +45,8 @@ bool returnovanie(char *name_of_node){
             return false;
         }
         btree_node *temp = find_declaration(&symtable_stack, name_of_node);
-        printf("V strome nazov funkcie: %s\n", temp->name_of_symbol);
-        printf("V strome return: %c\n", temp->return_type);
+        // printf("V strome nazov funkcie: %s\n", temp->name_of_symbol);
+        // printf("V strome return: %c\n", temp->return_type);
         if (temp->return_type != return_t){
             printf("Zla navratova hodnota z funckie\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
@@ -87,7 +88,7 @@ bool func_declar(){
     if (sipka_typ(name_of_node) == false){                  // ->typ
         return false;
     }
-    printf("Nastavenie: %c", symtable_stack.firstElement->treeRoot->return_type);
+    // printf("Nastavenie: %c", symtable_stack.firstElement->treeRoot->return_type);
 ///////////////////////////////////////
     if (prvy_prechod)                       // end of first analysis
     {
@@ -340,11 +341,14 @@ bool rovna_sa__priradenie(char* name_of_node){
     }
 
 }
-bool letnutie(){
+bool letnutie(){            
     current_token = getNextToken();
     char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type == 1){
         insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, false, '\0', true);
+        if(frame_counter == 0){
+            sprintf(buffer.data, "DEFVAR GF@%s\n", current_token.attribute);
+        }
         if (dvojbodka_typ(name_of_node) == false){
             return false;
         }

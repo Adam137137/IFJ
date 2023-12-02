@@ -25,7 +25,7 @@ void addToDynamicArray(char *code) {
             exit(EXIT_FAILURE);
         }
     }
-    sprintf(buffer.data, "%s", code);
+    sprintf(buffer.data, "DEFVAR %s", current_token.attribute);
     buffer.size = strlen(code)+1;
 }
 
@@ -54,39 +54,42 @@ int main(int argc, char *argv[]){
         
     prvy_prechod = true;
     initDynamicArray();
-    generate("Hello World");
+    //addToDynamicArray(".IFJcode23");
     printf("%d",buffer.size);
 
-    // if (testovanie)
-    // {
-    //     file = fopen("test.txt", "r");
-    //     parser();
-    //     // printf("Compiler - testing script:\n\n");
-    //     // for (int i = 0; i < 3; i++)
-    //     // {
-    //     //     tests_init(i);
-    //     //     file = fopen("test.txt", "r");
-    //     //     parser();
-    //     // }
-    // }
-    // else{
-    //     file = stdin;
-    //     DLL_InsertFirst2(&symtable_stack);
-    //     first_analysis_parser();
-    //     puts("prve spustenie skoncilo");
-    //     prvy_prechod = false;
-    //     //DLL_PrintList2(&symtable_stack);
-    //     puts("\n\n");
-    //     printtree(symtable_stack.firstElement->treeRoot, 0);
+    if (testovanie)
+    {
+        file = fopen("test.txt", "r");
+        parser();
+        // printf("Compiler - testing script:\n\n");
+        // for (int i = 0; i < 3; i++)
+        // {
+        //     tests_init(i);
+        //     file = fopen("test.txt", "r");
+        //     parser();
+        // }
+    }
+    else{
+        file = stdin;
+        DLL_InsertFirst2(&symtable_stack);
+        first_analysis_parser();
+        puts("prve spustenie skoncilo");
+        prvy_prechod = false;
+        //DLL_PrintList2(&symtable_stack);
+        puts("\n\n");
+        // printtree(symtable_stack.firstElement->treeRoot, 0);
         
-    //     rewind(stdin);
-    //     clearerr(stdin);
-    //     //insert_variable(&symtable_stack.firstElement->treeRoot, "anoo", current_token.type, true, "", true);
-    //     // printtree(symtable_stack.firstElement->treeRoot,0);
-    //     //insert_data_type(&symtable_stack.firstElement->treeRoot, "anoo", 'I');
-    //     parser();
-    //     puts("druhe spustenie skoncilo");
-    // }
+        rewind(stdin);
+        clearerr(stdin);
+        //insert_variable(&symtable_stack.firstElement->treeRoot, "anoo", current_token.type, true, "", true);
+        // printtree(symtable_stack.firstElement->treeRoot,0);
+        //insert_data_type(&symtable_stack.firstElement->treeRoot, "anoo", 'I');
+        parser();
+        puts("druhe spustenie skoncilo");
+    }
+    
+    file = fopen("code.txt", "w");
+    fprintf(file, "%s", buffer.data);
     return 0;
 
     

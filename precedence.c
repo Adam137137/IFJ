@@ -30,8 +30,9 @@
 //  5. E -> (E)
 //  6. E -> i
 
+// char *r, is return type of eval
 bool reduce_exp(char *r){
-    puts("nova exp \n \n");
+    // puts("nova exp \n \n");
     
     // uz je nacitany token vyrazu -> pojde do while
     DLList list;
@@ -183,6 +184,7 @@ bool reduce_exp(char *r){
                 else{
                     pushLess(&list, token_char);
                     DLL_InsertValueLast(&list, current_token.type, current_token.attribute);
+                    
                     // puts("\n");
                     // printf("data %c\n", list.lastElement->data);
                     // printf("typ %c\n", list.lastElement->type);
@@ -285,6 +287,19 @@ void reduce(DLList *list){
         printf("Pravidlo 5\n");
     }
     else if(strcmp(cache, "i") == 0){
+        // printf("typ %c\n", list->lastElement->type);
+        if(list->lastElement->type == 'I'){
+            sprintf(buffer.data, "PUSHS int@%d\n", list->lastElement->valueI);
+        }
+        else if(list->lastElement->type == 'D'){
+            sprintf(buffer.data, "PUSHS float@%f\n", list->lastElement->valueD);
+        }
+        else if(list->lastElement->type == 'S'){
+            sprintf(buffer.data, "PUSHS int@%s\n", list->lastElement->string);
+        }
+        else if (list->lastElement->type == 'V'){
+            // TO DO
+        }
         printf("Pravidlo 6\n");
     }
     // printf("List po redukcii:");
