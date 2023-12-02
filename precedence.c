@@ -30,8 +30,9 @@
 //  5. E -> (E)
 //  6. E -> i
 
-bool reduce_exp(){
+bool reduce_exp(char *r){
     puts("nova exp \n \n");
+    
     // uz je nacitany token vyrazu -> pojde do while
     DLList list;
     DLLElementPtr topTerminal;
@@ -40,11 +41,11 @@ bool reduce_exp(){
     char current_type = '\0';
     char return_type = '\0';
 
-
     DLL_Init(&list);
     DLL_InsertLast(&list, '$');
     char token_char;
     int counter = 0;    //When token is '(' add 1, when ')' sub 1
+    
     while (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 5 || current_token.type == 20 || current_token.type == 21)    // stale sme vo vyraze
     {
         token_char = (current_token.attribute)[0];
@@ -100,11 +101,13 @@ bool reduce_exp(){
             token_char = 'i';
         }
 
-        // printf("previous token %c\n",previous_token->data_type);
-    
         if((counter >= 0)){
             topTerminal =  DLL_TopTerminal(&list, true);
-            if(token_char == '+' || token_char == '-'){ 
+            if(token_char == '+' || token_char == '-'){
+                if (token_char != '+' && return_type == 'S'){
+                    puts("v precedencnej");
+                    handle_error(SEMANTIC_TYPE_COMPATIBILITY);
+                } 
                 if(topTerminal->data == '(' || topTerminal->data == '$'){
                     pushLess(&list, token_char);
                     //DLL_PrintList(&list);
@@ -112,16 +115,16 @@ bool reduce_exp(){
                 else{
                     // printf("Redukcia1\n");
                     //printf("first: %c\n Last: \n", topTerminal->data);
-                    if(token_char == '+'){
-                        // puts("som pri +");
-                        previous_token = token_found;
-                    }
                     reduce(&list);
                     // DLL_PrintList(&list);
                     unget_token(current_token, current_token.first_in_line);
                 }
             }
             else if(token_char == '*' || token_char == '/'){
+                if (return_type == 'S'){
+                    puts("v precedencnej");
+                    handle_error(SEMANTIC_TYPE_COMPATIBILITY);
+                } 
                 if(topTerminal->data == '+' || topTerminal->data == '-' || topTerminal->data == '(' || topTerminal->data == '$'){
                     pushLess(&list, token_char);
                     //DLL_PrintList(&list);
@@ -259,6 +262,9 @@ bool reduce_exp(){
     
     // nacitany token uz nie je vyraz ale nieco ine, treba ho asi vratit
     DLL_Dispose(&list);
+    *r = return_type;             //zapisanie do parametru
+    printf("Somtu");
+    printf("%c", *r);
     return true;
 }
 

@@ -4,11 +4,10 @@
 #include "precedence.h"
 
 extern struct Token current_token;
-void parser();
+
 void token_print();
 void unget_token(struct Token, bool new_line);
-
-bool sekvencia();
+bool returnovanie(char *name_of_node);
 bool func_declar();
 bool parametre(char *name_of_node);
 bool parameter(char *name_of_node);
@@ -17,22 +16,21 @@ bool zbytok_param(char *name_of_node);
 bool sipka_typ(char *name_of_node);
 bool typ(char *name_of_node);
 bool typ_of_param(char *name_of_node);
-bool ifnutie();
-bool podmienka();
-bool relacia();
-
-bool parametre_volania();
+bool dvojbodka_typ(char *name_of_node);
+bool priradenie_prave(char *name_of_node);
+bool rovna_sa__priradenie(char* name_of_node);
 bool letnutie();
 bool varnutie();
+bool relacia();
+bool podmienka();
 bool whilnutie();
-bool parameter_volania();
-bool param_vol_zost();
-bool priradenie_prave();
-bool returnovanie();
-bool idnutie();
+bool ifnutie();
+bool param_vol_zost(btree_node *temp, int* num_of_params);
+bool pomocna_param(btree_node *temp, int *num_of_params);
+bool parameter_volania(btree_node *temp, int* num_of_params);
+bool parametre_volania(btree_node *temp, int* num_of_params);
 bool priradenie_zost();
-bool rovna_sa__priradenie();
-bool dvojbodka_typ(char *name_of_node);
-bool typ(char *name_of_node);
-
+bool idnutie();
+bool sekvencia();
+void parser();
 #endif

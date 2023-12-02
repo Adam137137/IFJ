@@ -6,7 +6,7 @@
 #include "compiler.h"
 #include "dll.h"
 
-bool reduce_exp();
+bool reduce_exp(char *r);
 
 void pushLess(DLList *list, char c);
 
