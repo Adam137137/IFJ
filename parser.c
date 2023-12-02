@@ -622,6 +622,7 @@ bool sekvencia(){
         }
         sprintf(buffer2.data, "%s%d", current_token.attribute, if_counter);        // appending number to string
         insert_func(&symtable_stack.firstElement->treeRoot, buffer2.data, 4);
+        if_counter++;
         if (ifnutie()== false){
             return false;   
         }
