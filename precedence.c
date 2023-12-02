@@ -38,7 +38,6 @@ bool reduce_exp(char *r){
     DLList list;
     DLLElementPtr topTerminal;
     btree_node *token_found = NULL;              // my token
-    btree_node *previous_token = NULL;
     char current_type = '\0';
     char return_type = '\0';
     DLL_Init(&list);

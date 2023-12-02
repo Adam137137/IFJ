@@ -35,11 +35,10 @@ typedef struct {
 } dynamic_buffer;
 
 void handle_error(int error);
-void addToDynamicArray(char *code);
-void initDynamicArray();
-// extern ErrorCode error;
+void initDynamicArray(dynamic_buffer *buffer);
+
 extern FILE *file;
-extern btree_node *tree_main;
 extern bool prvy_prechod;
-extern dynamic_buffer buffer;
+extern dynamic_buffer buffer1;
+extern dynamic_buffer buffer2;
 #endif

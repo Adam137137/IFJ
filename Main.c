@@ -3,32 +3,8 @@ FILE *file = NULL;
 bool prvy_prechod;
 DLList2 symtable_stack;
 bool testovanie = false;
-dynamic_buffer buffer;
-
-void initDynamicArray() {
-    buffer.data = (char *)malloc(1000 * sizeof(char));
-    if (buffer.data == NULL) {
-        fprintf(stderr, "Memory allocation failed\n");
-        free(buffer.data);
-        handle_error(INTERNAL_ERROR);
-    }
-    buffer.size = 0;
-    buffer.capacity = 1000;
-}
-void addToDynamicArray(char *code) {
-    // Zkontrolujte, zda je potřeba realokovat paměť
-    if (buffer.size >= buffer.capacity) {
-        buffer.capacity *= 2;  // Dvojnásobně zvyšte kapacitu
-        buffer.data = (char *)realloc(buffer.data, buffer.capacity * sizeof(char));
-        if (buffer.data == NULL) {
-            fprintf(stderr, "Memory reallocation failed\n");
-            exit(EXIT_FAILURE);
-        }
-    }
-    sprintf(buffer.data, "DEFVAR %s", current_token.attribute);
-    buffer.size = strlen(code)+1;
-}
-
+dynamic_buffer buffer1;
+dynamic_buffer buffer2;
 
 void first_analysis_parser(){
     current_token = getNextToken();
@@ -53,9 +29,10 @@ int main(int argc, char *argv[]){
     (void) argv;
         
     prvy_prechod = true;
-    initDynamicArray();
-    //addToDynamicArray(".IFJcode23");
-    printf("%d",buffer.size);
+    initDynamicArray(&buffer1);                 // for code gen
+    initDynamicArray(&buffer2);                 // for other things
+    sprintf(buffer1.data, ".IFJcode23\n");
+    // printf("%d",buffer1.size);
 
     if (testovanie)
     {
@@ -88,8 +65,8 @@ int main(int argc, char *argv[]){
         puts("druhe spustenie skoncilo");
     }
     
-    file = fopen("code.txt", "w");
-    fprintf(file, "%s", buffer.data);
+    file = fopen("IFJcode23.txt", "w");
+    fprintf(file, "%s", buffer1.data);
     return 0;
 
     

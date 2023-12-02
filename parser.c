@@ -16,6 +16,7 @@ bool return_neni = false;
 struct Token current_token, current_token2;
 char return_t;
 int frame_counter = 0;
+int if_counter = 1;
 
 bool ladenie = 1;
 void token_print(){             // ladenie zapnut ! ! !
@@ -347,7 +348,7 @@ bool letnutie(){
     if (current_token.type == 1){
         insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, false, '\0', true);
         if(frame_counter == 0){
-            sprintf(buffer.data, "%sDEFVAR GF@%s\n", buffer.data, current_token.attribute);
+            sprintf(buffer1.data, "%sDEFVAR GF@%s\n", buffer1.data, current_token.attribute);
         }
         if (dvojbodka_typ(name_of_node) == false){
             return false;
@@ -369,7 +370,7 @@ bool varnutie(){
     if (current_token.type == 1){
         insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, false, '\0', false);
         if(frame_counter == 0){
-            sprintf(buffer.data, "%sDEFVAR GF@%s\n", buffer.data, current_token.attribute);
+            sprintf(buffer1.data, "%sDEFVAR GF@%s\n", buffer1.data, current_token.attribute);
         }
         if (dvojbodka_typ(name_of_node) == false){
             return false;
@@ -613,9 +614,18 @@ bool sekvencia(){
         }
     }
     else if (strcmp(current_token.attribute, "if") == 0 && current_token.type == 4){
-        if (ifnutie()== false){
-            return false;
+        DLL_InsertFirst2(&symtable_stack);
+        int too_big_program = sprintf(buffer2.data, "%s%d", current_token.attribute, if_counter);
+        if(too_big_program >= buffer2.capacity){
+            fprintf(stderr, "buffer overflow\n");
+            handle_error(INTERNAL_ERROR);
         }
+        sprintf(buffer2.data, "%s%d", current_token.attribute, if_counter);        // appending number to string
+        insert_func(&symtable_stack.firstElement->treeRoot, buffer2.data, 4);
+        if (ifnutie()== false){
+            return false;   
+        }
+        DLL_DeleteFirst2(&symtable_stack);
     }
     else if (strcmp(current_token.attribute, "func") == 0 && current_token.type == 4){
         if (func_declar(false) == false){

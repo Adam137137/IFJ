@@ -70,4 +70,36 @@ void handle_error(int error){
         fprintf(stdout, "no problem\n");
         break;
     }
-}   
+}
+
+void initDynamicArray(dynamic_buffer *buffer){
+    buffer->data= (char *)malloc(1000 * sizeof(char));
+    if (buffer->data == NULL) {
+        free(buffer->data);
+        handle_error(INTERNAL_ERROR);
+    }
+    buffer->size = 0;
+    buffer->capacity = 1000;
+}
+
+// char *unique_name(char *string, int number){
+//     if(string == NULL){
+//         handle_error(INTERNAL_ERROR);
+//     }
+//     int required_size = snprintf(NULL, 0, "%s%d", string, number) + 1;
+
+//     if(required_size > buffer.capacity){
+//         while(required_size > buffer.capacity){
+//             buffer.capacity *= 2;                   // double size, until, we have enough space
+//         }
+//         char *temp = (char *)realloc(buffer.data, buffer.capacity * sizeof(char));
+//         if(temp == NULL){
+//             free(buffer.data);
+//             handle_error(INTERNAL_ERROR);
+//         }
+//         buffer.data = temp;
+//     }
+//     sprintf(buffer.data, "%s%d", string, number);       // appending number to string
+//     buffer.size = strlen(buffer.data)+1;
+//     return buffer.data;
+// }
