@@ -34,8 +34,8 @@ bool reduce_exp(){
     // uz je nacitany token vyrazu -> pojde do while
     DLList list;
     DLLElementPtr topTerminal;
-    btree_node *token_found;              // my token
-    // btree_node *previous_token;
+    btree_node *token_found = NULL;              // my token
+    btree_node *previous_token = NULL;
     DLL_Init(&list);
     DLL_InsertLast(&list, '$');
     char token_char;
@@ -78,9 +78,10 @@ bool reduce_exp(){
                 else{
                     // printf("Redukcia1\n");
                     //printf("first: %c\n Last: \n", topTerminal->data);
-                    // if(token_char == '+'){
-                    //     previous_token = token_found;
-                    // }
+                    if(token_char == '+'){
+                        // puts("som pri +");
+                        previous_token = token_found;
+                    }
                     reduce(&list);
                     // DLL_PrintList(&list);
                     unget_token(current_token, current_token.first_in_line);
@@ -146,16 +147,19 @@ bool reduce_exp(){
                 else{
 
                     // puts("tu by som mal byt");
-                    // printf("previous token %c\n",previous_token->data_type);
-                    // printf("current token %c\n",token_found->data_type);
-                    // if((previous_token->data_type == 'I' && (token_found->data_type == 'I' || token_found->data_type == 'D')) || (previous_token->data_type == 'S' && token_found->data_type == 'S')){
-                    //     pushLess(&list, token_char);
-                    //     DLL_InsertValueLast(&list, current_token.type, current_token.attribute);
-                    // }
-                    // else{
-                    //     puts("v precedencnej");
-                    //     handle_error(SEMANTIC_TYPE_COMPATIBILITY);
-                    // }
+                    if (previous_token != NULL && token_found != NULL){
+                        printf("previous token %c\n",previous_token->data_type);
+                        printf("current token %c\n",token_found->data_type);
+                        if(!(((previous_token->data_type == 'I' || previous_token->data_type == 'D') && (token_found->data_type == 'I' || token_found->data_type == 'D')) || (previous_token->data_type == 'S' && token_found->data_type == 'S'))){
+                            puts("v precedencnej");
+                            handle_error(SEMANTIC_TYPE_COMPATIBILITY); 
+                        }
+                        if(token_found->data_type == 'D'){
+                            char return_type = token_found->data_type;
+                        }
+                    }
+                    pushLess(&list, token_char);
+                    DLL_InsertValueLast(&list, current_token.type, current_token.attribute);
                     // puts("\n");
                     // printf("data %c\n", list.lastElement->data);
                     // printf("typ %c\n", list.lastElement->type);
