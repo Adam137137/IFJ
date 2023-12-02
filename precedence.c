@@ -260,6 +260,7 @@ void pushEqual(DLList *list, char c){
 }
 
 void reduce(DLList *list){
+    DLLElementPtr temp = list->lastElement;
     char cache[4] = {'\0', '\0', '\0', '\0'};  //Temporary array to store items from "stack" before reducing, warning beacuse of unfinished code
     for(int i = 0; list->lastElement->data != '<'; i++){
         cache[i] = DLL_DeleteLast(list);
@@ -271,34 +272,38 @@ void reduce(DLList *list){
     DLL_DeleteLast(list);
     // printf("cache = \"%s\"\n", cache);
     if(strcmp(cache, "E+E") == 0){
+        sprintf(buffer1.data, "%sADDS\n",buffer1.data);
         printf("Pravidlo 1\n");
     }
     else if(strcmp(cache, "E-E") == 0){
+        sprintf(buffer1.data, "%sSUBS\n",buffer1.data);
         printf("Pravidlo 2\n");
     }
     else if(strcmp(cache, "E*E") == 0){
+        sprintf(buffer1.data, "%sMULS\n",buffer1.data);
         printf("Pravidlo 3\n");
-        
     }
     else if(strcmp(cache, "E/E") == 0){
+        sprintf(buffer1.data, "%sDIVS\n",buffer1.data);
         printf("Pravidlo 4\n");
     }
     else if(strcmp(cache, "(E)") == 0){
         printf("Pravidlo 5\n");
     }
     else if(strcmp(cache, "i") == 0){
-        // printf("typ %c\n", list->lastElement->type);
-        if(list->lastElement->type == 'I'){
-            sprintf(buffer.data, "PUSHS int@%d\n", list->lastElement->valueI);
+        printf("typ %c\n", temp->type);
+        if(temp->type == 'I'){
+            sprintf(buffer1.data, "%sPUSHS int@%d\n",buffer1.data, temp->valueI);
         }
-        else if(list->lastElement->type == 'D'){
-            sprintf(buffer.data, "PUSHS float@%f\n", list->lastElement->valueD);
+        else if(temp->type == 'D'){
+            sprintf(buffer1.data, "%sPUSHS float@%f\n",buffer1.data, temp->valueD);
         }
-        else if(list->lastElement->type == 'S'){
-            sprintf(buffer.data, "PUSHS int@%s\n", list->lastElement->string);
+        else if(temp->type == 'S'){
+            sprintf(buffer1.data, "%sPUSHS int@%s\n",buffer1.data, temp->string);
         }
-        else if (list->lastElement->type == 'V'){
-            // TO DO
+        else if (temp->type == 'V'){
+            //TO DO
+            sprintf(buffer1.data, "%sPUSHS GF@%s\n",buffer1.data, temp->string);
         }
         printf("Pravidlo 6\n");
     }
