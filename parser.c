@@ -277,7 +277,7 @@ bool dvojbodka_typ(char *name_of_node){
 }
 
 bool priradenie_prave(char *name_of_node){
-    char *name_of_func = '\0';
+    // char *name_of_func = '\0';
     //token_print();
     current_token = getNextToken();
     current_token2 = getNextToken();
@@ -347,7 +347,7 @@ bool letnutie(){
     if (current_token.type == 1){
         insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, false, '\0', true);
         if(frame_counter == 0){
-            sprintf(buffer.data, "DEFVAR GF@%s\n", current_token.attribute);
+            sprintf(buffer.data, "%sDEFVAR GF@%s\n", buffer.data, current_token.attribute);
         }
         if (dvojbodka_typ(name_of_node) == false){
             return false;
@@ -368,6 +368,9 @@ bool varnutie(){
     char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type == 1){
         insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, false, '\0', false);
+        if(frame_counter == 0){
+            sprintf(buffer.data, "%sDEFVAR GF@%s\n", buffer.data, current_token.attribute);
+        }
         if (dvojbodka_typ(name_of_node) == false){
             return false;
         }
