@@ -31,11 +31,16 @@
 //  6. E -> i
 
 bool reduce_exp(){
+    puts("nova exp \n \n");
     // uz je nacitany token vyrazu -> pojde do while
     DLList list;
     DLLElementPtr topTerminal;
     btree_node *token_found = NULL;              // my token
     btree_node *previous_token = NULL;
+    char current_type = '\0';
+    char return_type = '\0';
+
+
     DLL_Init(&list);
     DLL_InsertLast(&list, '$');
     char token_char;
@@ -60,9 +65,38 @@ bool reduce_exp(){
                     puts("nedeklarovana premenna alebo nedefinovana premenna\n");
                     handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
                 }
+                current_type = token_found->data_type;
                 // puts("som v if");
                 // printf("current token %c\n",token_found->data_type);
             }
+            else if (current_token.type == 2)
+            {
+                current_type = 'I';
+            }
+            else if (current_token.type == 3)
+            {
+                current_type = 'D';
+            }
+            else{
+                current_type = 'S';
+            }
+
+            if (return_type == '\0'){                                           // nastavenie vysledneho typu podla prvej premennej
+                return_type = current_type;
+            }
+            else{
+                if ((return_type == 'S' && current_type != 'S') || (return_type != 'S' && current_type == 'S'))            // String a nieco ine
+                {
+                    puts("v precedencnej");
+                    handle_error(SEMANTIC_TYPE_COMPATIBILITY);
+                }
+                if (!(return_type == 'D'))                                      // vysledny double nemoze byt zmeneny na int
+                {
+                    return_type = current_type;
+                }
+            }
+            // printf("return typ: %c \n", return_type);
+            
             token_char = 'i';
         }
 
@@ -146,18 +180,22 @@ bool reduce_exp(){
                 }
                 else{
 
+
+
+
+
                     // puts("tu by som mal byt");
-                    if (previous_token != NULL && token_found != NULL){
-                        printf("previous token %c\n",previous_token->data_type);
-                        printf("current token %c\n",token_found->data_type);
-                        if(!(((previous_token->data_type == 'I' || previous_token->data_type == 'D') && (token_found->data_type == 'I' || token_found->data_type == 'D')) || (previous_token->data_type == 'S' && token_found->data_type == 'S'))){
-                            puts("v precedencnej");
-                            handle_error(SEMANTIC_TYPE_COMPATIBILITY); 
-                        }
-                        if(token_found->data_type == 'D'){
-                            char return_type = token_found->data_type;
-                        }
-                    }
+                    // if (previous_token != NULL && token_found != NULL){
+                    //     printf("previous token %c\n",previous_token->data_type);
+                    //     printf("current token %c\n",token_found->data_type);
+                    //     if(!(((previous_token->data_type == 'I' || previous_token->data_type == 'D') && (token_found->data_type == 'I' || token_found->data_type == 'D')) || (previous_token->data_type == 'S' && token_found->data_type == 'S'))){
+                    //         puts("v precedencnej");
+                    //         handle_error(SEMANTIC_TYPE_COMPATIBILITY); 
+                    //     }
+                    //     if(token_found->data_type == 'D'){
+                    //         char return_type = token_found->data_type;
+                    //     }
+                    // }
                     pushLess(&list, token_char);
                     DLL_InsertValueLast(&list, current_token.type, current_token.attribute);
                     // puts("\n");
