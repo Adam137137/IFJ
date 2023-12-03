@@ -44,7 +44,7 @@ btree_node* find_function_in_global(DLList2 *list, char *name_of_func){
 
 }
 
-btree_node* find_declaration(DLList2 *list, char *name_of_id){      //vrati node s name_of_id
+btree_node* find_declaration(DLList2 *list, char *name_of_id, char* ret){      //vrati node s name_of_id
     DLLElementPtr2 tmp;
     btree_node *search_node;               //hladana noda s name_of_id
 	btree_node *func_node;
@@ -53,6 +53,7 @@ btree_node* find_declaration(DLList2 *list, char *name_of_id){      //vrati node
 		if (tmp->nextElement == NULL && name_of_function != NULL){				//sme v globalnom ramci, hladame ci name_of_id je vo func parametroch
 			func_node = search(tmp->treeRoot,name_of_function);
 			if (func_node != NULL){			//toto by sa nemalo stat ze funcia nie je v strome ale pre istotu
+				*ret = 'F';
 				return func_node;
 			}
 		}
@@ -61,6 +62,7 @@ btree_node* find_declaration(DLList2 *list, char *name_of_id){      //vrati node
             tmp = tmp->nextElement;
         }
         else{
+			*ret = 'V';
             return search_node;
         }
     }

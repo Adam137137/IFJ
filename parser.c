@@ -122,6 +122,7 @@ bool func_declar(){
     free(name_of_node);
     free(name_of_function);
     DLL_DeleteFirst2(&symtable_stack);
+    name_of_function = NULL;
     frame_counter--;
     return true;
 }
@@ -323,8 +324,8 @@ bool priradenie_prave(char *name_of_node){
         if (reduce_exp(&return_t, name_of_node) == false){                         //tu uz su nacitane rovno prve dva tokeny
            return false;
         }
-
-        btree_node *tmp = find_declaration(&symtable_stack, name_of_node);
+        char c;
+        btree_node *tmp = find_declaration(&symtable_stack, name_of_node,&c);
         if (tmp->data_type != return_t && tmp->data_type != '\0'){              //moze byt este neurceny...
             printf("Zla navratova hodnota z vyrazu do priradenia\n");
             handle_error(SEMANTIC_TYPE_COMPATIBILITY);
@@ -341,7 +342,8 @@ bool rovna_sa__priradenie(char* name_of_node){
     if (current_token.type == 10 && strcmp(current_token.attribute, "=") == 0){
         printf("TU: %s", name_of_node);
         fflush(stdout);
-        btree_node *tmp = find_declaration(&symtable_stack,name_of_node);       //inicializacia lavej strany
+        char c;
+        btree_node *tmp = find_declaration(&symtable_stack,name_of_node,&c);       //inicializacia lavej strany
         tmp->inicialized = true;
         printf("somtu");
         fflush(stdout);
@@ -595,7 +597,8 @@ bool priradenie_zost(){
     
     }
     else if (current_token.type == 10){                         // =
-        btree_node *temp = find_declaration(&symtable_stack, name_of_node);
+        char c;
+        btree_node *temp = find_declaration(&symtable_stack, name_of_node,&c);
         temp->inicialized = true;
         if (temp->let == true){
             printf("Pokus o prepisanie konstanty - let\n");
@@ -656,7 +659,7 @@ bool sekvencia(){
         }
     }
     else if(current_token.type == 1 || current_token.type == 16){
-        printf("TU %s", name_of_function);
+        //printf("TU %s", name_of_function);
         // if (find_function_in_global(&symtable_stack, current_token.attribute) == NULL){        //nenajdeme id false
         //         printf("Nenasli sme premennu do ktorej chceme vlozit hodnotu\n");
         //         handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
