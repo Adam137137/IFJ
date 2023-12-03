@@ -16,6 +16,7 @@ bool return_neni = false;
 struct Token current_token, current_token2;
 char return_t;
 int frame_counter = 0;
+int func_counter = 1;
 char *name_of_function = NULL;
 // int if_counter = 1;
 
@@ -74,7 +75,10 @@ bool func_declar(){
 
     if (!prvy_prechod){
         name_of_function = string_dup(current_token.attribute);     //ulozenie do nazvu fce do globalnej premennej
-        printf("somtu");
+        char *func_name = unique_name(current_token.attribute, func_counter);
+        sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, func_name);
+        sprintf(buffer1.data, "%sPUSHFRAME\n", buffer1.data);
+        func_counter++;
         DLL_InsertFirst2(&symtable_stack);
         frame_counter++;
     }
@@ -119,6 +123,8 @@ bool func_declar(){
     if (current_token.type != 23){              // }
         return false;
     }
+    sprintf(buffer1.data, "%sPOPFRAME\n", buffer1.data);
+    sprintf(buffer1.data, "%sRETURN\n", buffer1.data);
     free(name_of_node);
     free(name_of_function);
     DLL_DeleteFirst2(&symtable_stack);
@@ -324,6 +330,14 @@ bool priradenie_prave(char *name_of_node){
         if (reduce_exp(&return_t, name_of_node) == false){                         //tu uz su nacitane rovno prve dva tokeny
            return false;
         }
+        // printf("token %s\n", current_token2.attribute);
+        // if(frame_counter == 0){
+        //     char *variable_name = unique_name(current_token2.attribute, frame_counter);
+        //     sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
+        // }
+        // else if(frame_counter > 0){
+
+        // }
         char c;
         btree_node *tmp = find_declaration(&symtable_stack, name_of_node,&c);
         if (tmp->data_type != return_t && tmp->data_type != '\0'){              //moze byt este neurceny...
@@ -366,6 +380,10 @@ bool letnutie(){
         if(frame_counter == 0){
             sprintf(buffer1.data, "%sDEFVAR GF@%s\n", buffer1.data, current_token.attribute);
         }
+        else if(frame_counter > 0){
+            char *variable_name = unique_name(current_token.attribute, frame_counter);
+            sprintf(buffer1.data, "%sDEFVAR LF@%s\n", buffer1.data, variable_name);
+        }
         if (dvojbodka_typ(name_of_node) == false){
             return false;
         }
@@ -389,6 +407,10 @@ bool varnutie(){
         insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, false, '\0', false);
         if(frame_counter == 0){
             sprintf(buffer1.data, "%sDEFVAR GF@%s\n", buffer1.data, current_token.attribute);
+        }
+        else if(frame_counter > 0){
+            char *variable_name = unique_name(current_token.attribute, frame_counter);
+            sprintf(buffer1.data, "%sDEFVAR LF@%s\n", buffer1.data, variable_name);
         }
         if (dvojbodka_typ(name_of_node) == false){
             return false;
@@ -654,9 +676,12 @@ bool sekvencia(){
         frame_counter--;
     }
     else if (strcmp(current_token.attribute, "func") == 0 && current_token.type == 4){
+        char *main_jump = unique_name("main", func_counter);
+        sprintf(buffer1.data, "%sJUMP %s\n", buffer1.data, main_jump);
         if (func_declar(false) == false){
             return false;
         }
+        sprintf(buffer1.data, "%sRETURN\n", buffer1.data);
     }
     else if(current_token.type == 1 || current_token.type == 16){
         //printf("TU %s", name_of_function);
