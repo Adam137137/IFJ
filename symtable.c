@@ -46,7 +46,7 @@ int lexicographic_compare(char *node_identifier, char *new_identifier){
     }
     if(result == 0){                                            // case when we reach null terminator in new_identifier and they look identical
         if(strlen(node_identifier) > strlen(new_identifier)){  // we have to determine whether they are the same word or new_identifier is a prefix to node_identifier
-            return -2;                                          // just return any negative number
+            return 2;                                          // just return any positive number
         }
         else{
             return 0;                 // identical names of variables

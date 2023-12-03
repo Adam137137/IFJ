@@ -68,28 +68,15 @@ int main(int argc, char *argv[]){
     
     //file = fopen("IFJcode23.txt", "w");
     fprintf(stdout, "%s", buffer1.data);
-    return 0;
-
-    
-
-    // strom testy
     // btree_node *root = NULL;
     // int x = 0;
-    //char *found_name_of_symbol = NULL;
-    //char *func_params = NULL;
-    // insert(&root, "nieco", 1, false, "", false, 0, "", 0, "", 0, "");
-    // insert(&root, "else", 1, false, "", false, 0, "", 0, "", 0, "");
-    // insert(&root, "test", 1, false, "", false, 0, "", 0, "", 0, "");
-    // int c = height_of_node(root);
-    // printf("main koniec %d\n", c);
+    // insert_func(&root, "automat",4);
+    // insert_func(&root, "auto",4);
+    // insert_func(&root, "lol",4);
+    // insert_func(&root, "ahojt",4);
     // printtree(root, x);
-    // insert(&root, 4, 6, "ugabugag", "", 0);
-    // insert(&root, 4, 7, "lol", "", 0);
-    // insert(&root, 4, 4, "XDDd", "", 0);
-    // insert(&root, 4, 1, "uff", "", 0);
-    // insert(&root, 4, 9, "memem", "", 0);
-    // insert(&root, 4, 5, "memem", "", 0);
-    // node_delete(&root, 4, 6);
+    return 0;
+
     // printtree(root, x);
     // bool result = search(root, 4, 6, &found_name_of_symbol, &func_params, 0);
     // if (result) {
