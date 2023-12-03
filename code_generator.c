@@ -1,5 +1,5 @@
 #include "compiler.h"
 
-void generate(char *text){
-    addToDynamicArray(text);
-}
+// void generate(char *text){
+//     addToDynamicArray(text);
+// }

@@ -31,13 +31,14 @@
 //  6. E -> i
 
 // char *r, is return type of eval
-bool reduce_exp(char *r){
+bool reduce_exp(char *r, char* name_of_func){
     // puts("nova exp \n \n");
     
     // uz je nacitany token vyrazu -> pojde do while
     DLList list;
     DLLElementPtr topTerminal;
     btree_node *token_found = NULL;              // my token
+    //btree_node *token_found_param;
     char current_type = '\0';
     char return_type = '\0';
     DLL_Init(&list);
@@ -61,11 +62,39 @@ bool reduce_exp(char *r){
                 char *name_of_node = '\0';
                 name_of_node = string_dup(current_token.attribute);
                 token_found = find_declaration(&symtable_stack, name_of_node);
-                if(token_found == NULL || token_found->inicialized == false){
-                    puts("nedeklarovana premenna alebo nedefinovana premenna\n");
-                    handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
+                btree_node *tmp = NULL;
+                if(token_found == NULL){            // kukneme globalny ramec
+                    tmp =find_function_in_global(&symtable_stack,name_of_func);
+                    if (tmp == NULL){
+                        //puts("nedeklarovana premenna alebo nedefinovana premenna\n");
+                        handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
+                    }
+                    bool found = false;
+                    for(int i =0; i < tmp->func_num_of_param;i++){
+                        if(strcmp(tmp->paramsArray[i].identif, name_of_node) == 0){
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found){
+                        //puts("nedeklarovana premenna alebo nedefinovana premenna\n");
+                        handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
+                    }
+                    
                 }
-                current_type = token_found->data_type;
+                //token_found_param = find_declaration(&symtable_stack, symtable_stack.firstElement->treeRoot->name_of_symbol);
+                
+                //printf("Prvy param %s\n", token_found->name_of_symbol);
+                // if(token_found == NULL || token_found->inicialized == false){
+                //     puts("nedeklarovana premenna alebo nedefinovana premenna\n");
+                //     handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
+                // }
+                if (token_found != NULL){
+                    current_type = token_found->data_type;
+                }
+                else{
+                    current_type = tmp->return_type;
+                }
                 // puts("som v if");
                 // printf("current token %c\n",token_found->data_type);
             }
@@ -87,7 +116,7 @@ bool reduce_exp(char *r){
             else{
                 if ((return_type == 'S' && current_type != 'S') || (return_type != 'S' && current_type == 'S'))            // String a nieco ine
                 {
-                    puts("v precedencnej");
+                    //puts("v precedencnej");
                     handle_error(SEMANTIC_TYPE_COMPATIBILITY);
                 }
                 if (!(return_type == 'D'))                                      // vysledny double nemoze byt zmeneny na int
@@ -104,7 +133,7 @@ bool reduce_exp(char *r){
             topTerminal =  DLL_TopTerminal(&list, true);
             if(token_char == '+' || token_char == '-'){
                 if (token_char != '+' && return_type == 'S'){
-                    puts("v precedencnej");
+                    //puts("v precedencnej");
                     handle_error(SEMANTIC_TYPE_COMPATIBILITY);
                 } 
                 if(topTerminal->data == '(' || topTerminal->data == '$'){
@@ -121,7 +150,7 @@ bool reduce_exp(char *r){
             }
             else if(token_char == '*' || token_char == '/'){
                 if (return_type == 'S'){
-                    puts("v precedencnej");
+                    //puts("v precedencnej");
                     handle_error(SEMANTIC_TYPE_COMPATIBILITY);
                 } 
                 if(topTerminal->data == '+' || topTerminal->data == '-' || topTerminal->data == '(' || topTerminal->data == '$'){
@@ -272,25 +301,25 @@ void reduce(DLList *list){
     // printf("cache = \"%s\"\n", cache);
     if(strcmp(cache, "E+E") == 0){
         sprintf(buffer1.data, "%sADDS\n",buffer1.data);
-        printf("Pravidlo 1\n");
+        //printf("Pravidlo 1\n");
     }
     else if(strcmp(cache, "E-E") == 0){
         sprintf(buffer1.data, "%sSUBS\n",buffer1.data);
-        printf("Pravidlo 2\n");
+        //printf("Pravidlo 2\n");
     }
     else if(strcmp(cache, "E*E") == 0){
         sprintf(buffer1.data, "%sMULS\n",buffer1.data);
-        printf("Pravidlo 3\n");
+        //printf("Pravidlo 3\n");
     }
     else if(strcmp(cache, "E/E") == 0){
         sprintf(buffer1.data, "%sDIVS\n",buffer1.data);
-        printf("Pravidlo 4\n");
+        //printf("Pravidlo 4\n");
     }
     else if(strcmp(cache, "(E)") == 0){
-        printf("Pravidlo 5\n");
+        //printf("Pravidlo 5\n");
     }
     else if(strcmp(cache, "i") == 0){
-        printf("typ %c\n", temp->type);
+        //printf("typ %c\n", temp->type);
         if(temp->type == 'I'){
             sprintf(buffer1.data, "%sPUSHS int@%d\n",buffer1.data, temp->valueI);
         }
@@ -304,7 +333,7 @@ void reduce(DLList *list){
             //TO DO
             sprintf(buffer1.data, "%sPUSHS GF@%s\n",buffer1.data, temp->string);
         }
-        printf("Pravidlo 6\n");
+        //printf("Pravidlo 6\n");
     }
     // printf("List po redukcii:");
     // DLL_PrintList(list);

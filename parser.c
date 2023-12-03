@@ -18,7 +18,7 @@ char return_t;
 int frame_counter = 0;
 int if_counter = 1;
 
-bool ladenie = 1;
+bool ladenie = 0;
 void token_print(){             // ladenie zapnut ! ! !
     if (ladenie)
     {
@@ -42,14 +42,14 @@ void unget_token(struct Token token, bool new_line){
 bool returnovanie(char *name_of_node){
     if (current_token.type == 4 && strcmp(current_token.attribute,"return") == 0){
         current_token = getNextToken();             // prvy token do precedencnej
-        if (reduce_exp(&return_t) == false){
+        if (reduce_exp(&return_t, name_of_node) == false){
             return false;
         }
         btree_node *temp = find_declaration(&symtable_stack, name_of_node);
         // printf("V strome nazov funkcie: %s\n", temp->name_of_symbol);
         // printf("V strome return: %c\n", temp->return_type);
         if (temp->return_type != return_t){
-            printf("Zla navratova hodnota z funckie\n");
+            //printf("Zla navratova hodnota z funckie\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
         return true;
@@ -139,6 +139,7 @@ bool parameter(char *name_of_node){
     {
         if (prvy_prechod)
         {
+            //printf("somtu\n");
             insert_params(&symtable_stack.firstElement->treeRoot, name_of_node, 1, current_token.attribute);
         }
         
@@ -288,7 +289,7 @@ bool priradenie_prave(char *name_of_node){
         btree_node *temp = find_declaration(&symtable_stack, name_of_func);
         if (temp == NULL)
         {
-            puts("funkcia neexistuje\n");
+            //puts("funkcia neexistuje\n");
             handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
         }
         int num_of_params = 0;
@@ -296,12 +297,12 @@ bool priradenie_prave(char *name_of_node){
             return false;
         }
         if (num_of_params < temp->func_num_of_param){
-            printf("Pocet volanych parametrov je mensi ako pri deklaracii\n");
+            //printf("Pocet volanych parametrov je mensi ako pri deklaracii\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
         btree_node *node = find_declaration(&symtable_stack, name_of_node);             // porovnanie ci sedia navravtove typy
         if (temp->return_type != node->data_type){
-            printf("Funkcia ma zlu navratovu hodnotu do priradenia premennej\n");
+            //printf("Funkcia ma zlu navratovu hodnotu do priradenia premennej\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
 
@@ -311,13 +312,13 @@ bool priradenie_prave(char *name_of_node){
     }
     else if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7 || current_token.type == 8 || current_token.type == 20){
         unget_token(current_token2, current_token2.first_in_line);                      //toto asi treba dat pred reduce_exp
-        if (reduce_exp(&return_t) == false){                         //tu uz su nacitane rovno prve dva tokeny
+        if (reduce_exp(&return_t, name_of_node) == false){                         //tu uz su nacitane rovno prve dva tokeny
            return false;
         }
 
         btree_node *tmp = find_declaration(&symtable_stack, name_of_node);
         if (tmp->data_type != return_t && tmp->data_type != '\0'){              //moze byt este neurceny...
-            printf("Zla navratova hodnota z vyrazu do priradenia\n");
+            //printf("Zla navratova hodnota z vyrazu do priradenia\n");
             handle_error(SEMANTIC_TYPE_COMPATIBILITY);
         }
         tmp->data_type = return_t;                  //ak to nemalo tak nastavime podla vysledku vyrazu
@@ -388,7 +389,7 @@ bool varnutie(){
 
 bool relacia(){
     //printf("relacia -> precedencna\n");
-    if (reduce_exp(&return_t) == false){
+    if (reduce_exp(&return_t,NULL) == false){
         return false;
     }
     current_token = getNextToken();
@@ -398,7 +399,7 @@ bool relacia(){
         return false;
     }
     current_token = getNextToken();
-    if (reduce_exp(&return_t) == false){
+    if (reduce_exp(&return_t,NULL) == false){
         return false;
     }
     return true;
@@ -492,24 +493,24 @@ bool parameter_volania(btree_node *temp, int* num_of_params){           // temp 
     (*num_of_params)++;                                                    //conuter parametrov
     //printf("Kolkaty parameter: %d\n", (*num_of_params));
     if (*num_of_params > temp->func_num_of_param){
-        printf("Pocet parametrov vo volani je vacsi ako v deklaracii\n");
+        //printf("Pocet parametrov vo volani je vacsi ako v deklaracii\n");
         handle_error(SEMANTIC_PARAMETER_MISMATCH);
     }
     current_token2 = getNextToken();    //: ak je dvojbodka je to volanie f(with: sth)
     //printf("%s", current_token2.attribute);
     if (current_token2.type == 12){
         if((strcmp(temp->paramsArray[(*num_of_params)-1].name, current_token.attribute) != 0) || (strcmp(temp->paramsArray[(*num_of_params)-1].name, "_") == 0)){
-            printf("Meno parametru nema byt ale je\n");
+            //printf("Meno parametru nema byt ale je\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
         current_token = getNextToken();                   // token do precedencnej
         if (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8 || current_token.type == 20){
             
-            if (reduce_exp(&return_t) == false){
+            if (reduce_exp(&return_t, temp->name_of_symbol) == false){
                 return false;
             }
             if (temp->paramsArray[(*num_of_params)-1].type != return_t){
-                printf("Funkcia ma typovo nespravnee parametre volania\n");
+                //printf("Funkcia ma typovo nespravnee parametre volania\n");
                 handle_error(SEMANTIC_PARAMETER_MISMATCH);
             }
             return true;
@@ -519,14 +520,14 @@ bool parameter_volania(btree_node *temp, int* num_of_params){           // temp 
         unget_token(current_token2, current_token2.first_in_line);            //vratime token a zacneme precedencnu analyzu vyrazu
         //printf("precedencnaa\n");
         if ((strcmp(temp->paramsArray[(*num_of_params)-1].name, "_") != 0)){
-            printf("Vo volani je navyse nazov parametru\n");
+            //printf("Vo volani je navyse nazov parametru\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
-        if (reduce_exp(&return_t) == false){
+        if (reduce_exp(&return_t, temp->name_of_symbol) == false){
             return false;
         }
         if (temp->paramsArray[(*num_of_params)-1].type != return_t){
-            printf("Funkcia ma typovo nespravne parametre volania\n");
+            //printf("Funkcia ma typovo nespravne parametre volania\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
         return true;
@@ -561,7 +562,7 @@ bool priradenie_zost(){
         //free(name_of_node);
         if (temp == NULL)
         {
-            puts("funkcia neexistuje");
+            //puts("funkcia neexistuje");
             handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
         }
         int num_of_params = 0;
@@ -571,7 +572,7 @@ bool priradenie_zost(){
         }
         
         if (num_of_params < temp->func_num_of_param){
-            printf("Pocet volanych parametrov je mensi ako pri deklaracii\n");
+            //printf("Pocet volanych parametrov je mensi ako pri deklaracii\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
         current_token = getNextToken();
@@ -581,7 +582,7 @@ bool priradenie_zost(){
     else if (current_token.type == 10){                         // =
         temp->inicialized = true;
         if (temp->let == true){
-            printf("Pokus o prepisanie konstanty - let\n");
+            //printf("Pokus o prepisanie konstanty - let\n");
             handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
         }
         //free(name_of_node);
@@ -617,7 +618,7 @@ bool sekvencia(){
         DLL_InsertFirst2(&symtable_stack);
         int too_big_program = sprintf(buffer2.data, "%s%d", current_token.attribute, if_counter);
         if(too_big_program >= buffer2.capacity){
-            fprintf(stderr, "buffer overflow\n");
+            //fprintf(stderr, "buffer overflow\n");
             handle_error(INTERNAL_ERROR);
         }
         sprintf(buffer2.data, "%s%d", current_token.attribute, if_counter);        // appending number to string
@@ -635,7 +636,7 @@ bool sekvencia(){
     }
     else if(current_token.type == 1 || current_token.type == 16){
         if (find_declaration(&symtable_stack, current_token.attribute) == NULL){        //nenajdeme id false
-                printf("Nenasli sme premennu do ktorej chceme vlozit hodnotu\n");
+                //printf("Nenasli sme premennu do ktorej chceme vlozit hodnotu\n");
                 handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
             }
         if (idnutie() == false){
@@ -666,7 +667,7 @@ bool sekvencia(){
 
 void parser(){
     if (sekvencia() == true){
-        puts("OK");
+        //puts("OK");
         return;
     }
     else{
