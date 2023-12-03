@@ -68,6 +68,8 @@ int main(int argc, char *argv[]){
     
     //file = fopen("IFJcode23.txt", "w");
     fprintf(stdout, "%s", buffer1.data);
+    // char *new_name = unique_name("auto", 4);
+    // printf("nove meno: %s\n", new_name);
     // btree_node *root = NULL;
     // int x = 0;
     // insert_func(&root, "automat",4);
@@ -75,25 +77,6 @@ int main(int argc, char *argv[]){
     // insert_func(&root, "lol",4);
     // insert_func(&root, "ahojt",4);
     // printtree(root, x);
+    //    tree_dispose(&root);
     return 0;
-
-    // printtree(root, x);
-    // bool result = search(root, 4, 6, &found_name_of_symbol, &func_params, 0);
-    // if (result) {
-    //     printf("Found: %s\n", found_name_of_symbol);
-    //     free(found_name_of_symbol);    
-    // } else {
-    //     printf("Not found.\n");
-    // }
-//    tree_dispose(&root);
-
-    	// DLList list;
-    	// DLL_Init(&list);
-    	// DLL_InsertLast(&list, '$');
-    	// DLL_InsertLast(&list, 'E');
-    	// DLL_InsertLast(&list, '<');
-    	// DLL_InsertLast(&list, 'F');
-    	// DLL_InsertLast(&list, '>');
-    	// DLLElementPtr top = DLL_TopTerminal(&list, true);
-    	// printf("%c\n", top->data);
 }

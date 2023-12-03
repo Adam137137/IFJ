@@ -36,10 +36,11 @@ typedef struct {
 
 void handle_error(int error);
 void initDynamicArray(dynamic_buffer *buffer);
+char *unique_name(char *string, int number);
 
 extern FILE *file;
 extern bool prvy_prechod;
-extern dynamic_buffer buffer1;
-extern dynamic_buffer buffer2;
+extern dynamic_buffer buffer1;  // main buffer for code
+extern dynamic_buffer buffer2;  // other buffer 
 extern int frame_counter;
 #endif
