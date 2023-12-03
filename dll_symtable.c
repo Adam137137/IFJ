@@ -34,6 +34,7 @@ btree_node* find_function_in_global(DLList2 *list, char *name_of_func){
 	btree_node *search_node;
 	while (tmp != NULL){                 // dokym nenarazime na funkciu
 		if (tmp->nextElement == NULL){			//sme v globalnom ramci
+			//printf("V globalnom");
 			search_node = search(tmp->treeRoot,name_of_func);
 			return search_node;
 		}
@@ -46,18 +47,20 @@ btree_node* find_function_in_global(DLList2 *list, char *name_of_func){
 btree_node* find_declaration(DLList2 *list, char *name_of_id){      //vrati node s name_of_id
     DLLElementPtr2 tmp;
     btree_node *search_node;               //hladana noda s name_of_id
-    tmp = list->firstElement;
+	btree_node *func_node;
+	tmp = list->firstElement;
     while (tmp != NULL){                 // dokym nenarazime na funkciu
-		if (tmp->nextElement == NULL){			//sme v globalnom ramci
-			
-			
+		if (tmp->nextElement == NULL && name_of_function != NULL){				//sme v globalnom ramci, hladame ci name_of_id je vo func parametroch
+			func_node = search(tmp->treeRoot,name_of_function);
+			if (func_node != NULL){			//toto by sa nemalo stat ze funcia nie je v strome ale pre istotu
+				return func_node;
+			}
 		}
         search_node =  search(tmp->treeRoot, name_of_id);
         if (search_node == NULL){
             tmp = tmp->nextElement;
         }
         else{
-            // printf("Nasli sme premennu v tabulke - kontrola typu atd.\n");
             return search_node;
         }
     }

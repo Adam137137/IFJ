@@ -33,7 +33,6 @@
 // char *r, is return type of eval
 bool reduce_exp(char *r, char* name_of_func){
     // puts("nova exp \n \n");
-    
     // uz je nacitany token vyrazu -> pojde do while
     DLList list;
     DLLElementPtr topTerminal;
@@ -61,27 +60,30 @@ bool reduce_exp(char *r, char* name_of_func){
             if(current_token.type == 1){                // if we get identifier
                 char *name_of_node = '\0';
                 name_of_node = string_dup(current_token.attribute);
+                printf("Noda: %s\n", name_of_node);
+                printf("%s", name_of_function);
                 token_found = find_declaration(&symtable_stack, name_of_node);
-                btree_node *tmp = NULL;
-                if(token_found == NULL){            // kukneme globalny ramec
-                    tmp =find_function_in_global(&symtable_stack,name_of_func);
-                    if (tmp == NULL){
-                        //puts("nedeklarovana premenna alebo nedefinovana premenna\n");
-                        handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
-                    }
-                    bool found = false;
-                    for(int i =0; i < tmp->func_num_of_param;i++){
-                        if(strcmp(tmp->paramsArray[i].identif, name_of_node) == 0){
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found){
-                        //puts("nedeklarovana premenna alebo nedefinovana premenna\n");
-                        handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
-                    }
+                printf("Co som nasiel %s\n", token_found->name_of_symbol);
+                // btree_node *tmp = NULL;
+                // if(token_found == NULL){            // kukneme globalny ramec
+                //     tmp =find_function_in_global(&symtable_stack,name_of_func);
+                //     if (tmp == NULL){
+                //         //puts("nedeklarovana premenna alebo nedefinovana premenna\n");
+                //         handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
+                //     }
+                //     bool found = false;
+                //     for(int i =0; i < tmp->func_num_of_param;i++){
+                //         if(strcmp(tmp->paramsArray[i].identif, name_of_node) == 0){
+                //             found = true;
+                //             break;
+                //         }
+                //     }
+                //     if (!found){
+                //         //puts("nedeklarovana premenna alebo nedefinovana premenna\n");
+                //         handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
+                //     }
                     
-                }
+                //}
                 //token_found_param = find_declaration(&symtable_stack, symtable_stack.firstElement->treeRoot->name_of_symbol);
                 
                 //printf("Prvy param %s\n", token_found->name_of_symbol);
@@ -89,15 +91,22 @@ bool reduce_exp(char *r, char* name_of_func){
                 //     puts("nedeklarovana premenna alebo nedefinovana premenna\n");
                 //     handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
                 // }
-                if (token_found != NULL){
-                    current_type = token_found->data_type;
+                bool found = false;
+                for(int i =0; i < token_found->func_num_of_param ;i++){			// prehladanie funkcnych parametrov na najdenie id
+                    if(strcmp(token_found->paramsArray[i].identif, name_of_node) == 0){
+                        current_type = token_found->paramsArray[i].type;
+                        found = true;
+                        break;
+                    }
                 }
-                else{
-                    current_type = tmp->return_type;
+                if (!found){
+                    printf("ID nebolo deklarovane nikde\n");
+                    handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
                 }
-                // puts("som v if");
-                // printf("current token %c\n",token_found->data_type);
+                //puts("som v if");
+                //printf("HERE %c", current_type);
             }
+                // printf("current token %c\n",token_found->data_type);
             else if (current_token.type == 2)
             {
                 current_type = 'I';
