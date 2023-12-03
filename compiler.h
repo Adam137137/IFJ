@@ -41,4 +41,5 @@ extern FILE *file;
 extern bool prvy_prechod;
 extern dynamic_buffer buffer1;
 extern dynamic_buffer buffer2;
+extern int frame_counter;
 #endif

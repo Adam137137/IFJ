@@ -16,7 +16,7 @@ bool return_neni = false;
 struct Token current_token, current_token2;
 char return_t;
 int frame_counter = 0;
-int if_counter = 1;
+// int if_counter = 1;
 
 bool ladenie = 0;
 void token_print(){             // ladenie zapnut ! ! !
@@ -71,6 +71,7 @@ bool func_declar(){
 
     if (!prvy_prechod){
         DLL_InsertFirst2(&symtable_stack);
+        frame_counter++;
     }
     insert_func(&symtable_stack.firstElement->treeRoot, name_of_node, 1);
 
@@ -115,6 +116,7 @@ bool func_declar(){
     }
     free(name_of_node);
     DLL_DeleteFirst2(&symtable_stack);
+    frame_counter--;
     return true;
 }
 
@@ -610,24 +612,27 @@ bool sekvencia(){
         }
     }
     else if (strcmp(current_token.attribute, "while") == 0 && current_token.type == 4){
+        DLL_InsertFirst2(&symtable_stack);
+        frame_counter++;
+        char *name_of_node = string_dup(current_token.attribute);
+        insert_func(&symtable_stack.firstElement->treeRoot, name_of_node, 4);
         if (whilnutie() == false){
             return false;
         }
+        DLL_DeleteFirst2(&symtable_stack);
+        frame_counter--;
     }
     else if (strcmp(current_token.attribute, "if") == 0 && current_token.type == 4){
         DLL_InsertFirst2(&symtable_stack);
-        int too_big_program = sprintf(buffer2.data, "%s%d", current_token.attribute, if_counter);
-        if(too_big_program >= buffer2.capacity){
-            //fprintf(stderr, "buffer overflow\n");
-            handle_error(INTERNAL_ERROR);
-        }
-        sprintf(buffer2.data, "%s%d", current_token.attribute, if_counter);        // appending number to string
-        insert_func(&symtable_stack.firstElement->treeRoot, buffer2.data, 4);
-        if_counter++;
+        frame_counter++;
+        char *name_of_node = string_dup(current_token.attribute);
+        insert_func(&symtable_stack.firstElement->treeRoot, name_of_node, 4);
+        
         if (ifnutie()== false){
             return false;   
         }
         DLL_DeleteFirst2(&symtable_stack);
+        frame_counter--;
     }
     else if (strcmp(current_token.attribute, "func") == 0 && current_token.type == 4){
         if (func_declar(false) == false){
