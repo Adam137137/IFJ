@@ -64,8 +64,8 @@ bool reduce_exp(char *r, char* name_of_func){
                 //printf("%s", name_of_function);
                 char c;
                 token_found = find_declaration(&symtable_stack, name_of_node,&c);
-                printf("CO tot je %c\n",c);
-                printf("Co som nasiel %s\n", token_found->name_of_symbol);
+                //printf("CO tot je %c\n",c);
+                //printf("Co som nasiel %s\n", token_found->name_of_symbol);
                 // btree_node *tmp = NULL;
                 // if(token_found == NULL){            // kukneme globalny ramec
                 //     tmp =find_function_in_global(&symtable_stack,name_of_func);
@@ -102,9 +102,9 @@ bool reduce_exp(char *r, char* name_of_func){
                             break;
                         }
                     }
-                    if (!found){
-                        printf("ID nebolo deklarovane nikde\n");
-                        handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
+                        if (!found){
+                            printf("ID nebolo deklarovane nikde-precedencna\n");
+                            handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
                     }
                 }
                 else{
@@ -291,6 +291,7 @@ bool reduce_exp(char *r, char* name_of_func){
     // nacitany token uz nie je vyraz ale nieco ine, treba ho asi vratit
     DLL_Dispose(&list);
     *r = return_type;             //zapisanie do parametru
+    //printf("SOMTU");
     return true;
 }
 

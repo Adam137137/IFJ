@@ -84,7 +84,6 @@ bool func_declar(){
     }
     insert_func(&symtable_stack.firstElement->treeRoot, name_of_node, 1);
 
-
     current_token = getNextToken();
     if (current_token.type != 20){              // (
         return false;
@@ -354,13 +353,9 @@ bool rovna_sa__priradenie(char* name_of_node){
     current_token = getNextToken();                                     // =
 
     if (current_token.type == 10 && strcmp(current_token.attribute, "=") == 0){
-        printf("TU: %s", name_of_node);
-        fflush(stdout);
         char c;
         btree_node *tmp = find_declaration(&symtable_stack,name_of_node,&c);       //inicializacia lavej strany
         tmp->inicialized = true;
-        printf("somtu");
-        fflush(stdout);
         return priradenie_prave(name_of_node);
     }
     else if(dvojbodka_typ_neni){              //ked bola vypustena deklaracia typu nemozeme vypustit priradenie
@@ -597,8 +592,12 @@ bool priradenie_zost(){
     char *name_of_node = string_dup(current_token.attribute);
     current_token = getNextToken();
     if (current_token.type == 20){                               // ( paramter
+        printf("ANO");
+        fflush(stdout);
         btree_node *temp = find_function_in_global(&symtable_stack, name_of_node);
         //free(name_of_node);
+        printf("ANO");
+        fflush(stdout);
         if (temp == NULL)
         {
             puts("funkcia neexistuje");
@@ -620,8 +619,27 @@ bool priradenie_zost(){
     }
     else if (current_token.type == 10){                         // =
         char c;
+        bool found = false;
         btree_node *temp = find_declaration(&symtable_stack, name_of_node,&c);
+        if (temp == NULL){
+            printf("ID nebolo deklarovane nikde\n");
+            handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
+        }
+        if (c == 'F'){              //fko znamena ze nenaslo variable, treba prehladat funkcne parametre
+            for(int i =0; i < temp->func_num_of_param ;i++){			// prehladanie funkcnych parametrov na najdenie id
+                if(strcmp(temp->paramsArray[i].identif, name_of_node) == 0){
+                    found = true;
+                    break;
+                }
+            }
+            if (!found){
+                printf("ID nebolo deklarovane nikde\n");
+                handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
+            }
+        }
+        else{           // ked je to V tak ide o premennu ktora sa inicializuje
         temp->inicialized = true;
+        }
         if (temp->let == true){
             printf("Pokus o prepisanie konstanty - let\n");
             handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
@@ -638,9 +656,8 @@ bool idnutie(){
 
 bool sekvencia(){
     current_token = getNextToken();
-    puts("Nacitany token");
-    token_print();
-    fflush(stdout);
+    //token_print();
+    //fflush(stdout);
     dvojbodka_typ_neni = false;
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
         if (letnutie() == false){
@@ -684,15 +701,9 @@ bool sekvencia(){
         sprintf(buffer1.data, "%sRETURN\n", buffer1.data);
     }
     else if(current_token.type == 1 || current_token.type == 16){
-        //printf("TU %s", name_of_function);
-        // if (find_function_in_global(&symtable_stack, current_token.attribute) == NULL){        //nenajdeme id false
-        //         printf("Nenasli sme premennu do ktorej chceme vlozit hodnotu\n");
-        //         handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
-        //     }
         if (idnutie() == false){
             return false;
         }
-
     }
     //else if(current_token.type == 2 || current_token.type == 3){
         //return reduce_exp();
