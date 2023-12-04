@@ -9,6 +9,7 @@ func decrement(of n: Int, by m: Int) -> Int {
 
 let xd : Int = 8
 var z = xd + 5
-
 decrement(of: 5, by: 6)
+var y : Int
+y = decrement(of: 5, by: 6)
 

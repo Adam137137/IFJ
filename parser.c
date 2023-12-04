@@ -47,8 +47,6 @@ bool returnovanie(char *name_of_node){
         if (reduce_exp(&return_t, name_of_node) == false){
             return false;
         }
-        char *variable_name = unique_name(name_of_node, frame_counter);
-        sprintf(buffer1.data, "%sPOPS %s\n", buffer1.data, variable_name);
         btree_node *temp = find_function_in_global(&symtable_stack, name_of_node);
         //printf("V strome nazov funkcie: %s\n", temp->name_of_symbol);
         //printf("V strome return: %c\n", temp->return_type);
@@ -308,7 +306,7 @@ bool priradenie_prave(char *name_of_node){
             puts("funkcia neexistuje\n");
             handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
         }
-        char *func_call = unique_name(current_token.attribute, func_counter);
+        char *func_call = unique_name(name_of_func, func_counter);
         sprintf(buffer1.data, "%sCALL %s\n", buffer1.data, func_call);
         int num_of_params = 0;
         if (parametre_volania(temp, &num_of_params) == false){
@@ -327,7 +325,14 @@ bool priradenie_prave(char *name_of_node){
             printf("Funkcia ma zlu navratovu hodnotu do priradenia premennej\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
-
+        if(frame_counter == 0){
+            char *variable_name = unique_name(name_of_node, frame_counter);
+            sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
+        }
+        else if(frame_counter > 0){
+            char *variable_name = unique_name(name_of_node, frame_counter);
+            sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
+        }
         free(name_of_func);
         current_token = getNextToken();
         return (current_token.type == 21);                   // )
@@ -337,14 +342,14 @@ bool priradenie_prave(char *name_of_node){
         if (reduce_exp(&return_t, name_of_node) == false){                         //tu uz su nacitane rovno prve dva tokeny
            return false;
         }
-        // if(frame_counter == 0){
-        //     char *variable_name = unique_name(current_token.attribute, frame_counter);
-        //     sprintf(buffer1.data, "%sPOPS %s\n", buffer1.data, variable_name);
-        // }
-        // else if(frame_counter > 0){
-        //     char *variable_name = unique_name(current_token.attribute, frame_counter);
-        //     sprintf(buffer1.data, "%sPOPS %s\n", buffer1.data, variable_name);
-        // }
+        if(frame_counter == 0){
+            char *variable_name = unique_name(name_of_node, frame_counter);
+            sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
+        }
+        else if(frame_counter > 0){
+            char *variable_name = unique_name(name_of_node, frame_counter);
+            sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
+        }
         char c;
         btree_node *tmp = find_declaration(&symtable_stack, name_of_node,&c);
         if (tmp->data_type != return_t && tmp->data_type != '\0'){              //moze byt este neurceny...
@@ -381,7 +386,8 @@ bool letnutie(){
     if (current_token.type == 1){
         insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, false, '\0', true);
         if(frame_counter == 0){
-            sprintf(buffer1.data, "%sDEFVAR GF@%s\n", buffer1.data, current_token.attribute);
+            char *variable_name = unique_name(current_token.attribute, frame_counter);
+            sprintf(buffer1.data, "%sDEFVAR GF@%s\n", buffer1.data, variable_name);
         }
         else if(frame_counter > 0){
             char *variable_name = unique_name(current_token.attribute, frame_counter);
@@ -409,7 +415,8 @@ bool varnutie(){
     if (current_token.type == 1){
         insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, false, '\0', false);
         if(frame_counter == 0){
-            sprintf(buffer1.data, "%sDEFVAR GF@%s\n", buffer1.data, current_token.attribute);
+            char *variable_name = unique_name(current_token.attribute, frame_counter);
+            sprintf(buffer1.data, "%sDEFVAR GF@%s\n", buffer1.data, variable_name);
         }
         else if(frame_counter > 0){
             char *variable_name = unique_name(current_token.attribute, frame_counter);
@@ -600,17 +607,19 @@ bool priradenie_zost(){
     char *name_of_node = string_dup(current_token.attribute);
     current_token = getNextToken();
     if (current_token.type == 20){                               // ( paramter
-        printf("ANO");
-        fflush(stdout);
+        // printf("ANO\n");
+        // fflush(stdout);
         btree_node *temp = find_function_in_global(&symtable_stack, name_of_node);
         //free(name_of_node);
-        printf("ANO");
+        // printf("ANO\n");
         fflush(stdout);
         if (temp == NULL)
         {
             puts("funkcia neexistuje");
             handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
         }
+        char *func_call = unique_name(name_of_node, func_counter);
+        sprintf(buffer1.data, "%sCALL %s\n", buffer1.data, func_call);
         int num_of_params = 0;
         if (parametre_volania(temp, &num_of_params) == false)
         {
