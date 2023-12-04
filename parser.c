@@ -47,6 +47,8 @@ bool returnovanie(char *name_of_node){
         if (reduce_exp(&return_t, name_of_node) == false){
             return false;
         }
+        char *variable_name = unique_name(name_of_node, frame_counter);
+        sprintf(buffer1.data, "%sPOPS %s\n", buffer1.data, variable_name);
         btree_node *temp = find_function_in_global(&symtable_stack, name_of_node);
         //printf("V strome nazov funkcie: %s\n", temp->name_of_symbol);
         //printf("V strome return: %c\n", temp->return_type);
@@ -129,6 +131,7 @@ bool func_declar(){
     DLL_DeleteFirst2(&symtable_stack);
     name_of_function = NULL;
     frame_counter--;
+    func_counter--;
     return true;
 }
 
@@ -299,13 +302,14 @@ bool priradenie_prave(char *name_of_node){
     current_token2 = getNextToken();
     if (current_token.type == 1 && current_token2.type == 20){              // id (
         char *name_of_func = string_dup(current_token.attribute);
-        //printf("%s", name_of_node);
         btree_node *temp = find_function_in_global(&symtable_stack, name_of_func);
         if (temp == NULL)
         {
             puts("funkcia neexistuje\n");
             handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
         }
+        char *func_call = unique_name(current_token.attribute, func_counter);
+        sprintf(buffer1.data, "%sCALL %s\n", buffer1.data, func_call);
         int num_of_params = 0;
         if (parametre_volania(temp, &num_of_params) == false){
             return false;
@@ -329,13 +333,13 @@ bool priradenie_prave(char *name_of_node){
         if (reduce_exp(&return_t, name_of_node) == false){                         //tu uz su nacitane rovno prve dva tokeny
            return false;
         }
-        // printf("token %s\n", current_token2.attribute);
         // if(frame_counter == 0){
-        //     char *variable_name = unique_name(current_token2.attribute, frame_counter);
-        //     sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
+        //     char *variable_name = unique_name(current_token.attribute, frame_counter);
+        //     sprintf(buffer1.data, "%sPOPS %s\n", buffer1.data, variable_name);
         // }
         // else if(frame_counter > 0){
-
+        //     char *variable_name = unique_name(current_token.attribute, frame_counter);
+        //     sprintf(buffer1.data, "%sPOPS %s\n", buffer1.data, variable_name);
         // }
         char c;
         btree_node *tmp = find_declaration(&symtable_stack, name_of_node,&c);
@@ -698,7 +702,8 @@ bool sekvencia(){
         if (func_declar(false) == false){
             return false;
         }
-        sprintf(buffer1.data, "%sRETURN\n", buffer1.data);
+        char *main_label = unique_name("main", func_counter);
+        sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, main_label);
     }
     else if(current_token.type == 1 || current_token.type == 16){
         if (idnutie() == false){

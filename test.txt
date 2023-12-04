@@ -1,7 +1,14 @@
+var auto : Int = 5
+
 func decrement(of n: Int, by m: Int) -> Int {
     var ct : String
+    var sucet : Int = 6 + 3
     return n - m
 
 }
+
+let xd : Int = 8
+var z = xd + 5
+
 decrement(of: 5, by: 6)
 
