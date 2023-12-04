@@ -341,7 +341,13 @@ void reduce(DLList *list){
         else if (temp->type == 'V'){
             //TO DO
             //TO DO
-            sprintf(buffer1.data, "%sPUSHS GF@%s\n",buffer1.data, temp->string);
+            char *push_var = unique_name(temp->string, frame_counter);
+            if (frame_counter == 0){                // sme v globalnom ramci
+                sprintf(buffer1.data, "%sPUSHS GF@%s\n", buffer1.data, push_var);
+            }
+            else{
+                sprintf(buffer1.data, "%sPUSHS LF@%s\n",buffer1.data, push_var);
+            }
         }
         //printf("Pravidlo 6\n");
     }

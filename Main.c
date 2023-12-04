@@ -66,8 +66,11 @@ int main(int argc, char *argv[]){
         //puts("druhe spustenie skoncilo");
     }
     
-    //file = fopen("IFJcode23.txt", "w");
+    file = fopen("IFJcode23.txt", "w");
     fprintf(stdout, "%s", buffer1.data);
+    fprintf(file, "%s", buffer1.data);
+
+
     // char *new_name = unique_name("auto", 4);
     // printf("nove meno: %s\n", new_name);
     // btree_node *root = NULL;

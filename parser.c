@@ -176,11 +176,11 @@ bool parameter(char *name_of_node){
         {
             return false;
         }
-        
-        char *push_params = unique_name(current_token.attribute, frame_counter);
-        sprintf(buffer1.data, "%sDEFVAR LF@%s\n", buffer1.data, push_params);
-        sprintf(buffer1.data, "%sMOVE LF@%s LF@&%s\n", buffer1.data, push_params, push_params);
-
+        if (!prvy_prechod){
+            char *push_params = unique_name(current_token.attribute, frame_counter);
+            sprintf(buffer1.data, "%sDEFVAR LF@%s\n", buffer1.data, push_params);
+            sprintf(buffer1.data, "%sMOVE LF@%s LF@&%s\n", buffer1.data, push_params, push_params);
+        }
         if (prvy_prechod)
         {
             insert_params(&symtable_stack.firstElement->treeRoot, name_of_node, 2, current_token.attribute);
@@ -221,10 +221,11 @@ bool zbytok_param(char *name_of_node){
         {
             insert_params(&symtable_stack.firstElement->treeRoot, name_of_node, 2, current_token.attribute);
         }
-        char *push_params = unique_name(current_token.attribute, frame_counter);
-        sprintf(buffer1.data, "%sDEFVAR LF@%s\n", buffer1.data, push_params);
-        sprintf(buffer1.data, "%sMOVE LF@%s LF@&%s\n", buffer1.data, push_params, push_params);
-        
+        if (!prvy_prechod){
+            char *push_params = unique_name(current_token.attribute, frame_counter);
+            sprintf(buffer1.data, "%sDEFVAR LF@%s\n", buffer1.data, push_params);
+            sprintf(buffer1.data, "%sMOVE LF@%s LF@&%s\n", buffer1.data, push_params, push_params);
+        }
         current_token = getNextToken();
         if (current_token.type == 12)           // :
         {
@@ -318,8 +319,6 @@ bool priradenie_prave(char *name_of_node){
             puts("funkcia neexistuje\n");
             handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
         }
-        char *func_call = unique_name(name_of_func, func_counter);
-        sprintf(buffer1.data, "%sCALL %s\n", buffer1.data, func_call);
         int num_of_params = 0;
         if (parametre_volania(temp, &num_of_params) == false){
             return false;
@@ -328,6 +327,9 @@ bool priradenie_prave(char *name_of_node){
             printf("Pocet volanych parametrov je mensi ako pri deklaracii\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
+        char *func_call = unique_name(name_of_func, func_counter);
+        sprintf(buffer1.data, "%sCALL %s\n", buffer1.data, func_call);
+        
         char c;
         btree_node *node = find_declaration(&symtable_stack, name_of_node, &c);             // najdenie premennej na lavej strane
         if (node->data_type == '\0'){
@@ -641,8 +643,6 @@ bool priradenie_zost(){
             puts("funkcia neexistuje");
             handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
         }
-        char *func_call = unique_name(name_of_node, func_counter);
-        sprintf(buffer1.data, "%sCALL %s\n", buffer1.data, func_call);
         int num_of_params = 0;
         if (parametre_volania(temp, &num_of_params) == false)
         {
@@ -653,6 +653,9 @@ bool priradenie_zost(){
             printf("Pocet volanych parametrov je mensi ako pri deklaracii\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
+        char *func_call = unique_name(name_of_node, func_counter);
+        sprintf(buffer1.data, "%sCALL %s\n", buffer1.data, func_call);
+
         current_token = getNextToken();
         return (current_token.type == 21);                      // )
     
