@@ -17,6 +17,7 @@ struct Token current_token, current_token2;
 char return_t;
 int frame_counter = 0;
 int func_counter = 1;
+int main_jump_counter = 1;
 char *name_of_function = NULL;
 // int if_counter = 1;
 
@@ -737,13 +738,14 @@ bool sekvencia(){
         frame_counter--;
     }
     else if (strcmp(current_token.attribute, "func") == 0 && current_token.type == 4){
-        char *main_jump = unique_name("main", func_counter);
+        char *main_jump = unique_name("main", main_jump_counter);
         sprintf(buffer1.data, "%sJUMP %s\n", buffer1.data, main_jump);
         if (func_declar(false) == false){
             return false;
         }
-        char *main_label = unique_name("main", func_counter);
+        char *main_label = unique_name("main", main_jump_counter);
         sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, main_label);
+        main_jump_counter++;
     }
     else if(current_token.type == 1 || current_token.type == 16){
         if (idnutie() == false){
