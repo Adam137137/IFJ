@@ -49,6 +49,7 @@ btree_node* find_declaration(DLList2 *list, char *name_of_id, char* ret){      /
     btree_node *search_node;               //hladana noda s name_of_id
 	btree_node *func_node;
 	tmp = list->firstElement;
+	anti_zanorenie = 0;
     while (tmp != NULL){                 // dokym nenarazime na funkciu
 		search_node =  search(tmp->treeRoot, name_of_id);	// vyhladavanie v globalnom ramci premennej
         if (search_node != NULL){
@@ -62,6 +63,8 @@ btree_node* find_declaration(DLList2 *list, char *name_of_id, char* ret){      /
 				return func_node;
 			}
 		}
+		anti_zanorenie++;
+		printf("A\n");
 		tmp = tmp->nextElement;
     }
     return NULL;                        //ked to nie je ani v globalnom ramci vrati NULL             

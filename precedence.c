@@ -333,7 +333,7 @@ void reduce(DLList *list){
             sprintf(buffer1.data, "%sPUSHS int@%d\n",buffer1.data, temp->valueI);
         }
         else if(temp->type == 'D'){
-            sprintf(buffer1.data, "%sPUSHS float@%f\n",buffer1.data, temp->valueD);
+            sprintf(buffer1.data, "%sPUSHS float@%a\n",buffer1.data, temp->valueD);
         }
         else if(temp->type == 'S'){
             sprintf(buffer1.data, "%sPUSHS string@%s\n",buffer1.data, temp->string);

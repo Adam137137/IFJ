@@ -19,7 +19,7 @@ int frame_counter = 0;
 int func_counter = 1;
 int main_jump_counter = 1;
 char *name_of_function = NULL;
-
+int anti_zanorenie = 0;
 bool ladenie = 1;
 void token_print(){             // ladenie zapnut ! ! !
     if (ladenie)
@@ -332,6 +332,7 @@ bool priradenie_prave(char *name_of_node){
 
         char c;
         btree_node *node = find_declaration(&symtable_stack, name_of_node, &c);             // najdenie premennej na lavej strane
+        
         if (node->data_type == '\0'){
             node->data_type = temp->return_type;            //odvodime od returnu funckie
         }
@@ -339,12 +340,12 @@ bool priradenie_prave(char *name_of_node){
             printf("Funkcia ma zlu navratovu hodnotu do priradenia premennej\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
-        if(frame_counter == 0){
-            char *variable_name = unique_name(name_of_node, frame_counter);
+        if(frame_counter - anti_zanorenie == 0){
+            char *variable_name = unique_name(name_of_node, 0);
             sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
         }
-        else if(frame_counter > 0){
-            char *variable_name = unique_name(name_of_node, frame_counter);
+        else if(frame_counter - anti_zanorenie > 0){
+            char *variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
             sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
         }
         free(name_of_func);
@@ -356,16 +357,19 @@ bool priradenie_prave(char *name_of_node){
         if (reduce_exp(&return_t, name_of_node) == false){                         //tu uz su nacitane rovno prve dva tokeny
            return false;
         }
-        if(frame_counter == 0){
-            char *variable_name = unique_name(name_of_node, frame_counter);
-            sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
-        }
-        else if(frame_counter > 0){
-            char *variable_name = unique_name(name_of_node, frame_counter);
-            sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
-        }
         char c;
         btree_node *tmp = find_declaration(&symtable_stack, name_of_node,&c);
+        printf("ANTI%d\n FRAME: %d\n", anti_zanorenie, frame_counter);
+        if(frame_counter-anti_zanorenie == 0){
+            char *variable_name = unique_name(name_of_node, 0);
+            sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
+        }
+        else if(frame_counter-anti_zanorenie > 0){
+            char *variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
+            sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
+        }
+        
+        //btree_node *tmp = find_declaration(&symtable_stack, name_of_node,&c);
         if (tmp->data_type != return_t && tmp->data_type != '\0'){              //moze byt este neurceny...
             printf("Zla navratova hodnota z vyrazu do priradenia\n");
             handle_error(SEMANTIC_TYPE_COMPATIBILITY);
