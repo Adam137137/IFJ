@@ -19,7 +19,6 @@ int frame_counter = 0;
 int func_counter = 1;
 int main_jump_counter = 1;
 char *name_of_function = NULL;
-// int if_counter = 1;
 
 bool ladenie = 1;
 void token_print(){             // ladenie zapnut ! ! !
@@ -116,7 +115,7 @@ bool func_declar(){
     if (current_token.type != 22){              // {
         return false;        
     }
-    if (sekvencia() == false){                  // sekvencia
+    if (sekvencia(true) == false){                  // sekvencia
         return false;
     }
     current_token = getNextToken();
@@ -504,7 +503,7 @@ bool whilnutie(){
     }
     current_token = getNextToken();
 
-    if (sekvencia() == false){
+    if (sekvencia(false) == false){
         return false;
     }
     current_token = getNextToken();
@@ -515,23 +514,32 @@ bool whilnutie(){
     return true;
 }
 
-bool ifnutie(){
+bool ifnutie(bool in_func){
     current_token = getNextToken();
     if (podmienka()== false){
         return false;
+    }
+    char *true_end = unique_name("true_end", frame_counter);
+    char *else_end = unique_name("else_end", frame_counter);
+    sprintf(buffer1.data, "%sPUSHS bool@true\n", buffer1.data);
+    sprintf(buffer1.data, "%sJUMPIFNEQS %s\n", buffer1.data, true_end);
+    if(!in_func){
+        sprintf(buffer1.data, "%sCREATEFRAME\n", buffer1.data);
+        sprintf(buffer1.data, "%sPUSHFRAME\n", buffer1.data);
     }
     current_token = getNextToken();
     if (current_token.type != 22){                                                  // {
         return false;        
     }
     //current_token = getNextToken();
-    if (sekvencia() == false){                                                      // sekvencia
+    if (sekvencia(false) == false){                                                      // sekvencia
         return false;
     }
     current_token = getNextToken();
     if (current_token.type != 23){                                                  // }
         return false;
     }
+    sprintf(buffer1.data, "%sJUMP %s\n", buffer1.data, else_end);
     current_token = getNextToken();
     if (strcmp(current_token.attribute, "else") != 0 || current_token.type != 4){   // else
         return false;        
@@ -540,14 +548,16 @@ bool ifnutie(){
     if (current_token.type != 22){                                                  // {
         return false;        
     }
+    sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, true_end);
     //current_token = getNextToken();
-    if (sekvencia() == false){                                                      // sekvencia
+    if (sekvencia(false) == false){                                                      // sekvencia
         return false;
     }
     current_token = getNextToken();
     if (current_token.type != 23){                                                  // }
         return false;
     }
+    sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, else_end);
     return true;
 }
 
@@ -710,7 +720,7 @@ bool idnutie(){
     return priradenie_zost();
 }
 
-bool sekvencia(){
+bool sekvencia(bool in_func){
     current_token = getNextToken();
     //token_print();
     //fflush(stdout);
@@ -742,7 +752,7 @@ bool sekvencia(){
         char *name_of_node = string_dup(current_token.attribute);
         insert_func(&symtable_stack.firstElement->treeRoot, name_of_node, 4);
         
-        if (ifnutie()== false){
+        if (ifnutie(in_func)== false){
             return false;   
         }
         DLL_DeleteFirst2(&symtable_stack);
@@ -780,12 +790,12 @@ bool sekvencia(){
     else{
         return false;
     }
-    return sekvencia();
+    return sekvencia(in_func);
     //TODO dalsie mozne neterminaly zo sekvencie
 }
 
 void parser(){
-    if (sekvencia() == true){
+    if (sekvencia(false) == true){
         puts("OK");
         return;
     }
