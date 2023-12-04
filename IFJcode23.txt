@@ -1,6 +1,7 @@
 .IFJcode23
-PUSHS int@3
-PUSHS int@4
-ADDS
+DEFVAR GF@ct
+PUSHS GF@n
+PUSHS GF@m
+SUBS
+PUSHS int@5
 PUSHS int@6
-DEFVAR GF@id

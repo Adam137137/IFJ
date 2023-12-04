@@ -318,8 +318,12 @@ bool priradenie_prave(char *name_of_node){
             printf("Pocet volanych parametrov je mensi ako pri deklaracii\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
-        btree_node *node = find_function_in_global(&symtable_stack, name_of_node);             // porovnanie ci sedia navravtove typy
-        if (temp->return_type != node->data_type){
+        char c;
+        btree_node *node = find_declaration(&symtable_stack, name_of_node, &c);             // najdenie premennej na lavej strane
+        if (node->data_type == '\0'){
+            node->data_type = temp->return_type;            //odvodime od returnu funckie
+        }
+        if (temp->return_type != node->data_type){      // porovnanie ci sedia navravtove typy
             printf("Funkcia ma zlu navratovu hodnotu do priradenia premennej\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
