@@ -463,9 +463,20 @@ bool relacia(){
     {
         return false;
     }
+    char* operator = current_token.attribute;
     current_token = getNextToken();
     if (reduce_exp(&return_t,NULL) == false){
         return false;
+    }
+    if (strcmp(operator, "<") == 0){
+        sprintf(buffer1.data, "%sLTS\n", buffer1.data);
+    }
+    else if (strcmp(operator, ">") == 0){
+        sprintf(buffer1.data, "%sGTS\n", buffer1.data);
+
+    }
+    else if(strcmp(operator, "==") == 0){
+        sprintf(buffer1.data, "%sEQS\n", buffer1.data);
     }
     return true;
 }
