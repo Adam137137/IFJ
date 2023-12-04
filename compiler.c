@@ -73,13 +73,13 @@ void handle_error(int error){
 }
 
 void initDynamicArray(dynamic_buffer *buffer){
-    buffer->data= (char *)malloc(1000 * sizeof(char));
+    buffer->data= (char *)malloc(2000 * sizeof(char));
     if (buffer->data == NULL) {
         free(buffer->data);
         handle_error(INTERNAL_ERROR);
     }
     buffer->size = 0;
-    buffer->capacity = 1000;
+    buffer->capacity = 2000;
 }
 
 char *unique_name(char *string, int number){

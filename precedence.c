@@ -44,7 +44,9 @@ bool reduce_exp(char *r, char* name_of_func){
     DLL_InsertLast(&list, '$');
     char token_char;
     int counter = 0;    //When token is '(' add 1, when ')' sub 1
-    
+    // puts("budem redukovat");
+    // printf("meno %s\n", name_of_func);
+    // printf("token1 %s", current_token.attribute);
     while (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 5 || current_token.type == 20 || current_token.type == 21)    // stale sme vo vyraze
     {
         token_char = (current_token.attribute)[0];
@@ -228,14 +230,6 @@ bool reduce_exp(char *r, char* name_of_func){
                 else{
                     pushLess(&list, token_char);
                     DLL_InsertValueLast(&list, current_token.type, current_token.attribute);
-                    
-                    // puts("\n");
-                    // printf("data %c\n", list.lastElement->data);
-                    // printf("typ %c\n", list.lastElement->type);
-                    // printf("valueI %d\n", list.lastElement->valueI);
-                    // printf("valueD %f\n", list.lastElement->valueD);
-                    // printf("string %s\n", list.lastElement->string);
-                    // puts("\n");
                     //DLL_PrintList(&list);
                 }
             }
@@ -252,7 +246,7 @@ bool reduce_exp(char *r, char* name_of_func){
                     reduce(&list);
                     // DLL_PrintList(&list);
                     unget_token(current_token, current_token.first_in_line);
-                }
+                }  
             }
         }
         else{
@@ -285,9 +279,7 @@ bool reduce_exp(char *r, char* name_of_func){
             reduce(&list);
             // DLL_PrintList(&list);
             topTerminal = DLL_TopTerminal(&list, true);
-        }
-    
-    
+        }     
     // nacitany token uz nie je vyraz ale nieco ine, treba ho asi vratit
     DLL_Dispose(&list);
     *r = return_type;             //zapisanie do parametru
@@ -344,9 +336,10 @@ void reduce(DLList *list){
             sprintf(buffer1.data, "%sPUSHS float@%f\n",buffer1.data, temp->valueD);
         }
         else if(temp->type == 'S'){
-            sprintf(buffer1.data, "%sPUSHS int@%s\n",buffer1.data, temp->string);
+            sprintf(buffer1.data, "%sPUSHS string@%s\n",buffer1.data, temp->string);
         }
         else if (temp->type == 'V'){
+            //TO DO
             //TO DO
             sprintf(buffer1.data, "%sPUSHS GF@%s\n",buffer1.data, temp->string);
         }

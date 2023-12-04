@@ -78,6 +78,10 @@ bool func_declar(){
         char *func_name = unique_name(current_token.attribute, func_counter);
         sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, func_name);
         sprintf(buffer1.data, "%sPUSHFRAME\n", buffer1.data);
+        
+        // char *retval = unique_name(retval, func_counter);
+        // sprintf(buffer1.data, "%sDEFVAR LF@&%s\n", buffer1.data, retval);
+
         func_counter++;
         DLL_InsertFirst2(&symtable_stack);
         frame_counter++;
@@ -172,6 +176,11 @@ bool parameter(char *name_of_node){
         {
             return false;
         }
+        
+        char *push_params = unique_name(current_token.attribute, frame_counter);
+        sprintf(buffer1.data, "%sDEFVAR LF@%s\n", buffer1.data, push_params);
+        sprintf(buffer1.data, "%sMOVE LF@%s LF@&%s\n", buffer1.data, push_params, push_params);
+
         if (prvy_prechod)
         {
             insert_params(&symtable_stack.firstElement->treeRoot, name_of_node, 2, current_token.attribute);
@@ -212,7 +221,10 @@ bool zbytok_param(char *name_of_node){
         {
             insert_params(&symtable_stack.firstElement->treeRoot, name_of_node, 2, current_token.attribute);
         }
-
+        char *push_params = unique_name(current_token.attribute, frame_counter);
+        sprintf(buffer1.data, "%sDEFVAR LF@%s\n", buffer1.data, push_params);
+        sprintf(buffer1.data, "%sMOVE LF@%s LF@&%s\n", buffer1.data, push_params, push_params);
+        
         current_token = getNextToken();
         if (current_token.type == 12)           // :
         {
@@ -555,9 +567,14 @@ bool parameter_volania(btree_node *temp, int* num_of_params){           // temp 
         current_token = getNextToken();                   // token do precedencnej
         if (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8 || current_token.type == 20){
             
+            char *push_params = unique_name(temp->paramsArray[(*num_of_params)-1].identif, func_counter);
+            sprintf(buffer1.data, "%sDEFVAR TF@&%s\n", buffer1.data, push_params);
+            
             if (reduce_exp(&return_t, temp->name_of_symbol) == false){
                 return false;
             }
+            sprintf(buffer1.data, "%sPOPS TF@&%s\n", buffer1.data, push_params);
+            
             if (temp->paramsArray[(*num_of_params)-1].type != return_t){
                 printf("Funkcia ma typovo nespravnee parametre volania\n");
                 handle_error(SEMANTIC_PARAMETER_MISMATCH);
@@ -572,9 +589,14 @@ bool parameter_volania(btree_node *temp, int* num_of_params){           // temp 
             printf("Vo volani je navyse nazov parametru\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
+        char *push_params = unique_name(temp->paramsArray[(*num_of_params)-1].identif, func_counter);
+        sprintf(buffer1.data, "%sDEFVAR TF@&%s\n", buffer1.data, push_params);
+        
         if (reduce_exp(&return_t, temp->name_of_symbol) == false){
             return false;
         }
+        sprintf(buffer1.data, "%sPOPS TF@&%s\n", buffer1.data, push_params);
+
         if (temp->paramsArray[(*num_of_params)-1].type != return_t){
             printf("Funkcia ma typovo nespravne parametre volania\n");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
@@ -587,6 +609,7 @@ bool parametre_volania(btree_node *temp, int* num_of_params){
     current_token = getNextToken();
     
     if (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8){    //ked nacita vyraz string,double,int,(...
+        sprintf(buffer1.data, "%sCREATEFRAME\n", buffer1.data);
         return parameter_volania(temp, num_of_params) && param_vol_zost(temp,num_of_params);
     }
     else if (current_token.type == 21){         // epsilon )
