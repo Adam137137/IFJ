@@ -329,7 +329,7 @@ bool priradenie_prave(char *name_of_node){
         }
         char *func_call = unique_name(name_of_func, func_counter);
         sprintf(buffer1.data, "%sCALL %s\n", buffer1.data, func_call);
-        
+
         char c;
         btree_node *node = find_declaration(&symtable_stack, name_of_node, &c);             // najdenie premennej na lavej strane
         if (node->data_type == '\0'){
@@ -389,6 +389,7 @@ bool rovna_sa__priradenie(char* name_of_node){
         return false;
     }
     else{
+        printf("somtu");
         unget_token(current_token, current_token.first_in_line);          //epsilon prechod vratime nacitany token  
         return true;
     }
@@ -680,12 +681,12 @@ bool priradenie_zost(){
                 handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
             }
         }
-        else{           // ked je to V tak ide o premennu ktora sa inicializuje
-        temp->inicialized = true;
-        }
-        if (temp->let == true){
-            printf("Pokus o prepisanie konstanty - let\n");
-            handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
+        else if(c == 'V'){           // ked je to V tak ide o premennu ktora sa inicializuje
+            if (temp->let == true && temp->inicialized == true){        
+                printf("Pokus o prepisanie konstanty - let\n");
+                handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
+            }
+            temp->inicialized = true;           //premenna je inicializovana
         }
         //free(name_of_node);
         return priradenie_prave(name_of_node);
