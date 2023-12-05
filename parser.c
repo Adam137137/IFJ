@@ -437,7 +437,7 @@ bool priradenie_prave(char *name_of_node){
         }
         if (temp->return_type != node->data_type){      // porovnanie ci sedia navravtove typy
             printf("Funkcia ma zlu navratovu hodnotu do priradenia premennej\n");
-            handle_error(SEMANTIC_PARAMETER_MISMATCH);
+            handle_error(SEMANTIC_TYPE_COMPATIBILITY);
         }
         free(name_of_func);
         current_token = getNextToken();
@@ -451,15 +451,9 @@ bool priradenie_prave(char *name_of_node){
         }
         char c;                                                                         // it is F for function or V for variable
         btree_node *tmp = find_declaration(&symtable_stack, name_of_node,&c);
-
         if (c == 'F'){
-            int i = check_params(tmp,name_of_node);
-            if (return_t != tmp->paramsArray[i].type){
-                printf("Zla navratova hodnota z vyrazu do priradenia do parametru\n");
-                handle_error(SEMANTIC_TYPE_COMPATIBILITY);
-            }
-            char *push_var = unique_name(name_of_node,  1);
-            sprintf(buffer1.data, "%sPUSHS LF@%s\n",buffer1.data, push_var);
+            printf("Do parametru sa neda priradit hodnota\n");
+            handle_error(OTHER_SEMANTIC_ERROR);
         }
         else if(c == 'V'){
             if (tmp->data_type != return_t && tmp->data_type != '\0'){                 // moze byt este neurceny...
@@ -492,10 +486,11 @@ bool priradenie_prave(char *name_of_node){
                     char *variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
                     sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
                 }
-            }                    
-            return true;
-        }        
+            }
+        }             
+        return true;        
     }
+
     return false;
 }
 
@@ -845,8 +840,8 @@ bool idnutie(){
 
 bool sekvencia(bool in_func){
     current_token = getNextToken();
-    // printf("Token v sekvencii: ");
-    // token_print();
+    //printf("Token v sekvencii: ");
+    //token_print();
     //fflush(stdout);
     dvojbodka_typ_neni = false;
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
