@@ -624,10 +624,22 @@ bool podmienka(){
     return false;
 }
 
-bool whilnutie(){
+bool whilnutie(bool in_func){
     current_token = getNextToken();
+    
+    char *while_start = unique_name("while_start", frame_counter);
+    sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, while_start);
+    
     if (podmienka()== false){
         return false;
+    }
+    
+    char *while_end = unique_name("while_end", frame_counter);
+    sprintf(buffer1.data, "%sPUSHS bool@true\n", buffer1.data);
+    sprintf(buffer1.data, "%sJUMPIFNEQS %s\n", buffer1.data, while_end);
+    if(!in_func){
+        sprintf(buffer1.data, "%sCREATEFRAME\n", buffer1.data);
+        sprintf(buffer1.data, "%sPUSHFRAME\n", buffer1.data);
     }
     current_token = getNextToken();
     if (current_token.type != 22){              // {
@@ -638,12 +650,12 @@ bool whilnutie(){
         // printf("TU\n");
         return false;
     }
-            
-
+    sprintf(buffer1.data, "%sJUMP %s\n", buffer1.data, while_start);
     current_token = getNextToken();
     if (current_token.type != 23){              // }
         return false;
     }
+    sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, while_end);        
     current_token = getNextToken();
     return true;
 }
@@ -859,7 +871,7 @@ bool sekvencia(bool in_func){
         frame_counter++;
         char *name_of_node = string_dup(current_token.attribute);
         insert_func(&symtable_stack.firstElement->treeRoot, name_of_node, 4);
-        if (whilnutie() == false){
+        if (whilnutie(in_func) == false){
             return false;
         }
         DLL_DeleteFirst2(&symtable_stack);
@@ -880,7 +892,7 @@ bool sekvencia(bool in_func){
     else if (strcmp(current_token.attribute, "func") == 0 && current_token.type == 4){
         char *main_jump = unique_name("main", main_jump_counter);
         sprintf(buffer1.data, "%sJUMP %s\n", buffer1.data, main_jump);
-        if (func_declar(false) == false){
+        if (func_declar() == false){
             return false;
         }
         char *main_label = unique_name("main", main_jump_counter);

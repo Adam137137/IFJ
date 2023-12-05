@@ -23,7 +23,7 @@ bool letnutie();
 bool varnutie();
 bool relacia();
 bool podmienka();
-bool whilnutie();
+bool whilnutie(bool in_func);
 bool ifnutie(bool in_func);
 bool param_vol_zost(btree_node *temp, int* num_of_params);
 bool parameter_volania(btree_node *temp, int* num_of_params);
