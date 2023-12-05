@@ -19,7 +19,7 @@ int func_counter = 1;
 int main_jump_counter = 1;
 char *name_of_function = NULL;
 int anti_zanorenie = 0;
-bool ladenie = 1;
+bool ladenie = 0;
 
 
 bool built_in_write_one_param_print(){
@@ -448,15 +448,15 @@ bool priradenie_prave(char *name_of_node){
         if (reduce_exp(&return_t, name_of_node, false) == false){
            return false;
         }
-        char c;
+        char c;                                                                         // it is F for function or V for variable
         btree_node *tmp = find_declaration(&symtable_stack, name_of_node,&c);
+        char *variable_name;
         if(frame_counter-anti_zanorenie == 0 && c != 'F'){
-            //printf("SOM");
-            char *variable_name = unique_name(name_of_node, 0);
+            variable_name= unique_name(name_of_node, 0);
             sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
         }
         else if(frame_counter-anti_zanorenie > 0){
-            char *variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
+            variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
             sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
         }
 
@@ -469,7 +469,20 @@ bool priradenie_prave(char *name_of_node){
             char *push_var = unique_name(name_of_node,  1);
             sprintf(buffer1.data, "%sPUSHS LF@%s\n",buffer1.data, push_var);
         }        
-        else if (tmp->data_type != return_t && tmp->data_type != '\0'){              //moze byt este neurceny...
+        else if (tmp->data_type != return_t && tmp->data_type != '\0'){                 // moze byt este neurceny...
+            if (tmp->data_type == 'D' && return_t == 'I'){                              // do deklaracie doublu priradujeme int
+                tmp->data_type = 'I';
+                if(frame_counter-anti_zanorenie == 0 && c != 'F'){
+                    variable_name= unique_name(name_of_node, 0);
+                    sprintf(buffer1.data, "%sINT2FLOATS GF@%s\n", buffer1.data, variable_name);
+                }
+                else if(frame_counter-anti_zanorenie > 0){
+                    variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
+                    sprintf(buffer1.data, "%sINT2FLOATS LF@%s\n", buffer1.data, variable_name);
+                }
+                return true;
+            }
+            
             printf("Zla navratova hodnota z vyrazu do priradenia\n");
             handle_error(SEMANTIC_TYPE_COMPATIBILITY);
         }
