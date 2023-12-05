@@ -62,7 +62,7 @@ bool reduce_exp(char *r, char* name_of_func, bool after_relation_operator){     
                 //printf("Noda: %s\n", name_of_node);
                 //printf("%s", name_of_function);
                 token_found = find_declaration(&symtable_stack, name_of_node,&var);
-                if (token_found == NULL){
+                if (token_found == NULL || token_found->inicialized == false){
                     handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
                 }
                 //printf("CO tot je %c\n",c);

@@ -51,6 +51,7 @@ int check_params(btree_node* node_of_func, char* name_of_id){
     }
 	printf("ID nebolo najdene ani v parametroch funkcie\n");
     handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
+	return 0;
 }
 
 btree_node* find_declaration(DLList2 *list, char *name_of_id, char* ret){      //vrati node s name_of_id

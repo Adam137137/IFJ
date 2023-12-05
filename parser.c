@@ -139,7 +139,7 @@ bool returnovanie(char *name_of_node){
         //printf("RETURN : %c\n", return_t);
         if (temp->return_type != return_t){
             printf("Zla navratova hodnota z funckie\n");
-            handle_error(SEMANTIC_PARAMETER_MISMATCH);
+            handle_error(SEMANTIC_RETURN_STATEMENT);
         }
         return true;
 
@@ -219,6 +219,7 @@ bool func_declar(){
     name_of_function = NULL;
     frame_counter--;
     func_counter--;
+    return_neni = false;
     return true;
 }
 
@@ -482,7 +483,7 @@ bool priradenie_prave(char *name_of_node){
 
 bool rovna_sa__priradenie(char* name_of_node){
     current_token = getNextToken();                                     // =
-
+    
     if (current_token.type == 10 && strcmp(current_token.attribute, "=") == 0){
         char c;
         btree_node *tmp = find_declaration(&symtable_stack,name_of_node,&c);       //inicializacia lavej strany
@@ -528,9 +529,11 @@ bool letnutie(){
 }
 
 bool varnutie(){
+    //printf("somtuuu\n");
     current_token = getNextToken();
     char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type == 1){
+        //printf("INSERTUJEM: %s\n", name_of_node);
         insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, false, '\0', false);
         if(frame_counter == 0){
             char *variable_name = unique_name(current_token.attribute, frame_counter);
@@ -555,14 +558,14 @@ bool varnutie(){
 }
 
 bool relacia(){
-    bool ozatvorkovanie = false;
+    //bool ozatvorkovanie = false;
     char return_t;
     //puts("zaciatok relacie:");
     // TODO
-    if (current_token.type == 20)
-    {
-        ozatvorkovanie = true;
-    }
+    // if (current_token.type == 20)
+    // {
+    //     ozatvorkovanie = true;
+    // }
     
 
     token_print();
@@ -571,6 +574,7 @@ bool relacia(){
         return false;
     }
     current_token = getNextToken();
+    // printf("Relacny operator: %s", current_token.attribute);
     if (current_token.type != 6)
     {
         return false;
@@ -616,11 +620,13 @@ bool whilnutie(){
     if (current_token.type != 22){              // {
         return false;        
     }
-    current_token = getNextToken();
 
     if (sekvencia(false) == false){
+        // printf("TU\n");
         return false;
     }
+            
+
     current_token = getNextToken();
     if (current_token.type != 23){              // }
         return false;
@@ -647,7 +653,6 @@ bool ifnutie(bool in_func){
     if (current_token.type != 22){                                                  // {
         return false;        
     }
-    //current_token = getNextToken();
     if (sekvencia(false) == false){                                                      // sekvencia
         return false;
     }
@@ -788,6 +793,7 @@ bool priradenie_zost(){
     }
     else if (current_token.type == 10){                         // =
         char c;
+        // printf("%s", name_of_node);
         btree_node *temp = find_declaration(&symtable_stack, name_of_node,&c);
         if (temp == NULL){
             printf("ID nebolo deklarovane nikde\n");
@@ -800,7 +806,7 @@ bool priradenie_zost(){
         else if(c == 'V'){           // ked je to V tak ide o premennu ktora sa inicializuje
             if (temp->let == true && temp->inicialized == true){        
                 printf("Pokus o prepisanie konstanty - let\n");
-                handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
+                handle_error(OTHER_SEMANTIC_ERROR);
             }
             temp->inicialized = true;           //premenna je inicializovana
         }
@@ -821,7 +827,8 @@ bool idnutie(){
 
 bool sekvencia(bool in_func){
     current_token = getNextToken();
-    //token_print();
+    // printf("Token v sekvencii: ");
+    // token_print();
     //fflush(stdout);
     dvojbodka_typ_neni = false;
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
@@ -888,10 +895,11 @@ bool sekvencia(bool in_func){
     //}
     else if (current_token.type == 23 || (current_token.type == 4 && strcmp(current_token.attribute, "return") == 0 )){                 //epsion prechod
         unget_token(current_token, current_token.first_in_line);
-        if (current_token.type == 4)                        //precitali sme return
+        if (current_token.type == 4 && return_neni == false)                        //precitali sme return
         {
-            return_neni = false;
+            return false;
         }
+        //printf("SOMTU");
         return true;
     }
     else if(current_token.type == 0){
@@ -912,34 +920,5 @@ void parser(){
     else{
         handle_error(SYNTAX_ERROR);
     }
-    // while (1){
-    //     current_token = getNextToken();
-    //     //printf("%d\n", current_token.type);
-    //     //printf("%s\n", current_token.attribute);
-    //     if (current_token.type == 0 && strcmp(current_token.attribute, "END") == 0){
-    //         printf("ok\n\n");
-    //         break;
-    //     }
-    //     else if (sekvencia() == false){
-    //         printf("Syntax Error\n\n");
-    //         break;
-    //     }
-    // }
-    // if (sekvencia() == true){
-    //     printf("ok");
-    // }
-    // else{
-    //     printf("Syntax Error");
-    // }
-
-
-    // current_token = getNextToken();
-    // while (current_token.type != 0)
-    // {
-    //     printf("Type: %d     ", current_token.type);
-    //     printf("Attribute: %s         ", current_token.attribute);
-    //     printf("prvy: %d\n", (int)current_token.first_in_line);
-    //     current_token = getNextToken();
-    // }
 }
     
