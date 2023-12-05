@@ -1,0 +1,6 @@
+func foo(num1: Int) -> String{
+    var res = 2 + num1
+    return
+}
+var x : Int
+x = foo(with: 8, num2: 4)

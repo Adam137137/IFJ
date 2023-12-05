@@ -1,0 +1,4 @@
+func foo(num1: Int){
+}
+var x : Int
+x = foo(num1: 8, num2: 4)

@@ -1,0 +1,3 @@
+var x : Int = 5
+var y : String = "Ahoj"
+var z = x + y
