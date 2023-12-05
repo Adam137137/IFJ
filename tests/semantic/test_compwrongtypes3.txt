@@ -1,0 +1,4 @@
+if false == "ahoj"{
+    var x : Int
+}
+else{}
