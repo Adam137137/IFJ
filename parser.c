@@ -14,13 +14,79 @@
 bool dvojbodka_typ_neni = false;
 bool return_neni = false;
 struct Token current_token, current_token2;
-char return_t;
 int frame_counter = 0;
 int func_counter = 1;
 int main_jump_counter = 1;
 char *name_of_function = NULL;
 int anti_zanorenie = 0;
 bool ladenie = 1;
+
+
+bool built_in_write(){
+    current_token = getNextToken();
+    if(current_token.type != 20){
+        return false;
+    }
+    current_token = getNextToken();              // first param
+    
+    if (current_token.type == 1)
+    {
+        /* code */      // pozriet ci je definovana
+    }
+    else if (current_token.type == 2)
+    {
+        sprintf(buffer1.data, "%sWRITE int@%s\n", buffer1.data, current_token.attribute);
+    }
+    else if (current_token.type == 3)
+    {
+        sprintf(buffer1.data, "%sWRITE float@%s\n", buffer1.data, current_token.attribute);
+    }
+    else if (current_token.type == 7)
+    {
+        sprintf(buffer1.data, "%sWRITE string@%s\n", buffer1.data, current_token.attribute);
+    }
+    else{
+        return false;
+    }
+
+    current_token = getNextToken();
+    if (current_token.type == 21)
+    {
+        return true;
+    }
+    
+    do 
+    {
+    current_token = getNextToken();
+    if (current_token.type == 1)
+    {
+        /* code */      // pozriet ci je definovana
+    }
+    else if (current_token.type == 2)
+    {
+        sprintf(buffer1.data, "%sWRITE int@%s\n", buffer1.data, current_token.attribute);
+    }
+    else if (current_token.type == 3)
+    {
+        sprintf(buffer1.data, "%sWRITE float@%s\n", buffer1.data, current_token.attribute);
+    }
+    else if (current_token.type == 7)
+    {
+        sprintf(buffer1.data, "%sWRITE string@%s\n", buffer1.data, current_token.attribute);
+    }
+    else{
+        return false;
+    }
+    current_token = getNextToken();
+    } while (current_token.type == 13);
+
+    if(current_token.type != 21){
+        return false;
+    }
+    return true;
+}
+
+
 void token_print(){             // ladenie zapnut ! ! !
     if (ladenie)
     {
@@ -43,8 +109,9 @@ void unget_token(struct Token token, bool new_line){
 }
 bool returnovanie(char *name_of_node){
     if (current_token.type == 4 && strcmp(current_token.attribute,"return") == 0){
+        char return_t;
         current_token = getNextToken();             // prvy token do precedencnej
-        if (reduce_exp(&return_t, name_of_node) == false){
+        if (reduce_exp(&return_t, name_of_node, false) == false){
             return false;
         }
         btree_node *temp = find_function_in_global(&symtable_stack, name_of_node);
@@ -53,7 +120,6 @@ bool returnovanie(char *name_of_node){
         //printf("RETURN : %c\n", return_t);
         if (temp->return_type != return_t){
             printf("Zla navratova hodnota z funckie\n");
-            //printf("Somtu");
             handle_error(SEMANTIC_PARAMETER_MISMATCH);
         }
         return true;
@@ -354,7 +420,8 @@ bool priradenie_prave(char *name_of_node){
     }
     else if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7 || current_token.type == 8 || current_token.type == 20){
         unget_token(current_token2, current_token2.first_in_line);                      //toto asi treba dat pred reduce_exp
-        if (reduce_exp(&return_t, name_of_node) == false){                         //tu uz su nacitane rovno prve dva tokeny
+        char return_t;
+        if (reduce_exp(&return_t, name_of_node, false) == false){
            return false;
         }
         char c;
@@ -393,7 +460,6 @@ bool rovna_sa__priradenie(char* name_of_node){
         return false;
     }
     else{
-        printf("somtu");
         unget_token(current_token, current_token.first_in_line);          //epsilon prechod vratime nacitany token  
         return true;
     }
@@ -456,21 +522,32 @@ bool varnutie(){
 }
 
 bool relacia(){
-    //printf("relacia -> precedencna\n");
-    if (reduce_exp(&return_t,NULL) == false){
+    bool ozatvorkovanie = false;
+    char return_t;
+    //puts("zaciatok relacie:");
+    // TODO
+    if (current_token.type == 20)
+    {
+        ozatvorkovanie = true;
+    }
+    
+
+    
+    token_print();
+    if (reduce_exp(&return_t,NULL, true) == false){
         return false;
     }
     current_token = getNextToken();
-    //token_print();
     if (current_token.type != 6)
     {
         return false;
     }
     char* operator = current_token.attribute;
     current_token = getNextToken();
-    if (reduce_exp(&return_t,NULL) == false){
+    if (reduce_exp(&return_t,NULL, false) == false){
         return false;
     }
+
     if (strcmp(operator, "<") == 0){
         sprintf(buffer1.data, "%sLTS\n", buffer1.data);
     }
@@ -481,6 +558,7 @@ bool relacia(){
     else if(strcmp(operator, "==") == 0){
         sprintf(buffer1.data, "%sEQS\n", buffer1.data);
     }
+    // puts("relacia je OK");
     return true;
 }
 
@@ -532,6 +610,7 @@ bool ifnutie(bool in_func){
         sprintf(buffer1.data, "%sPUSHFRAME\n", buffer1.data);
     }
     current_token = getNextToken();
+    // token_print();
     if (current_token.type != 22){                                                  // {
         return false;        
     }
@@ -598,8 +677,8 @@ bool parameter_volania(btree_node *temp, int* num_of_params){           // temp 
             
             char *push_params = unique_name(temp->paramsArray[(*num_of_params)-1].identif, func_counter);
             sprintf(buffer1.data, "%sDEFVAR TF@&%s\n", buffer1.data, push_params);
-            
-            if (reduce_exp(&return_t, temp->name_of_symbol) == false){
+            char return_t;
+            if (reduce_exp(&return_t, temp->name_of_symbol, false) == false){
                 return false;
             }
             sprintf(buffer1.data, "%sPOPS TF@&%s\n", buffer1.data, push_params);
@@ -620,8 +699,8 @@ bool parameter_volania(btree_node *temp, int* num_of_params){           // temp 
         }
         char *push_params = unique_name(temp->paramsArray[(*num_of_params)-1].identif, func_counter);
         sprintf(buffer1.data, "%sDEFVAR TF@&%s\n", buffer1.data, push_params);
-        
-        if (reduce_exp(&return_t, temp->name_of_symbol) == false){
+        char return_t;
+        if (reduce_exp(&return_t, temp->name_of_symbol, false) == false){
             return false;
         }
         sprintf(buffer1.data, "%sPOPS TF@&%s\n", buffer1.data, push_params);
@@ -642,13 +721,6 @@ bool parametre_volania(btree_node *temp, int* num_of_params){
         return parameter_volania(temp, num_of_params) && param_vol_zost(temp,num_of_params);
     }
     else if (current_token.type == 21){         // epsilon )
-        // printf("somtu");
-        
-        // if (temp->func_num_of_param != 0)
-        // {
-        //     handle_error(SEMANTIC_PARAMETER_MISMATCH);
-        // }
-
         unget_token(current_token, current_token.first_in_line);
         return true;
     }
@@ -772,11 +844,20 @@ bool sekvencia(bool in_func){
         sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, main_label);
         main_jump_counter++;
     }
-    else if(current_token.type == 1 || current_token.type == 16){
+    else if(current_token.type == 1){
         if (idnutie() == false){
             return false;
         }
     }
+    else if (current_token.type == 16)
+    {
+        if (strcmp(current_token.attribute, "write") == 0)
+        {
+            return built_in_write();
+        }
+        
+    }
+    
     //else if(current_token.type == 2 || current_token.type == 3){
         //return reduce_exp();
     //}

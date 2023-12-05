@@ -31,22 +31,18 @@
 //  6. E -> i
 
 // char *r, is return type of eval
-bool reduce_exp(char *r, char* name_of_func){
+bool reduce_exp(char *r, char* name_of_func, bool after_relation_operator){                                   // first token is already loaded
     // puts("nova exp \n \n");
-    // uz je nacitany token vyrazu -> pojde do while
     DLList list;
     DLLElementPtr topTerminal;
     btree_node *token_found = NULL;              // my token
-    //btree_node *token_found_param;
     char current_type = '\0';
     char return_type = '\0';
     DLL_Init(&list);
     DLL_InsertLast(&list, '$');
     char token_char;
-    int counter = 0;    //When token is '(' add 1, when ')' sub 1
-    // puts("budem redukovat");
-    // printf("meno %s\n", name_of_func);
-    // printf("token1 %s", current_token.attribute);
+    static int counter = 0;    //When token is '(' add 1, when ')' sub 1
+    printf("count: %d \n", counter);
     while (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 5 || current_token.type == 20 || current_token.type == 21)    // stale sme vo vyraze
     {
         token_char = (current_token.attribute)[0];
@@ -112,10 +108,8 @@ bool reduce_exp(char *r, char* name_of_func){
                 else{
                     current_type = token_found->data_type;
                 }
-                //puts("som v if");
-                //printf("HERE %c", current_type);
             }
-                // printf("current token %c\n",token_found->data_type);
+
             else if (current_token.type == 2)
             {
                 current_type = 'I';
@@ -142,7 +136,6 @@ bool reduce_exp(char *r, char* name_of_func){
                     return_type = current_type;
                 }
             }
-            // printf("return typ: %c \n", return_type);
             
             token_char = 'i';
         }
@@ -150,7 +143,7 @@ bool reduce_exp(char *r, char* name_of_func){
         if((counter >= 0)){
             topTerminal =  DLL_TopTerminal(&list, true);
             if(token_char == '+' || token_char == '-'){
-                if (token_char != '+' && return_type == 'S'){
+                if (token_char != '+' && return_type == 'S'){                                   // Stringy nepracuju s operaciou '-'
                     //puts("v precedencnej");
                     handle_error(SEMANTIC_TYPE_COMPATIBILITY);
                 } 
@@ -166,7 +159,7 @@ bool reduce_exp(char *r, char* name_of_func){
                     unget_token(current_token, current_token.first_in_line);
                 }
             }
-            else if(token_char == '*' || token_char == '/'){
+            else if(token_char == '*' || token_char == '/'){                                    // Stringy nepracuju s operaciou '*' ani '/'
                 if (return_type == 'S'){
                     //puts("v precedencnej");
                     handle_error(SEMANTIC_TYPE_COMPATIBILITY);
@@ -224,7 +217,7 @@ bool reduce_exp(char *r, char* name_of_func){
                 if(topTerminal->data == ')' || topTerminal->data == 'i'){
                     //Free
                     DLL_Dispose(&list);
-                    // printf("test105\n");
+                    //  printf("test105\n");
                     handle_error(SYNTAX_ERROR);
                 }
                 else{
@@ -237,7 +230,7 @@ bool reduce_exp(char *r, char* name_of_func){
                 if(topTerminal->data == '(' || topTerminal->data == '$'){
                     //Free
                     DLL_Dispose(&list);
-                    // printf("test116\n");
+                    //printf("test234\n");
                     handle_error(SYNTAX_ERROR);
                 }
                 else{
@@ -250,28 +243,32 @@ bool reduce_exp(char *r, char* name_of_func){
             }
         }
         else{
-            // token_print();
-            counter++;                      // ")" doesnt belong to expresion, so we uncount it
+            counter++;                                                          // ")" doesnt belong to expresion, so we uncount it
             break;
         }
         current_token = getNextToken();
         if(token_char == 'i'){
             if (current_token.first_in_line == true){
-                //printf("test\n");
                 break;
             }
         }
         
     }
-    // puts("posledny token:");
-    // token_print();
-    if(counter != 0){               // parenthesis not closed properly
+
+    while(counter != 0){                               // parenthesis not closed properly or next token is relation operator
+        
+        if (current_token.type == 6)
+        {
+            counter--;
+            break;
+        }
+        
         DLL_Dispose(&list);
         handle_error(SYNTAX_ERROR);
+        break;
     }
-    //puts("ungetujeme token co uz neni vyraz:");
-    //token_print();
-    unget_token(current_token, current_token.first_in_line);
+
+    unget_token(current_token, current_token.first_in_line);                    // unget token that doesnt belong to expression
     topTerminal = DLL_TopTerminal(&list, true);
         while(topTerminal->data != '$'){
             // printf("TOP: %c\n", topTerminal->data);
@@ -279,11 +276,10 @@ bool reduce_exp(char *r, char* name_of_func){
             reduce(&list);
             // DLL_PrintList(&list);
             topTerminal = DLL_TopTerminal(&list, true);
-        }     
-    // nacitany token uz nie je vyraz ale nieco ine, treba ho asi vratit
+        }
     DLL_Dispose(&list);
     *r = return_type;             //zapisanie do parametru
-    //printf("SOMTU");
+    // puts("relacia presla");
     return true;
 }
 
@@ -339,13 +335,13 @@ void reduce(DLList *list){
             sprintf(buffer1.data, "%sPUSHS string@%s\n",buffer1.data, temp->string);
         }
         else if (temp->type == 'V'){
-            //TO DO
-            //TO DO
-            char *push_var = unique_name(temp->string, frame_counter);
-            if (frame_counter == 0){                // sme v globalnom ramci
+            //char *push_var = unique_name(temp->string, frame_counter);
+            if (frame_counter - anti_zanorenie == 0){                // sme v globalnom ramci
+                char *push_var = unique_name(temp->string, 0);
                 sprintf(buffer1.data, "%sPUSHS GF@%s\n", buffer1.data, push_var);
             }
-            else{
+            else if(frame_counter-anti_zanorenie > 0){
+                char *push_var = unique_name(temp->string, frame_counter - anti_zanorenie);
                 sprintf(buffer1.data, "%sPUSHS LF@%s\n",buffer1.data, push_var);
             }
         }
