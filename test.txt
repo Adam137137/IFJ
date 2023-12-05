@@ -1,14 +1,4 @@
-var auto : Int = 5
+let a = """hello
+world"""
 
-func decrement(_ n: Int, by m: Int) -> Int {
-    var ct : String
-    var sucet : Int = 6 + 3
-    return n - m
-
-}
-
-let xd : Int = 8
-var z = xd + 5
-var y : Int
-y = decrement(5, by: 6)
-
+write(a)
