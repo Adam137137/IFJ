@@ -29,10 +29,11 @@
 //  4. E -> E/E
 //  5. E -> (E)
 //  6. E -> i
-
+char var;           //Ak je to V je variable ak F je to parameter fce
 // char *r, is return type of eval
 bool reduce_exp(char *r, char* name_of_func, bool after_relation_operator){                                   // first token is already loaded
-    // puts("nova exp \n \n");
+    //puts("nova exp \n \n");
+    //token_print();
     DLList list;
     DLLElementPtr topTerminal;
     btree_node *token_found = NULL;              // my token
@@ -42,7 +43,7 @@ bool reduce_exp(char *r, char* name_of_func, bool after_relation_operator){     
     DLL_InsertLast(&list, '$');
     char token_char;
     static int counter = 0;    //When token is '(' add 1, when ')' sub 1
-    printf("count: %d \n", counter);
+    //printf("count: %d \n", counter);
     while (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 5 || current_token.type == 20 || current_token.type == 21)    // stale sme vo vyraze
     {
         token_char = (current_token.attribute)[0];
@@ -60,8 +61,10 @@ bool reduce_exp(char *r, char* name_of_func, bool after_relation_operator){     
                 name_of_node = string_dup(current_token.attribute);
                 //printf("Noda: %s\n", name_of_node);
                 //printf("%s", name_of_function);
-                char c;
-                token_found = find_declaration(&symtable_stack, name_of_node,&c);
+                token_found = find_declaration(&symtable_stack, name_of_node,&var);
+                if (token_found == NULL){
+                    handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
+                }
                 //printf("CO tot je %c\n",c);
                 //printf("Co som nasiel %s\n", token_found->name_of_symbol);
                 // btree_node *tmp = NULL;
@@ -91,19 +94,10 @@ bool reduce_exp(char *r, char* name_of_func, bool after_relation_operator){     
                 //     puts("nedeklarovana premenna alebo nedefinovana premenna\n");
                 //     handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
                 // }
-                if (c == 'F'){
-                    bool found = false;
-                    for(int i =0; i < token_found->func_num_of_param ;i++){			// prehladanie funkcnych parametrov na najdenie id
-                        if(strcmp(token_found->paramsArray[i].identif, name_of_node) == 0){
-                            current_type = token_found->paramsArray[i].type;
-                            found = true;
-                            break;
-                        }
-                    }
-                        if (!found){
-                            printf("ID nebolo deklarovane nikde-precedencna\n");
-                            handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
-                    }
+                if (var == 'F'){
+                    int i = check_params(token_found, name_of_node);
+                    current_type = token_found->paramsArray[i].type;
+                    //printf("somtu");
                 }
                 else{
                     current_type = token_found->data_type;
@@ -336,12 +330,16 @@ void reduce(DLList *list){
         }
         else if (temp->type == 'V'){
             //char *push_var = unique_name(temp->string, frame_counter);
-            if (frame_counter - anti_zanorenie == 0){                // sme v globalnom ramci
+            if (frame_counter - anti_zanorenie == 0 && var != 'F'){                // sme v globalnom ramci
                 char *push_var = unique_name(temp->string, 0);
                 sprintf(buffer1.data, "%sPUSHS GF@%s\n", buffer1.data, push_var);
             }
             else if(frame_counter-anti_zanorenie > 0){
                 char *push_var = unique_name(temp->string, frame_counter - anti_zanorenie);
+                sprintf(buffer1.data, "%sPUSHS LF@%s\n",buffer1.data, push_var);
+            }
+            else if(var == 'F'){
+                char *push_var = unique_name(temp->string,  1);
                 sprintf(buffer1.data, "%sPUSHS LF@%s\n",buffer1.data, push_var);
             }
         }

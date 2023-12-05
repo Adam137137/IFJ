@@ -43,6 +43,15 @@ btree_node* find_function_in_global(DLList2 *list, char *name_of_func){
     return NULL; 
 
 }
+int check_params(btree_node* node_of_func, char* name_of_id){
+    for(int i =0; i < node_of_func->func_num_of_param ;i++){			// prehladanie funkcnych parametrov na najdenie id
+        if(strcmp(node_of_func->paramsArray[i].identif, name_of_id) == 0){
+            return i;
+        }
+    }
+	printf("ID nebolo najdene ani v parametroch funkcie\n");
+    handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
+}
 
 btree_node* find_declaration(DLList2 *list, char *name_of_id, char* ret){      //vrati node s name_of_id
     DLLElementPtr2 tmp;
@@ -64,7 +73,7 @@ btree_node* find_declaration(DLList2 *list, char *name_of_id, char* ret){      /
 			}
 		}
 		anti_zanorenie++;
-		printf("A\n");
+		//printf("A\n");
 		tmp = tmp->nextElement;
     }
     return NULL;                        //ked to nie je ani v globalnom ramci vrati NULL             
