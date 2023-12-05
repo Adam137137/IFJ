@@ -68,12 +68,13 @@ int main(int argc, char *argv[]){
     // char *new_name = unique_name("auto", 4);
     // printf("nove meno: %s\n", new_name);
     // btree_node *root = NULL;
-    // int x = 0;
+    // // int x = 0;
     // insert_func(&root, "automat",4);
     // insert_func(&root, "auto",4);
     // insert_func(&root, "lol",4);
     // insert_func(&root, "ahojt",4);
-    // printtree(root, x);
-    //    tree_dispose(&root);
+    // insert_params(&root, "auto", 1, "string");
+    // // printtree(root, x);
+    // tree_dispose(&root);
     return 0;
 }

@@ -431,6 +431,7 @@ bool priradenie_prave(char *name_of_node){
             char *push_var = unique_name(name_of_node,  1);
             sprintf(buffer1.data, "%sPUSHS LF@%s\n",buffer1.data, push_var);
         }
+        
         if (node->data_type == '\0'){
             node->data_type = temp->return_type;            //odvodime od returnu funckie
         }
@@ -450,15 +451,6 @@ bool priradenie_prave(char *name_of_node){
         }
         char c;                                                                         // it is F for function or V for variable
         btree_node *tmp = find_declaration(&symtable_stack, name_of_node,&c);
-        char *variable_name;
-        if(frame_counter-anti_zanorenie == 0 && c != 'F'){
-            variable_name= unique_name(name_of_node, 0);
-            sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
-        }
-        else if(frame_counter-anti_zanorenie > 0){
-            variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
-            sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
-        }
 
         if (c == 'F'){
             int i = check_params(tmp,name_of_node);
@@ -468,28 +460,41 @@ bool priradenie_prave(char *name_of_node){
             }
             char *push_var = unique_name(name_of_node,  1);
             sprintf(buffer1.data, "%sPUSHS LF@%s\n",buffer1.data, push_var);
-        }        
-        else if (tmp->data_type != return_t && tmp->data_type != '\0'){                 // moze byt este neurceny...
-            if (tmp->data_type == 'D' && return_t == 'I'){                              // do deklaracie doublu priradujeme int
-                tmp->data_type = 'I';
-                if(frame_counter-anti_zanorenie == 0 && c != 'F'){
-                    variable_name= unique_name(name_of_node, 0);
-                    sprintf(buffer1.data, "%sINT2FLOATS GF@%s\n", buffer1.data, variable_name);
+        }
+        else if(c == 'V'){
+            if (tmp->data_type != return_t && tmp->data_type != '\0'){                 // moze byt este neurceny...
+                if (tmp->data_type == 'D' && return_t == 'I'){                              // do deklaracie doublu priradujeme int
+                    tmp->data_type = 'I';
+                    if(frame_counter-anti_zanorenie == 0 && c != 'F'){
+                        char *variable_name = unique_name(name_of_node, 0);
+                        sprintf(buffer1.data, "%sINT2FLOATS\n", buffer1.data);
+                        sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
+                    }
+                    else if(frame_counter-anti_zanorenie > 0){
+                        char *variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
+                        sprintf(buffer1.data, "%sINT2FLOATS\n", buffer1.data);
+                        sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
+                    }
+                    return true;
+                }                                                                   // ak je neurceny typ a nie je to ani pretypovanie
+                else{
+                    printf("Zla navratova hodnota z vyrazu do priradenia\n");
+                    handle_error(SEMANTIC_TYPE_COMPATIBILITY);
+                }
+            }
+            else{
+                tmp->data_type = return_t;                       //ak to nemalo tak nastavime podla vysledku vyrazu
+                if(frame_counter-anti_zanorenie == 0){
+                    char *variable_name = unique_name(name_of_node, 0);
+                    sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
                 }
                 else if(frame_counter-anti_zanorenie > 0){
-                    variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
-                    sprintf(buffer1.data, "%sINT2FLOATS LF@%s\n", buffer1.data, variable_name);
+                    char *variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
+                    sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
                 }
-                return true;
-            }
-            
-            printf("Zla navratova hodnota z vyrazu do priradenia\n");
-            handle_error(SEMANTIC_TYPE_COMPATIBILITY);
-        }
-        else{
-            tmp->data_type = return_t;
-        }                     //ak to nemalo tak nastavime podla vysledku vyrazu
-        return true;
+            }                    
+            return true;
+        }        
     }
     return false;
 }
