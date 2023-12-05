@@ -19,16 +19,11 @@ int func_counter = 1;
 int main_jump_counter = 1;
 char *name_of_function = NULL;
 int anti_zanorenie = 0;
-bool ladenie = 0;
+bool ladenie = 1;
 
 
-bool built_in_write(){
+bool built_in_write_one_param_print(){
     current_token = getNextToken();
-    if(current_token.type != 20){
-        return false;
-    }
-    current_token = getNextToken();              // first param
-    
     if (current_token.type == 1)
     {
         char c;
@@ -79,37 +74,30 @@ bool built_in_write(){
     else{
         return false;
     }
+    return true;
+}
+
+bool built_in_write(){
+    current_token = getNextToken();
+    if(current_token.type != 20){
+        return false;
+    }
+    
+    if (built_in_write_one_param_print() == false){
+        return false;
+    }
 
     current_token = getNextToken();
-    if (current_token.type == 21)
-    {
+    if (current_token.type == 21){               // single param function
         return true;
     }
     
-    do 
-    {
-    current_token = getNextToken();
-    if (current_token.type == 1)
-    {
-        /* code */      // pozriet ci je definovana
-    }
-    else if (current_token.type == 2)
-    {
-        sprintf(buffer1.data, "%sWRITE int@%s\n", buffer1.data, current_token.attribute);
-    }
-    else if (current_token.type == 3)
-    {
-        sprintf(buffer1.data, "%sWRITE float@%s\n", buffer1.data, current_token.attribute);
-    }
-    else if (current_token.type == 7)
-    {
-        sprintf(buffer1.data, "%sWRITE string@%s\n", buffer1.data, current_token.attribute);
-    }
-    else{
-        return false;
-    }
-    current_token = getNextToken();
-    } while (current_token.type == 13);
+    do {    
+        if (built_in_write_one_param_print() == false){
+            return false;
+        }
+        current_token = getNextToken();
+    } while (current_token.type == 13);         // while param is folowed by ',' read next param
 
     if(current_token.type != 21){
         return false;
@@ -884,11 +872,13 @@ bool sekvencia(bool in_func){
             return false;
         }
     }
-    else if (current_token.type == 16)
+    else if (current_token.type == 16)              // built in functions
     {
         if (strcmp(current_token.attribute, "write") == 0)
         {
-            return built_in_write();
+            if(built_in_write() == false){
+                return false;
+            }
         }
         
     }

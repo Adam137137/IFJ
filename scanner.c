@@ -465,13 +465,29 @@ struct Token getNextToken(){
                     handle_error(LEXICAL_ERROR);
                 }
             }
-            else if (c > (char)31 && c != 92 && c != 34){               // v stringu nemoze byt " bez opacneho lomitka
+            else if (c > (char)32 && c != 34 && c != 35 && c != 92){               // v stringu nemoze byt " bez opacneho lomitka
                 string[string_pos]=c;
                 string_pos++;
             }
-            else if ((c == 10) && viac_riadkovy_string == true){           // viacriadkovy string moze mat v sebe \n znaky 
-                string[string_pos]=c;
-                string_pos++; 
+            else if (c == 32){            // 32 je ' '
+                string[string_pos] = '\\';
+                string_pos++;
+                string[string_pos] = '0';
+                string_pos++;
+                string[string_pos] = '3';
+                string_pos++;
+                string[string_pos] = '2';
+                string_pos++;
+            }
+            else if (c == 35){            // 35 je '#'
+                string[string_pos] = '\\';
+                string_pos++;
+                string[string_pos] = '0';
+                string_pos++;
+                string[string_pos] = '3';
+                string_pos++;
+                string[string_pos] = '5';
+                string_pos++;
             }
             else if (c == '\\'){
                 state = 65;
@@ -481,14 +497,27 @@ struct Token getNextToken(){
             }
             break;
         case 65:
-            //printf("%d", c);
             if (c == 'n'){
-                string[string_pos] = '\n';
+                string[string_pos]='\\';
+                string_pos++;
+                string[string_pos]='0';
+                string_pos++;
+                string[string_pos]='1';
+                string_pos++;
+                string[string_pos] = '0';
                 string_pos++;
                 state = 60;
 
             }
             else if (c == 't'){
+                string[string_pos]='\\';
+                string_pos++;
+                string[string_pos]='0';
+                string_pos++;
+                string[string_pos]='1';
+                string_pos++;
+                string[string_pos] = '1';
+                string_pos++;
                 string[string_pos] = '\t';
                 string_pos++;
                 state = 60;
@@ -517,7 +546,16 @@ struct Token getNextToken(){
             }
 
             else{
-                handle_error(LEXICAL_ERROR);
+                string[string_pos]='\\';
+                string_pos++;
+                string[string_pos]='0';
+                string_pos++;
+                string[string_pos]='9';
+                string_pos++;
+                string[string_pos] = '2';
+                string_pos++;
+                state = 60;
+                ungetc(c, file);
             }
             break;          // TODO
 

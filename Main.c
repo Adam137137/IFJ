@@ -50,12 +50,7 @@ int main(int argc, char *argv[]){
         file = stdin;
         DLL_InsertFirst2(&symtable_stack);
         first_analysis_parser();
-        //puts("prve spustenie skoncilo");
         prvy_prechod = false;
-        //DLL_PrintList2(&symtable_stack);
-        //puts("\n\n");
-        //printtree(symtable_stack.firstElement->treeRoot, 0);
-        //printf("Pocet parametrov %d\n", symtable_stack.firstElement->treeRoot->func_num_of_param);
         
         rewind(stdin);
         clearerr(stdin);
@@ -63,7 +58,6 @@ int main(int argc, char *argv[]){
         // printtree(symtable_stack.firstElement->treeRoot,0);
         //insert_data_type(&symtable_stack.firstElement->treeRoot, "anoo", 'I');
         parser();
-        //puts("druhe spustenie skoncilo");
     }
     
     file = fopen("IFJcode23.txt", "w");
