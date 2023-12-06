@@ -18,6 +18,7 @@ int frame_counter = 0;
 int func_counter = 1;
 int if_counter = 0;
 int while_counter = 0;
+int built_in_counter = 2;
 
 int main_jump_counter = 1;
 char *name_of_function = NULL;
@@ -412,6 +413,7 @@ bool priradenie_prave(char *name_of_node){
     current_token2 = getNextToken();
 
     if(current_token.type == 16 && current_token2.type == 20){           // check for built in funcs
+        built_in_counter++;
         if(strcmp(current_token.attribute, "Int2Double") == 0){
             current_token = getNextToken();
             
@@ -447,12 +449,12 @@ bool priradenie_prave(char *name_of_node){
                 sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
             }
             return true;
-            
+
         }
         else if(strcmp(current_token.attribute, "Double2Int") == 0){
             current_token = getNextToken();
             
-            if(!(current_token.type == 1 || current_token.type == 3)){      // variable or int
+            if(!(current_token.type == 1 || current_token.type == 3)){      // variable or double
                 printf("u built in zly parameter\n");
                 handle_error(SEMANTIC_PARAMETER_MISMATCH);
             }
@@ -487,13 +489,54 @@ bool priradenie_prave(char *name_of_node){
         
         }
         else if(strcmp(current_token.attribute, "length") == 0){
-            sprintf(buffer1.data, "%sSTRLEN\n", buffer1.data);
+            current_token = getNextToken();
+            
+            if(!(current_token.type == 1 || current_token.type == 7 || current_token.type == 8)){      // variable or string
+                printf("u built in zly parameter\n");
+                handle_error(SEMANTIC_PARAMETER_MISMATCH);
+            }
+            char return_t;
+            if(reduce_exp(&return_t, name_of_node, false) == false){        // reduce expr inside func call
+                return false;
+            }
+
+            char c;
+            btree_node *assign_to_variable = find_declaration(&symtable_stack, name_of_node, &c);
+            
+            if(assign_to_variable->data_type != 'S'){
+                handle_error(SEMANTIC_TYPE_COMPATIBILITY);
+            }
+
+            current_token = getNextToken();
+            if(current_token.type != 21){      // )
+                return false;
+            }
+            
+            char *variable_name;
+            if(frame_counter-anti_zanorenie == 0){                                  // assignment after checks
+                variable_name = unique_name(name_of_node, 0);
+                sprintf(buffer1.data, "%sDEFVAR GF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
+                sprintf(buffer1.data, "%sPOPS GF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
+                sprintf(buffer1.data, "%sSTRLEN %s GF@TEMP%d\n", buffer1.data, variable_name, built_in_counter + func_counter);    
+            }
+            else if(frame_counter-anti_zanorenie > 0){                             // assignment after checks
+                variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
+                printf(buffer1.data, "%sDEFVAR LF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
+                sprintf(buffer1.data, "%sPOPS LF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
+                sprintf(buffer1.data, "%sSTRLEN %s LF@TEMP%d\n", buffer1.data, variable_name, built_in_counter + func_counter);
+            }
+            return true;
+        
         }
         else if(strcmp(current_token.attribute, "substring") == 0){
             printf("not implemented\n");
         }
         else if(strcmp(current_token.attribute, "ord") == 0){
+
+
             sprintf(buffer1.data, "%sGETCHAR\n", buffer1.data);
+
+
         }
         else if(strcmp(current_token.attribute, "chr") == 0){
             printf("not implemented\n");
