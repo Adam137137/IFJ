@@ -31,7 +31,7 @@ bool built_in_write_one_param_print(){
     {
         char c;
         btree_node *token_found = find_declaration(&symtable_stack, current_token.attribute,&c);
-        if (token_found == NULL){
+        if (token_found == NULL || token_found->inicialized == false){
             //printf("ID nebolo deklarovane nikde-builtin\n");
             handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
         }
