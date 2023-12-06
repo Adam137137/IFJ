@@ -567,18 +567,59 @@ bool priradenie_prave(char *name_of_node){
                 sprintf(buffer1.data, "%sDEFVAR GF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
                 sprintf(buffer1.data, "%sPOPS GF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
                 sprintf(buffer1.data, "%sGETCHAR GF@TEMP%d 0\n", buffer1.data, built_in_counter + func_counter);
+                sprintf(buffer1.data, "%sMOVE GF@%s GF@TEMP%d\n", buffer1.data, variable_name, built_in_counter + func_counter);
             }
             else if(frame_counter-anti_zanorenie > 0){                             // assignment after checks
                 variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
                 printf(buffer1.data, "%sDEFVAR LF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
                 sprintf(buffer1.data, "%sPOPS LF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
                 sprintf(buffer1.data, "%sGETCHAR LF@TEMP%d 0\n", buffer1.data, built_in_counter + func_counter);
+                sprintf(buffer1.data, "%sMOVE LF@%s LF@TEMP%d\n", buffer1.data, variable_name, built_in_counter + func_counter);
             }
             return true;
 
         }
         else if(strcmp(current_token.attribute, "chr") == 0){
-            printf("STRI2INT\n");
+            current_token = getNextToken();
+            
+            if(!(current_token.type == 1 || current_token.type == 2)){      // variable or int
+                printf("u built in zly parameter\n");
+                handle_error(SEMANTIC_PARAMETER_MISMATCH);
+            }
+            char return_t;
+            if(reduce_exp(&return_t, name_of_node, false) == false){        // reduce expr inside func call
+                return false;
+            }
+            
+            char c;
+            btree_node *assign_to_variable = find_declaration(&symtable_stack, name_of_node, &c);
+            
+            if(assign_to_variable->data_type != 'S'){
+                handle_error(SEMANTIC_TYPE_COMPATIBILITY);
+            }
+
+            char *variable_name;
+            if(frame_counter-anti_zanorenie == 0){                                  // assignment after checks
+                variable_name = unique_name(name_of_node, 0);
+                sprintf(buffer1.data, "%sDEFVAR GF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
+                sprintf(buffer1.data, "%sPOPS GF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
+                sprintf(buffer1.data, "%sSTRI2INT GF@TEMP%d %s\n", buffer1.data, built_in_counter + func_counter, current_token.attribute);
+                 sprintf(buffer1.data, "%sMOVE GF@%s GF@TEMP%d\n", buffer1.data, variable_name, built_in_counter + func_counter);
+            }
+            else if(frame_counter-anti_zanorenie > 0){                             // assignment after checks
+                variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
+                printf(buffer1.data, "%sDEFVAR LF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
+                sprintf(buffer1.data, "%sPOPS LF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
+                sprintf(buffer1.data, "%sSTRI2INT LF@TEMP%d %s\n", buffer1.data, built_in_counter + func_counter, current_token.attribute);
+                sprintf(buffer1.data, "%sMOVE LF@%s LF@TEMP%d\n", buffer1.data, variable_name, built_in_counter + func_counter);
+            }
+            
+            current_token = getNextToken();
+            if(current_token.type != 21){       // )
+                return false;
+            }
+            return true;
+
         }
         else{
             printf("unlucky\n");
