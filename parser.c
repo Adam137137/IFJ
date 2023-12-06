@@ -802,10 +802,8 @@ bool relacia(){
         return false;
     }
     current_token = getNextToken();
-    // printf("Relacny operator: %s", current_token.attribute);
-    if (current_token.type != 6)
-    {
-        return false;
+    if (current_token.type != 6){
+        handle_error(SEMANTIC_TYPE_COMPATIBILITY);
     }
     char* operator = current_token.attribute;
     current_token = getNextToken();
@@ -834,39 +832,73 @@ bool relacia(){
     }
     else if(strcmp(operator, ">=") == 0){
         relation_counter++;
-        sprintf(buffer1.data, "%sDEFVAR GF@TMP1$%d\n", buffer1.data, relation_counter);
-        sprintf(buffer1.data, "%sDEFVAR GF@TMP2$%d\n", buffer1.data, relation_counter);
-        sprintf(buffer1.data, "%sPOPS GF@TMP2$%d\n", buffer1.data, relation_counter);
-        sprintf(buffer1.data, "%sPOPS GF@TMP1$%d\n", buffer1.data, relation_counter);
+        if(frame_counter-anti_zanorenie == 0){                                  // assignment after checks
+            sprintf(buffer1.data, "%sDEFVAR GF@TMP1$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sDEFVAR GF@TMP2$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPOPS GF@TMP2$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPOPS GF@TMP1$%d\n", buffer1.data, relation_counter);
 
-        sprintf(buffer1.data, "%sPUSHS GF@TMP2$%d\n", buffer1.data, relation_counter);
-        sprintf(buffer1.data, "%sPUSHS GF@TMP1$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPUSHS GF@TMP2$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPUSHS GF@TMP1$%d\n", buffer1.data, relation_counter);
 
-        sprintf(buffer1.data, "%sGTS\n", buffer1.data);
-        
-        sprintf(buffer1.data, "%sPUSHS GF@TMP2$%d\n", buffer1.data, relation_counter);
-        sprintf(buffer1.data, "%sPUSHS GF@TMP1$%d\n", buffer1.data, relation_counter);
-        sprintf(buffer1.data, "%sEQS\n", buffer1.data);
+            sprintf(buffer1.data, "%sGTS\n", buffer1.data);
+            
+            sprintf(buffer1.data, "%sPUSHS GF@TMP2$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPUSHS GF@TMP1$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sEQS\n", buffer1.data);
+            sprintf(buffer1.data, "%sORS\n", buffer1.data);
+        }
+        else{                             // assignment after checks
+            sprintf(buffer1.data, "%sDEFVAR LF@TMP1$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sDEFVAR LF@TMP2$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPOPS LF@TMP2$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPOPS LF@TMP1$%d\n", buffer1.data, relation_counter);
 
-        sprintf(buffer1.data, "%sORS\n", buffer1.data);
+            sprintf(buffer1.data, "%sPUSHS LF@TMP2$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPUSHS LF@TMP1$%d\n", buffer1.data, relation_counter);
+
+            sprintf(buffer1.data, "%sGTS\n", buffer1.data);
+            
+            sprintf(buffer1.data, "%sPUSHS LF@TMP2$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPUSHS LF@TMP1$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sEQS\n", buffer1.data);
+            sprintf(buffer1.data, "%sORS\n", buffer1.data);
+        }
     }
     else if(strcmp(operator, "<=") == 0){
         relation_counter++;
-        sprintf(buffer1.data, "%sDEFVAR GF@TMP1$%d\n", buffer1.data, relation_counter);
-        sprintf(buffer1.data, "%sDEFVAR GF@TMP2$%d\n", buffer1.data, relation_counter);
-        sprintf(buffer1.data, "%sPOPS GF@TMP2$%d\n", buffer1.data, relation_counter);
-        sprintf(buffer1.data, "%sPOPS GF@TMP1$%d\n", buffer1.data, relation_counter);
+        if(frame_counter-anti_zanorenie == 0){                                  // assignment after checks
+            sprintf(buffer1.data, "%sDEFVAR GF@TMP1$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sDEFVAR GF@TMP2$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPOPS GF@TMP2$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPOPS GF@TMP1$%d\n", buffer1.data, relation_counter);
 
-        sprintf(buffer1.data, "%sPUSHS GF@TMP2$%d\n", buffer1.data, relation_counter);
-        sprintf(buffer1.data, "%sPUSHS GF@TMP1$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPUSHS GF@TMP2$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPUSHS GF@TMP1$%d\n", buffer1.data, relation_counter);
 
-        sprintf(buffer1.data, "%sLTS\n", buffer1.data);
-        
-        sprintf(buffer1.data, "%sPUSHS GF@TMP2$%d\n", buffer1.data, relation_counter);
-        sprintf(buffer1.data, "%sPUSHS GF@TMP1$%d\n", buffer1.data, relation_counter);
-        sprintf(buffer1.data, "%sEQS\n", buffer1.data);
+            sprintf(buffer1.data, "%sGTS\n", buffer1.data);
+            
+            sprintf(buffer1.data, "%sPUSHS GF@TMP2$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPUSHS GF@TMP1$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sEQS\n", buffer1.data);
+            sprintf(buffer1.data, "%sORS\n", buffer1.data);
+        }
+        else{                             // assignment after checks
+            sprintf(buffer1.data, "%sDEFVAR LF@TMP1$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sDEFVAR LF@TMP2$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPOPS LF@TMP2$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPOPS LF@TMP1$%d\n", buffer1.data, relation_counter);
 
-        sprintf(buffer1.data, "%sORS\n", buffer1.data);
+            sprintf(buffer1.data, "%sPUSHS LF@TMP2$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPUSHS LF@TMP1$%d\n", buffer1.data, relation_counter);
+
+            sprintf(buffer1.data, "%sLTS\n", buffer1.data);
+            
+            sprintf(buffer1.data, "%sPUSHS LF@TMP2$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sPUSHS LF@TMP1$%d\n", buffer1.data, relation_counter);
+            sprintf(buffer1.data, "%sEQS\n", buffer1.data);
+            sprintf(buffer1.data, "%sORS\n", buffer1.data);
+        }
     }
 
 
