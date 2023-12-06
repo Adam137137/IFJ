@@ -736,7 +736,7 @@ bool priradenie_prave(char *name_of_node){
 bool rovna_sa__priradenie(char* name_of_node){
     current_token = getNextToken();                                     // =
     
-    if (current_token.type == 10 && strcmp(current_token.attribute, "=") == 0){
+    if (current_token.type == 10){
         return priradenie_prave(name_of_node);
     }
     else if(dvojbodka_typ_neni){              //ked bola vypustena deklaracia typu nemozeme vypustit priradenie
@@ -754,12 +754,19 @@ bool letnutie(bool from_if){
     if (current_token.type == 1){
         if (from_if){                                                       // letnutie v: if let id{}    
             btree_node *temp = find_function_in_global(&symtable_stack, name_of_node);
-            if (temp->nil && temp->inicialized == false){
-                sprintf(buffer1.data, "%sPUSHS bool@false\n", buffer1.data);
+            if (!temp->nil){
+                free(name_of_node);
+                handle_error(OTHER_SEMANTIC_ERROR);
             }
             else{
-                sprintf(buffer1.data, "%sPUSHS bool@true\n", buffer1.data);
+                if (temp->inicialized == false){
+                    sprintf(buffer1.data, "%sPUSHS bool@false\n", buffer1.data);
+                }
+                else{
+                    sprintf(buffer1.data, "%sPUSHS bool@true\n", buffer1.data);
+                }
             }
+            
             free(name_of_node);
             return true;
         }
@@ -938,10 +945,7 @@ bool relacia(){
         }
     }
 
-
-    if (extra_par)                  // odstranenie extra zatvorky ak je podmienka zabalena v zatvorke
-    {
-        //token_print();
+    if (extra_par){                  // odstranenie extra zatvorky ak je podmienka zabalena v zatvorke
         current_token =getNextToken();
     }
     return true;

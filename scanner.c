@@ -710,13 +710,17 @@ struct Token getNextToken(){
             break;
 
         default:
-            fprintf(stderr, "this state was not implemented\n");
+            // fprintf(stderr, "this state was not implemented\n");
             handle_error(INTERNAL_ERROR);       
             break;
         }
 
     }
     // posledny token;
+    if (comments_inside_count !=0){
+        handle_error(LEXICAL_ERROR);
+    }
+    
     token.type = 0;
     token.attribute = "END";
     return token;
