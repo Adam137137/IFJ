@@ -543,7 +543,6 @@ bool letnutie(){
 }
 
 bool varnutie(){
-    //printf("somtuuu\n");
     current_token = getNextToken();
     char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type == 1){
@@ -582,8 +581,7 @@ bool relacia(){
     // }
     
 
-    token_print();
-
+    // token_print();
     if (reduce_exp(&return_t,NULL, true) == false){
         return false;
     }
@@ -630,7 +628,7 @@ bool whilnutie(bool in_func){
     
     char *while_start = unique_name("while_start", frame_counter);
     sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, while_start);
-    
+
     if (podmienka()== false){
         return false;
     }
@@ -651,13 +649,14 @@ bool whilnutie(bool in_func){
         // printf("TU\n");
         return false;
     }
+
     sprintf(buffer1.data, "%sJUMP %s\n", buffer1.data, while_start);
     current_token = getNextToken();
     if (current_token.type != 23){              // }
+        puts("tu je druhy false");
         return false;
     }
-    sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, while_end);        
-    current_token = getNextToken();
+    sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, while_end);
     return true;
 }
 
