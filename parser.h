@@ -22,7 +22,7 @@ bool rovna_sa__priradenie(char* name_of_node);
 bool letnutie(bool from_if);
 bool varnutie();
 bool relacia();
-bool podmienka(bool *je_relacia);
+bool podmienka();
 bool whilnutie(bool in_func, bool in_while, bool in_if);
 bool ifnutie(bool in_func, bool in_while, bool in_if);
 bool param_vol_zost(btree_node *temp, int* num_of_params);

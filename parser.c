@@ -22,7 +22,7 @@ int while_counter = 0;
 int main_jump_counter = 1;
 char *name_of_function = NULL;
 int anti_zanorenie = 0;
-bool ladenie = 1;
+bool ladenie = 0;
 
 
 bool built_in_write_one_param_print(){
@@ -567,6 +567,7 @@ bool priradenie_prave(char *name_of_node){
         }
         
         char return_t;
+        tmp->inicialized = true;
         if (reduce_exp(&return_t, name_of_node, false) == false){
            return false;
         }
@@ -617,9 +618,6 @@ bool rovna_sa__priradenie(char* name_of_node){
     current_token = getNextToken();                                     // =
     
     if (current_token.type == 10 && strcmp(current_token.attribute, "=") == 0){
-        char c;
-        btree_node *tmp = find_declaration(&symtable_stack,name_of_node,&c);       //inicializacia lavej strany
-        tmp->inicialized = true;
         return priradenie_prave(name_of_node);
     }
     else if(dvojbodka_typ_neni){              //ked bola vypustena deklaracia typu nemozeme vypustit priradenie
@@ -637,7 +635,7 @@ bool letnutie(bool from_if){
     if (current_token.type == 1){
         if (from_if){                                                       // letnutie v: if let id{}    
             btree_node *temp = find_function_in_global(&symtable_stack, name_of_node);
-            if (temp->nil){
+            if (temp->nil && temp->inicialized == false){
                 sprintf(buffer1.data, "%sPUSHS bool@false\n", buffer1.data);
             }
             else{
@@ -756,14 +754,13 @@ bool relacia(){
     return true;
 }
 
-bool podmienka(bool *je_relacia){
+bool podmienka(){
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4)
     {
         return letnutie(true);
     }
     else if(current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7 || current_token.type == 20)
     {
-        *je_relacia = true;
         return relacia();
     }
     return false;
@@ -779,7 +776,7 @@ bool whilnutie(bool in_func, bool in_while, bool in_if){
     char *while_start = unique_name("while_start", while_counter);
     sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, while_start);
 
-    if (podmienka(false)== false){
+    if (podmienka()== false){
         return false;
     }
     
@@ -820,8 +817,8 @@ bool whilnutie(bool in_func, bool in_while, bool in_if){
 bool ifnutie(bool in_func, bool in_while, bool in_if){
     current_token = getNextToken();
 
-    bool podmienka_je_relacia = false;
-    if (podmienka(&podmienka_je_relacia)== false){
+
+    if (podmienka()== false){
         return false;
     }
     // printf("pri ifnuti som v ife %d\n", in_if);
@@ -833,24 +830,12 @@ bool ifnutie(bool in_func, bool in_while, bool in_if){
     char *true_end = unique_name("true_end", if_counter);
     char *else_end = unique_name("else_end", if_counter);
     
-    if (podmienka_je_relacia){
-        sprintf(buffer1.data, "%sPUSHS bool@true\n", buffer1.data);
-        sprintf(buffer1.data, "%sJUMPIFNEQS %s\n", buffer1.data, true_end);
-        if(!(in_func || in_while ||in_if)){
-            sprintf(buffer1.data, "%sCREATEFRAME\n", buffer1.data);
-            sprintf(buffer1.data, "%sPUSHFRAME\n", buffer1.data);
-        }
+    sprintf(buffer1.data, "%sPUSHS bool@true\n", buffer1.data);
+    sprintf(buffer1.data, "%sJUMPIFNEQS %s\n", buffer1.data, true_end);
+    if(!(in_func || in_while ||in_if)){
+        sprintf(buffer1.data, "%sCREATEFRAME\n", buffer1.data);
+        sprintf(buffer1.data, "%sPUSHFRAME\n", buffer1.data);
     }
-    else{
-
-        sprintf(buffer1.data, "%sPUSHS bool@true\n", buffer1.data);
-        sprintf(buffer1.data, "%sJUMPIFNEQS %s\n", buffer1.data, true_end);
-        if(!(in_func || in_while ||in_if)){
-            sprintf(buffer1.data, "%sCREATEFRAME\n", buffer1.data);
-            sprintf(buffer1.data, "%sPUSHFRAME\n", buffer1.data);
-        }
-    }
-    
     
     current_token = getNextToken();
 
@@ -1012,7 +997,7 @@ bool priradenie_zost(){
                 printf("Pokus o prepisanie konstanty - let\n");
                 handle_error(OTHER_SEMANTIC_ERROR);
             }
-            temp->inicialized = true;           //premenna je inicializovana
+            //temp->inicialized = true;           //premenna je inicializovana
         }
         //free(name_of_node);
         //printf("ANOOOO");
