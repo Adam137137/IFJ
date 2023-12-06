@@ -19,6 +19,7 @@ int func_counter = 1;
 int if_counter = 0;
 int while_counter = 0;
 int built_in_counter = 2;
+int relation_counter = 0;
 
 int main_jump_counter = 1;
 char *name_of_function = NULL;
@@ -32,7 +33,7 @@ bool built_in_write_one_param_print(){
     {
         char c;
         btree_node *token_found = find_declaration(&symtable_stack, current_token.attribute,&c);
-        if (token_found == NULL || token_found->inicialized == false){
+        if (token_found == NULL){
             //printf("ID nebolo deklarovane nikde-builtin\n");
             handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
         }
@@ -52,6 +53,12 @@ bool built_in_write_one_param_print(){
             }
         }
         else{                                           //pre V cize variable
+            if (token_found->inicialized == false)
+            {
+                handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
+            }
+            
+            
             if (frame_counter - anti_zanorenie == 0){                // sme v globalnom ramci
                 char *push_var = unique_name(current_token.attribute, 0);
                 sprintf(buffer1.data, "%sWRITE GF@%s\n", buffer1.data, push_var);
@@ -821,6 +828,48 @@ bool relacia(){
     else if(strcmp(operator, "==") == 0){
         sprintf(buffer1.data, "%sEQS\n", buffer1.data);
     }
+    else if(strcmp(operator, "!=") == 0){
+        sprintf(buffer1.data, "%sEQS\n", buffer1.data);
+        sprintf(buffer1.data, "%sNOTS\n", buffer1.data);
+    }
+    else if(strcmp(operator, ">=") == 0){
+        relation_counter++;
+        sprintf(buffer1.data, "%sDEFVAR GF@TMP1$%d\n", buffer1.data, relation_counter);
+        sprintf(buffer1.data, "%sDEFVAR GF@TMP2$%d\n", buffer1.data, relation_counter);
+        sprintf(buffer1.data, "%sPOPS GF@TMP2$%d\n", buffer1.data, relation_counter);
+        sprintf(buffer1.data, "%sPOPS GF@TMP1$%d\n", buffer1.data, relation_counter);
+
+        sprintf(buffer1.data, "%sPUSHS GF@TMP2$%d\n", buffer1.data, relation_counter);
+        sprintf(buffer1.data, "%sPUSHS GF@TMP1$%d\n", buffer1.data, relation_counter);
+
+        sprintf(buffer1.data, "%sGTS\n", buffer1.data);
+        
+        sprintf(buffer1.data, "%sPUSHS GF@TMP2$%d\n", buffer1.data, relation_counter);
+        sprintf(buffer1.data, "%sPUSHS GF@TMP1$%d\n", buffer1.data, relation_counter);
+        sprintf(buffer1.data, "%sEQS\n", buffer1.data);
+
+        sprintf(buffer1.data, "%sORS\n", buffer1.data);
+    }
+    else if(strcmp(operator, "<=") == 0){
+        relation_counter++;
+        sprintf(buffer1.data, "%sDEFVAR GF@TMP1$%d\n", buffer1.data, relation_counter);
+        sprintf(buffer1.data, "%sDEFVAR GF@TMP2$%d\n", buffer1.data, relation_counter);
+        sprintf(buffer1.data, "%sPOPS GF@TMP2$%d\n", buffer1.data, relation_counter);
+        sprintf(buffer1.data, "%sPOPS GF@TMP1$%d\n", buffer1.data, relation_counter);
+
+        sprintf(buffer1.data, "%sPUSHS GF@TMP2$%d\n", buffer1.data, relation_counter);
+        sprintf(buffer1.data, "%sPUSHS GF@TMP1$%d\n", buffer1.data, relation_counter);
+
+        sprintf(buffer1.data, "%sLTS\n", buffer1.data);
+        
+        sprintf(buffer1.data, "%sPUSHS GF@TMP2$%d\n", buffer1.data, relation_counter);
+        sprintf(buffer1.data, "%sPUSHS GF@TMP1$%d\n", buffer1.data, relation_counter);
+        sprintf(buffer1.data, "%sEQS\n", buffer1.data);
+
+        sprintf(buffer1.data, "%sORS\n", buffer1.data);
+    }
+
+
     if (extra_par)                  // odstranenie extra zatvorky ak je podmienka zabalena v zatvorke
     {
         //token_print();
