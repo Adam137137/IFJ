@@ -20,7 +20,7 @@ int func_counter = 1;
 int main_jump_counter = 1;
 char *name_of_function = NULL;
 int anti_zanorenie = 0;
-bool ladenie = 0;
+bool ladenie = 1;
 
 
 bool built_in_write_one_param_print(){
@@ -641,8 +641,15 @@ bool whilnutie(bool in_func){
         sprintf(buffer1.data, "%sPUSHFRAME\n", buffer1.data);
     }
     current_token = getNextToken();
+
+    // if (current_token.type == 21)               // podmienka v zatvorke, v pripade nudze odkomentovat
+    // {
+    //     current_token = getNextToken();
+    // }
+
     if (current_token.type != 22){              // {
-        return false;        
+        //puts("tu je chyba");
+        return false;
     }
 
     if (sekvencia(false) == false){
@@ -653,7 +660,7 @@ bool whilnutie(bool in_func){
     sprintf(buffer1.data, "%sJUMP %s\n", buffer1.data, while_start);
     current_token = getNextToken();
     if (current_token.type != 23){              // }
-        puts("tu je druhy false");
+        //puts("tu je druhy false");
         return false;
     }
     sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, while_end);
@@ -675,6 +682,13 @@ bool ifnutie(bool in_func){
     }
     current_token = getNextToken();
     // token_print();
+
+    // if (current_token.type == 21)               // podmienka v zatvorke, v pripade nudze odkomentovat
+    // {
+    //     current_token = getNextToken();
+    // }
+
+
     if (current_token.type != 22){                                                  // {
         return false;        
     }

@@ -52,9 +52,12 @@ bool IsItBuiltIn (char *c){
 struct Token getNextToken(){
     struct Token token;
     token.first_in_line = false;
-    bool viac_riadkovy_string = false;                  
+    bool viac_riadkovy_string = false;             
     char state = 's';
     bool first_in_new_line = false;
+    bool text_in_new_line = false;
+    bool expect_new_line = false;
+    bool multiline_exit_possible = true;
     int comments_inside_count = 0;
 
     // 1  - identifikator                    napr.: Position_01
@@ -460,8 +463,13 @@ struct Token getNextToken(){
             else if (c == '"' && viac_riadkovy_string == true){
                 c2 = getc(file); c3 =  getc(file);                             
                 if (c2 == '"' && c3 == '"'){            //ukoncenie viacriaddkoveho stringu
+                    if (!multiline_exit_possible)
+                    {
+                        handle_error(LEXICAL_ERROR);
+                    }                    
                     token.type = 8;
                     token.attribute = string_dup(string);
+                    viac_riadkovy_string = false;
                     return token;
                 }
                 else{
@@ -469,18 +477,44 @@ struct Token getNextToken(){
                 }
             }
             else if (c > (char)32 && c != 34 && c != 35 && c != 92){               // v stringu nemoze byt " bez opacneho lomitka
+                if (expect_new_line)
+                {
+                    string[string_pos]='\\';
+                    string_pos++;
+                    string[string_pos]='0';
+                    string_pos++;
+                    string[string_pos]='1';
+                    string_pos++;
+                    string[string_pos] = '0';
+                    string_pos++;
+                    expect_new_line = false;
+                }
                 string[string_pos]=c;
                 string_pos++;
+                text_in_new_line = true;
+                multiline_exit_possible = false;
             }
             else if (c == 32){            // 32 je ' '
-                string[string_pos] = '\\';
-                string_pos++;
-                string[string_pos] = '0';
-                string_pos++;
-                string[string_pos] = '3';
-                string_pos++;
-                string[string_pos] = '2';
-                string_pos++;
+                if (expect_new_line)
+                {
+                    string[string_pos]='\\';
+                    string_pos++;
+                    string[string_pos]='0';
+                    string_pos++;
+                    string[string_pos]='1';
+                    string_pos++;
+                    string[string_pos] = '0';
+                    string_pos++;
+                    expect_new_line = false;
+                }
+                    string[string_pos] = '\\';
+                    string_pos++;
+                    string[string_pos] = '0';
+                    string_pos++;
+                    string[string_pos] = '3';
+                    string_pos++;
+                    string[string_pos] = '2';
+                    string_pos++;
             }
             else if (c == 35){            // 35 je '#'
                 string[string_pos] = '\\';
@@ -496,14 +530,11 @@ struct Token getNextToken(){
                 state = 65;
             }
             else if (c == '\n' && viac_riadkovy_string){
-                string[string_pos]='\\';
-                string_pos++;
-                string[string_pos]='0';
-                string_pos++;
-                string[string_pos]='1';
-                string_pos++;
-                string[string_pos] = '0';
-                string_pos++;
+                if (text_in_new_line){
+                    expect_new_line = true;
+                    text_in_new_line = false;
+                    multiline_exit_possible = true;
+                }
             }
             else{
                 handle_error(LEXICAL_ERROR);
@@ -520,23 +551,20 @@ struct Token getNextToken(){
                 string[string_pos] = '0';
                 string_pos++;
                 state = 60;
-
             }
             else if (c == 't'){
-                if (!viac_riadkovy_string)
-                {
-                    string[string_pos]='\\';
-                    string_pos++;
-                    string[string_pos]='0';
-                    string_pos++;
-                    string[string_pos]='1';
-                    string_pos++;
-                    string[string_pos] = '1';
-                    string_pos++;
-                    string[string_pos] = '\t';
-                    string_pos++;
-                    state = 60;
-                }
+                string[string_pos]='\\';
+                string_pos++;
+                string[string_pos]='0';
+                string_pos++;
+                string[string_pos]='1';
+                string_pos++;
+                string[string_pos] = '1';
+                string_pos++;
+                string[string_pos] = '\t';
+                string_pos++;
+                state = 60;
+
             }
             else if (c == '\"'){
                 string[string_pos] = '\"';
