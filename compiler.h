@@ -10,9 +10,7 @@
 #include "parser.h"
 #include "precedence.h"
 #include "dll.h"
-#include "tests.h"
 #include "dll_symtable.h"
-#include "code_generator.h"
 #include "builtin_functions.h"
 
 typedef enum {

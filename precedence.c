@@ -366,11 +366,11 @@ void reduce(DLList *list, char return_type, char *variable_name){
             string_concat = unique_name(temp->string, concat_counter);
             if(frame_counter == 0){
                 sprintf(buffer1.data, "%sDEFVAR GF@%s\n",buffer1.data, string_concat);
-                sprintf(buffer1.data, "%sMOVE GF@%s %s\n",buffer1.data, string_concat, temp->string);
+                sprintf(buffer1.data, "%sMOVE GF@%s string@%s\n",buffer1.data, string_concat, temp->string);
             }
             else if(frame_counter > 0){
                 sprintf(buffer1.data, "%sDEFVAR LF@%s\n",buffer1.data, string_concat);
-                sprintf(buffer1.data, "%sMOVE LF@%s %s\n",buffer1.data, string_concat, temp->string);
+                sprintf(buffer1.data, "%sMOVE LF@%s string@%s\n",buffer1.data, string_concat, temp->string);
             }
         }
         else if (temp->type == 'V'){
