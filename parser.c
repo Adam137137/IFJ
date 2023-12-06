@@ -411,6 +411,59 @@ bool priradenie_prave(char *name_of_node){
     //token_print();
     current_token = getNextToken();
     current_token2 = getNextToken();
+
+    if(current_token.type == 16 && current_token2.type == 20){           // check for built in funcs
+        if(strcmp(current_token.attribute, "Int2Double") == 0){
+            current_token = getNextToken();
+            
+            if(!(current_token.type == 1 || current_token.type == 2)){
+                printf("u built in zly parameter\n");
+                handle_error(SEMANTIC_PARAMETER_MISMATCH);
+            }
+            
+            if(current_token.type == 1){
+                char *name_of_variable = string_dup(current_token.attribute);
+                btree_node *temp = find_declaration(&symtable_stack, name_of_variable, NULL);
+                if(temp == NULL){
+                    handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
+                }
+            }
+            current_token = getNextToken();
+            if(current_token.type != 21){      // )
+                return false;
+            }
+            sprintf(buffer1.data, "%sINT2FLOATS\n", buffer1.data);
+            
+            if(frame_counter-anti_zanorenie == 0){
+                char *variable_name = unique_name(name_of_node, 0);
+                sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
+            }
+            else if(frame_counter-anti_zanorenie > 0){
+                char *variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
+                sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
+            }
+            return true;
+        }
+        else if(strcmp(current_token.attribute, "Double2Int") == 0){
+            sprintf(buffer1.data, "%sFLOAT2INTS\n", buffer1.data);
+        }
+        else if(strcmp(current_token.attribute, "length") == 0){
+            sprintf(buffer1.data, "%sSTRLEN\n", buffer1.data);
+        }
+        else if(strcmp(current_token.attribute, "substring") == 0){
+            printf("not implemented\n");
+        }
+        else if(strcmp(current_token.attribute, "ord") == 0){
+            sprintf(buffer1.data, "%sGETCHAR\n", buffer1.data);
+        }
+        else if(strcmp(current_token.attribute, "chr") == 0){
+            printf("not implemented\n");
+        }
+        else{
+            printf("unlucky\n");
+        }
+    }
+
     if (current_token.type == 1 && current_token2.type == 20){              // id (
         char *name_of_func = string_dup(current_token.attribute);
         btree_node *temp = find_function_in_global(&symtable_stack, name_of_func);
@@ -906,7 +959,6 @@ bool priradenie_zost(){
         if( priradenie_prave(name_of_node) == false){
             return false;
         }
-        
         return true;
     }
     return false;
@@ -983,7 +1035,7 @@ bool sekvencia(bool in_func, bool in_while, bool in_if){
     {
         if (strcmp(current_token.attribute, "write") == 0)
         {
-            if(built_in_write() == false){
+            if(built_in_write() == false){  
                 return false;
             }
         }

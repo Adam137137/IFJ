@@ -11,7 +11,6 @@
 #include "precedence.h"
 #include "dll.h"
 #include "dll_symtable.h"
-#include "builtin_functions.h"
 
 typedef enum {
     NO_ERROR = 0,
