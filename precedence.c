@@ -33,6 +33,9 @@ char var;           //Ak je to V je variable ak F je to parameter fce
 // char *r, is return type of eval
 bool int2double_int_double = false;
 bool int2double_double_int = false;
+char *string_concat = NULL;
+char *string_concat_previous = NULL;
+int concat_counter = 0;
 bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis){                                   // first token is already loaded
     //puts("nova exp \n \n");
     //token_print();
@@ -308,7 +311,12 @@ void reduce(DLList *list, char return_type){
     DLL_DeleteLast(list);
     // printf("cache = \"%s\"\n", cache);
     if(strcmp(cache, "E+E") == 0){
-        sprintf(buffer1.data, "%sADDS\n",buffer1.data);
+        if(return_type == 'S'){
+            sprintf(buffer1.data, "%sCONCAT var %s %s\n",buffer1.data, string_concat_previous, string_concat);
+        }
+        else{
+            sprintf(buffer1.data, "%sADDS\n",buffer1.data);
+        }
         //printf("Pravidlo 1\n");
     }
     else if(strcmp(cache, "E-E") == 0){
@@ -351,7 +359,17 @@ void reduce(DLList *list, char return_type){
             sprintf(buffer1.data, "%sPUSHS float@%a\n",buffer1.data, temp->valueD);
         }
         else if(temp->type == 'S'){
-            sprintf(buffer1.data, "%sPUSHS string@%s\n",buffer1.data, temp->string);
+            concat_counter++;
+            string_concat_previous = string_concat;
+            string_concat = unique_name(temp->string, concat_counter);
+            if(frame_counter == 0){
+                sprintf(buffer1.data, "%sDEFVAR GF@%s\n",buffer1.data, string_concat);
+                sprintf(buffer1.data, "%sMOVE GF@%s %s\n",buffer1.data, string_concat, temp->string);
+            }
+            else if(frame_counter > 0){
+                sprintf(buffer1.data, "%sDEFVAR LF@%s\n",buffer1.data, string_concat);
+                sprintf(buffer1.data, "%sMOVE LF@%s %s\n",buffer1.data, string_concat, temp->string);
+            }
         }
         else if (temp->type == 'V'){
             //char *push_var = unique_name(temp->string, frame_counter);
