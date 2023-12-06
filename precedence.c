@@ -33,10 +33,8 @@ char var;           //Ak je to V je variable ak F je to parameter fce
 // char *r, is return type of eval
 bool int2double_int_double = false;
 bool int2double_double_int = false;
-char *string_concat = NULL;
-char *string_concat_previous = NULL;
 int concat_counter = 0;
-bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis, char *variable_name){
+bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis){
     DLList list;
     DLLElementPtr topTerminal;
     btree_node *token_found = NULL;              // my token
@@ -159,7 +157,7 @@ bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis, char *vari
                 else{
                     // printf("Redukcia1\n");
                     //printf("first: %c\n Last: \n", topTerminal->data);
-                    reduce(&list, return_type, variable_name);
+                    reduce(&list, return_type);
                     // DLL_PrintList(&list);
                     unget_token(current_token, current_token.first_in_line);
                 }
@@ -176,7 +174,7 @@ bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis, char *vari
                 else{
                     // printf("Redukcia2\n");
                     //printf("first: %c\n Last: \n", topTerminal->data);
-                    reduce(&list, return_type, variable_name);
+                    reduce(&list, return_type);
                     // DLL_PrintList(&list);
                     unget_token(current_token, current_token.first_in_line);
                 }
@@ -212,7 +210,7 @@ bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis, char *vari
                 else{
                     //printf("Redukcia3\n");
                     //printf("first: %c\n Last: \n", topTerminal->data);
-                    reduce(&list, return_type, variable_name);
+                    reduce(&list, return_type);
                     // DLL_PrintList(&list);
                     unget_token(current_token, current_token.first_in_line);      // ... 2hours of debugging
                     counter++;                      // after putting ')' back to input, incrementing bracket counter, so after next token we have correct counting of brackets 
@@ -241,7 +239,7 @@ bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis, char *vari
                 else{
                     // printf("Redukcia4\n");
                     //printf("first: %c\n Last: \n", topTerminal->data);
-                    reduce(&list, return_type, variable_name);
+                    reduce(&list, return_type);
                     // DLL_PrintList(&list);
                     unget_token(current_token, current_token.first_in_line);
                 }  
@@ -277,7 +275,7 @@ bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis, char *vari
         while(topTerminal->data != '$'){
             // printf("TOP: %c\n", topTerminal->data);
             // printf("koniec\n");
-            reduce(&list, return_type, variable_name);
+            reduce(&list, return_type);
             // DLL_PrintList(&list);
             topTerminal = DLL_TopTerminal(&list, true);
         }
@@ -296,7 +294,7 @@ void pushEqual(DLList *list, char c){
     DLL_InsertLast(list, c);
 }
 
-void reduce(DLList *list, char return_type, char *variable_name){
+void reduce(DLList *list, char return_type){
     DLLElementPtr temp = list->lastElement;
     char cache[4] = {'\0', '\0', '\0', '\0'};  //Temporary array to store items from "stack" before reducing, warning beacuse of unfinished code
     for(int i = 0; list->lastElement->data != '<'; i++){
@@ -310,14 +308,26 @@ void reduce(DLList *list, char return_type, char *variable_name){
     // printf("cache = \"%s\"\n", cache);
     if(strcmp(cache, "E+E") == 0){
         if(return_type == 'S'){
-            if (frame_counter ==0){
-                sprintf(buffer1.data, "%sCONCAT GF@%s GF@%s GF@%s\n",buffer1.data, variable_name,string_concat_previous, string_concat);
+            concat_counter++;
+            if (frame_counter == 0){
+                sprintf(buffer1.data, "%sDEFVAR GF@TMP1$%d\n", buffer1.data, concat_counter);
+                sprintf(buffer1.data, "%sDEFVAR GF@TMP2$%d\n", buffer1.data, concat_counter);
+                sprintf(buffer1.data, "%sDEFVAR GF@RES$%d\n", buffer1.data,concat_counter);
+                sprintf(buffer1.data, "%sPOPS GF@TMP2$%d\n", buffer1.data,concat_counter);
+                sprintf(buffer1.data, "%sPOPS GF@TMP1$%d\n", buffer1.data,concat_counter);
+                sprintf(buffer1.data, "%sCONCAT GF@RES$%d GF@TMP1$%d GF@TMP2$%d\n",buffer1.data,concat_counter, concat_counter, concat_counter);
+                sprintf(buffer1.data,"%sPUSHS GF@RES$%d\n",buffer1.data,concat_counter);
 
             }
             else{
-                sprintf(buffer1.data, "%sCONCAT LF@%s LF@%s LF@%s\n",buffer1.data, variable_name,string_concat_previous, string_concat);
+                sprintf(buffer1.data, "%sDEFVAR LF@TMP1$%d\n", buffer1.data, concat_counter);
+                sprintf(buffer1.data, "%sDEFVAR LF@TMP2$%d\n", buffer1.data, concat_counter);
+                sprintf(buffer1.data, "%sDEFVAR LF@RES$%d\n", buffer1.data,concat_counter);
+                sprintf(buffer1.data, "%sPOPS LF@TMP2$%d\n", buffer1.data,concat_counter);
+                sprintf(buffer1.data, "%sPOPS LF@TMP1$%d\n", buffer1.data,concat_counter);
+                sprintf(buffer1.data, "%sCONCAT LF@RES$%d LF@TMP1$%d LF@TMP2$%d\n",buffer1.data,concat_counter, concat_counter, concat_counter);
+                sprintf(buffer1.data,"%sPUSHS LF@RES$%d\n",buffer1.data,concat_counter);
             }
-            
         }
         else{
             sprintf(buffer1.data, "%sADDS\n",buffer1.data);
@@ -363,21 +373,10 @@ void reduce(DLList *list, char return_type, char *variable_name){
             }            
             sprintf(buffer1.data, "%sPUSHS float@%a\n",buffer1.data, temp->valueD);
         }
-        else if(temp->type == 'S'){
-            concat_counter++;
-            string_concat_previous = string_concat;
-            string_concat = unique_name(temp->string, concat_counter);
-            if(frame_counter == 0){
-                sprintf(buffer1.data, "%sDEFVAR GF@%s\n",buffer1.data, string_concat);
-                sprintf(buffer1.data, "%sMOVE GF@%s string@%s\n",buffer1.data, string_concat, temp->string);
-            }
-            else if(frame_counter > 0){
-                sprintf(buffer1.data, "%sDEFVAR LF@%s\n",buffer1.data, string_concat);
-                sprintf(buffer1.data, "%sMOVE LF@%s string@%s\n",buffer1.data, string_concat, temp->string);
-            }
+        else if (temp->type == 'S'){
+            sprintf(buffer1.data, "%sPUSHS string@%s\n", buffer1.data, temp->string);
         }
         else if (temp->type == 'V'){
-            //char *push_var = unique_name(temp->string, frame_counter);
             if (frame_counter - anti_zanorenie == 0 && var != 'F'){                // sme v globalnom ramci
                 char *push_var = unique_name(temp->string, 0);
                 sprintf(buffer1.data, "%sPUSHS GF@%s\n", buffer1.data, push_var);
