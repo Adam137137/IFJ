@@ -408,7 +408,6 @@ bool dvojbodka_typ(char *name_of_node){
 }
 
 bool priradenie_prave(char *name_of_node){
-    //token_print();
     current_token = getNextToken();
     current_token2 = getNextToken();
 
@@ -416,31 +415,30 @@ bool priradenie_prave(char *name_of_node){
         if(strcmp(current_token.attribute, "Int2Double") == 0){
             current_token = getNextToken();
             
-            if(!(current_token.type == 1 || current_token.type == 2)){
+            if(!(current_token.type == 1 || current_token.type == 2)){      // variable or int
                 printf("u built in zly parameter\n");
                 handle_error(SEMANTIC_PARAMETER_MISMATCH);
             }
-            
-            if(current_token.type == 1){
-                char *name_of_variable = string_dup(current_token.attribute);
-                btree_node *temp = find_declaration(&symtable_stack, name_of_variable, NULL);
-                if(temp == NULL){
-                    handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
-                }
-            }
-            else{
-                char return_t;
-                if(reduce_exp(&return_t, name_of_node, false) == false){
+            char return_t;
+            if(reduce_exp(&return_t, name_of_node, false) == false){        // reduce expr inside func call
                 return false;
-                }
             }
+            
+            char c;
+            btree_node *assign_to_variable = find_declaration(&symtable_stack, name_of_node, &c);
+            
+            if(assign_to_variable->data_type != 'D'){
+                handle_error(SEMANTIC_TYPE_COMPATIBILITY);
+            }
+
             current_token = getNextToken();
             if(current_token.type != 21){      // )
                 return false;
             }
+            
             sprintf(buffer1.data, "%sINT2FLOATS\n", buffer1.data);
             
-            if(frame_counter-anti_zanorenie == 0){
+            if(frame_counter-anti_zanorenie == 0){                                     // assignment after checks
                 char *variable_name = unique_name(name_of_node, 0);
                 sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
             }
@@ -449,9 +447,44 @@ bool priradenie_prave(char *name_of_node){
                 sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
             }
             return true;
+            
         }
         else if(strcmp(current_token.attribute, "Double2Int") == 0){
+            current_token = getNextToken();
+            
+            if(!(current_token.type == 1 || current_token.type == 3)){      // variable or int
+                printf("u built in zly parameter\n");
+                handle_error(SEMANTIC_PARAMETER_MISMATCH);
+            }
+            char return_t;
+            if(reduce_exp(&return_t, name_of_node, false) == false){        // reduce expr inside func call
+                return false;
+            }
+            
+            char c;
+            btree_node *assign_to_variable = find_declaration(&symtable_stack, name_of_node, &c);
+            
+            if(assign_to_variable->data_type != 'I'){
+                handle_error(SEMANTIC_TYPE_COMPATIBILITY);
+            }
+
+            current_token = getNextToken();
+            if(current_token.type != 21){      // )
+                return false;
+            }
+            
             sprintf(buffer1.data, "%sFLOAT2INTS\n", buffer1.data);
+            
+            if(frame_counter-anti_zanorenie == 0){                                     // assignment after checks
+                char *variable_name = unique_name(name_of_node, 0);
+                sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
+            }
+            else if(frame_counter-anti_zanorenie > 0){
+                char *variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
+                sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
+            }
+            return true;
+        
         }
         else if(strcmp(current_token.attribute, "length") == 0){
             sprintf(buffer1.data, "%sSTRLEN\n", buffer1.data);
