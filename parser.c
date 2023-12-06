@@ -571,18 +571,17 @@ bool varnutie(){
 }
 
 bool relacia(){
+    char return_t, return_t_2;
+    bool extra_par = false;
     //bool ozatvorkovanie = false;
-    char return_t;
     //puts("zaciatok relacie:");
     // TODO
     // if (current_token.type == 20)
     // {
     //     ozatvorkovanie = true;
     // }
-    
 
-    // token_print();
-    if (reduce_exp(&return_t,NULL, true) == false){
+    if (reduce_exp(&return_t,NULL, &extra_par) == false){
         return false;
     }
     current_token = getNextToken();
@@ -593,8 +592,13 @@ bool relacia(){
     }
     char* operator = current_token.attribute;
     current_token = getNextToken();
-    if (reduce_exp(&return_t,NULL, false) == false){
+    if (reduce_exp(&return_t_2,NULL, &extra_par) == false){
         return false;
+    }
+    if (return_t != return_t_2){                                            // porovnanie operatorov relacie
+        if ( !((return_t == 'I' && return_t_2 == 'D')|| (return_t == 'D' && return_t_2 == 'I'))){
+            handle_error(SEMANTIC_TYPE_COMPATIBILITY);
+        }   
     }
 
     if (strcmp(operator, "<") == 0){
@@ -607,7 +611,11 @@ bool relacia(){
     else if(strcmp(operator, "==") == 0){
         sprintf(buffer1.data, "%sEQS\n", buffer1.data);
     }
-    // puts("relacia je OK");
+    if (extra_par)                  // odstranenie extra zatvorky ak je podmienka zabalena v zatvorke
+    {
+        //token_print();
+        current_token =getNextToken();
+    }
     return true;
 }
 

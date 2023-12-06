@@ -33,7 +33,7 @@ char var;           //Ak je to V je variable ak F je to parameter fce
 // char *r, is return type of eval
 bool int2double_int_double = false;
 bool int2double_double_int = false;
-bool reduce_exp(char *r, char* name_of_func, bool after_relation_operator){                                   // first token is already loaded
+bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis){                                   // first token is already loaded
     //puts("nova exp \n \n");
     //token_print();
     DLList list;
@@ -260,10 +260,9 @@ bool reduce_exp(char *r, char* name_of_func, bool after_relation_operator){     
     }
 
     while(counter != 0){                               // parenthesis not closed properly or next token is relation operator
-        
-        if (current_token.type == 6)
-        {
+        if (current_token.type == 6){
             counter--;
+            *extra_paranthasis = true;
             break;
         }
         

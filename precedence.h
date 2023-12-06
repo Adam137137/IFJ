@@ -6,7 +6,7 @@
 #include "compiler.h"
 #include "dll.h"
 
-bool reduce_exp(char *r, char* name_of_func, bool after_relation_operator);
+bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis);
 
 void pushLess(DLList *list, char c);
 
