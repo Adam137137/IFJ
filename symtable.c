@@ -95,7 +95,7 @@ void init(btree_node **root) {
     *root = NULL;
 }
 
-btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, char data_type, bool let, int value_int, char *value_string, double value_double){
+btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, char data_type, bool nil, bool let, int value_int, char *value_string, double value_double){
     btree_node *node = (btree_node *)malloc(sizeof(btree_node));
     if(node == NULL){                           // check for allocation
         handle_error(INTERNAL_ERROR);                            
@@ -111,7 +111,7 @@ btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, 
     node->inicialized = inicialized;
 
     node->data_type = data_type;
-    
+    node->nil = nil;
     node->let = let;
     node->value_int = value_int;
 
@@ -141,13 +141,14 @@ btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, 
     return node;
 }
 
-void insert_data_type(btree_node **root, char *name_of_funcion, char data_type){
+void insert_data_type(btree_node **root, char *name_of_funcion, char data_type, bool nil){
     if(*root == NULL){
        handle_error(INTERNAL_ERROR);                    //nemala by byt NULL, lebo iba upadtujeme nodu dopisanim return typu
     }
     else{
         btree_node *temp = search(*root, name_of_funcion);
         temp->data_type = data_type;
+        temp->nil = nil;
     }
 }
 
@@ -187,16 +188,16 @@ void insert_params(btree_node **root, char *name_of_funcion, int which_attribute
     }
 }
 
-void insert_variable(btree_node **root, char *name_of_symbol, int token_type, bool inicialized, char data_type, bool let){
+void insert_variable(btree_node **root, char *name_of_symbol, int token_type, bool let){
     if(*root == NULL){
-        *root = create_node(name_of_symbol, token_type, inicialized, data_type, let, 0, "", 0);
+        *root = create_node(name_of_symbol, token_type, false, '\0', false, let, 0, "", 0);
     }
     else{
         if(lexicographic_compare((*root)->name_of_symbol, name_of_symbol) < 0){
-            insert_variable(&((*root)->right), name_of_symbol, token_type, inicialized, data_type, let);    
+            insert_variable(&((*root)->right), name_of_symbol, token_type, let);    
         }
         else if(lexicographic_compare((*root)->name_of_symbol, name_of_symbol) > 0){
-            insert_variable(&((*root)->left), name_of_symbol, token_type, inicialized, data_type, let);
+            insert_variable(&((*root)->left), name_of_symbol, token_type, let);
         }
         else{
             handle_error(SEMANTIC_UNDEFINED_FUNCTION_OR_REDEFINED_VARIABLE);
@@ -225,7 +226,7 @@ void insert_variable(btree_node **root, char *name_of_symbol, int token_type, bo
 
 void insert_func(btree_node **root, char *name_of_symbol, int token_type){
     if(*root == NULL){
-        *root = create_node(name_of_symbol, token_type, false, '\0', false, 0, "", 0);
+        *root = create_node(name_of_symbol, token_type, false, false, '\0', false, 0, "", 0);
     }
     else{
         if(lexicographic_compare((*root)->name_of_symbol, name_of_symbol) < 0){
@@ -281,112 +282,6 @@ btree_node *search(btree_node *root, char *name_of_symbol){
     return NULL;  
 }
 
-// skipped for now
-/*
-void replace_highest_in_left_tree(btree_node **root, btree_node *target){
-    if((*root)->right == NULL){                                                         // case where, we do not have right child, this is the node, that will replace targer
-        
-        target->key = (*root)->key;
-        target->func_num_of_param = (*root)->func_num_of_param;
-        
-        if(strlen(target->name_of_symbol) < strlen((*root)->name_of_symbol))                    // check if we have enough space for new string
-        {
-            target->name_of_symbol = realloc(target->name_of_symbol, strlen((*root)->name_of_symbol)+1);      // reallocating memory for new string, (+1 to include null terminator)
-            if(target->name_of_symbol == NULL){                                 // check if the allocation is correct   
-                return;             // treba pomenit error
-            }
-            strcpy(target->name_of_symbol,(*root)->name_of_symbol);                     // copy of the string
-        }
-
-        if(strlen(target->func_param) < strlen((*root)->func_param))                    // check if we have enough space for new string
-        {
-            target->func_param = realloc(target->func_param, strlen((*root)->func_param)+1);      
-            if(target->func_param == NULL){                                   
-                return;                 // treba pomenit error
-            }
-            strcpy(target->func_param,(*root)->func_param);                     
-        }
-        else{                                                                   // no need to reallocate, just copy
-            strcpy(target->name_of_symbol,(*root)->name_of_symbol);
-            strcpy(target->func_param,(*root)->func_param);
-        }
-        
-        if((*root)->name_of_symbol != NULL){                            // checking if it is not an empty string
-            free((*root)->name_of_symbol);                              
-        }                                                               // freeing all the values stored
-        if((*root)->func_param != NULL){                        
-            free((*root)->func_param);
-        }
-        
-        btree_node *tmp = (*root);                                      // store the root to be deleted
-        *root = (*root)->left;                                          // updating pointer of parent to point to new child // pls help ://////
-        free(tmp);
-    }
-    else{
-        replace_highest_in_left_tree(&((*root)->right), target);
-    }
-}
-
-void node_delete(btree_node **root, int token_type, int key){
-    
-    // ak zavolame nad prazdnym podstromom, not sure, co spravit
-    
-    if(key < (*root)->key){                                     // searching our key
-        node_delete(&((*root)->left), token_type, key);
-    }
-    else if(key > (*root)->key){
-        node_delete(&((*root)->right), token_type, key);
-    }
-    else{
-        if((*root)->left == NULL && (*root)->right == NULL){        // node has no children
-            
-            if((*root)->name_of_symbol != NULL){
-                free((*root)->name_of_symbol);
-            }
-            if((*root)->func_param != NULL){                        // checking if it is not an empty string
-                free((*root)->func_param);
-            }
-            free(*root);
-            *root = NULL;                                               // setting pointer to root to NULL, so the parent's pointer will point to NULL
-        }
-        else if((*root)->left != NULL && (*root)->right != NULL){           // node with 2 children
-            replace_highest_in_left_tree(&((*root)->left), *root);
-        }  
-        else{                                                               // deleting a node with one child
-            if((*root)->left == NULL){                                     // has only right child
-                btree_node *tmp;                                            // pointer to store the child
-                tmp = (*root)->right;
-
-                if((*root)->name_of_symbol != NULL){
-                    free((*root)->name_of_symbol);
-                }
-                if((*root)->func_param != NULL){                        // checking if it is not an empty string
-                    free((*root)->func_param);
-                }
-                
-                (*root)->right = NULL;                                  // right root pointer set to NULL before freeing the node
-                free(*root);
-                *root = tmp;                                            // after free the child can become the new root
-            }
-            else{                                                           // has only left child
-                btree_node *tmp;                                            
-                tmp = (*root)->left;
-
-                if((*root)->name_of_symbol != NULL){
-                    free((*root)->name_of_symbol);
-                }
-                if((*root)->func_param != NULL){                        // checking if it is not an empty string
-                    free((*root)->func_param);
-                }
-                
-                (*root)->left = NULL;                                   // left root pointer set to NULL before freeing the node
-                free(*root);
-                *root = tmp; 
-            }
-        }                                        
-    }
-}
-*/
 void tree_dispose(btree_node **root) {
     if((*root) != NULL){
         tree_dispose(&((*root)->left));

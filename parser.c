@@ -362,8 +362,12 @@ bool typ(char *name_of_node){
         strcmp(current_token.attribute, "Double?") == 0))
     {
         if ((current_token.type == 4 && (strcmp(current_token.attribute, "Int") == 0 || strcmp(current_token.attribute, "String") == 0 || strcmp(current_token.attribute, "Double") == 0))  && !(prvy_prechod)){
-            insert_data_type(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.attribute[0]);
+            insert_data_type(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.attribute[0], false);
         }
+        else if ((current_token.type == 4 && (strcmp(current_token.attribute, "Int?") == 0 || strcmp(current_token.attribute, "String?") == 0 || strcmp(current_token.attribute, "Double?") == 0))  && !(prvy_prechod)){
+            insert_data_type(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.attribute[0], true);
+        }
+        
         insert_return_typ(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.attribute[0]);
         return true;
     }
@@ -404,7 +408,6 @@ bool dvojbodka_typ(char *name_of_node){
 }
 
 bool priradenie_prave(char *name_of_node){
-    // char *name_of_func = '\0';
     //token_print();
     current_token = getNextToken();
     current_token2 = getNextToken();
@@ -454,14 +457,35 @@ bool priradenie_prave(char *name_of_node){
         current_token = getNextToken();
         return (current_token.type == 21);                   // )
     }
-    else if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7 || current_token.type == 8 || current_token.type == 20){
+    else if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || (current_token.type == 4 && strcmp(current_token.attribute, "nil")==0)|| current_token.type == 7 || current_token.type == 8 || current_token.type == 20){
         unget_token(current_token2, current_token2.first_in_line);                      //toto asi treba dat pred reduce_exp
+        
+        char c;                                                                         // it is F for function or V for variable
+        btree_node *tmp = find_declaration(&symtable_stack, name_of_node,&c);
+        
+        if (current_token.type == 4){           // nil
+            
+            if (tmp->data_type == '\0')
+            {
+                handle_error(SEMANTIC_TYPE_INFERENCE);
+            }
+            
+            if (tmp->nil == false)
+            {
+                handle_error(SEMANTIC_TYPE_COMPATIBILITY);
+            }
+            
+            
+
+            return true;
+        }
+        
+        
+        
         char return_t;
         if (reduce_exp(&return_t, name_of_node, false) == false){
            return false;
         }
-        char c;                                                                         // it is F for function or V for variable
-        btree_node *tmp = find_declaration(&symtable_stack, name_of_node,&c);
         if (c == 'F'){
             printf("Do parametru sa neda priradit hodnota\n");
             handle_error(OTHER_SEMANTIC_ERROR);
@@ -527,7 +551,7 @@ bool letnutie(){
     current_token = getNextToken();
     char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type == 1){
-        insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, false, '\0', true);
+        insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, true);
         
         char *variable_name = unique_name(current_token.attribute, frame_counter);
         if(frame_counter == 0){
@@ -557,7 +581,7 @@ bool varnutie(){
     char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type == 1){
         //printf("INSERTUJEM: %s\n", name_of_node);
-        insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, false, '\0', false);
+        insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, false);
         
         char *variable_name = unique_name(current_token.attribute, frame_counter);
         if(frame_counter == 0){

@@ -31,35 +31,17 @@ int main(int argc, char *argv[]){
         
     prvy_prechod = true;
     initDynamicArray(&buffer1);                 // for code gen
-    initDynamicArray(&buffer2);                 // for other things
     sprintf(buffer1.data, ".IFJcode23\n");
-    // printf("%d",buffer1.size);
 
-    if (testovanie)
-    {
-        file = fopen("test.txt", "r");
-        parser();
-        // printf("Compiler - testing script:\n\n");
-        // for (int i = 0; i < 3; i++)
-        // {
-        //     tests_init(i);
-        //     file = fopen("test.txt", "r");
-        //     parser();
-        // }
-    }
-    else{
-        file = stdin;
-        DLL_InsertFirst2(&symtable_stack);
-        first_analysis_parser();
-        prvy_prechod = false;
-        
-        rewind(stdin);
-        clearerr(stdin);
-        //insert_variable(&symtable_stack.firstElement->treeRoot, "anoo", current_token.type, true, "", true);
-        // printtree(symtable_stack.firstElement->treeRoot,0);
-        //insert_data_type(&symtable_stack.firstElement->treeRoot, "anoo", 'I');
-        parser();
-    }
+
+    file = stdin;
+    DLL_InsertFirst2(&symtable_stack);
+    first_analysis_parser();
+    prvy_prechod = false;
+    
+    rewind(stdin);
+    clearerr(stdin);
+    parser();
     
     file = fopen("IFJcode23.txt", "w");
     fprintf(stdout, "%s", buffer1.data);
