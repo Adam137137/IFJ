@@ -31,6 +31,8 @@
 //  6. E -> i
 char var;           //Ak je to V je variable ak F je to parameter fce
 // char *r, is return type of eval
+bool int2double_int_double = false;
+bool int2double_double_int = false;
 bool reduce_exp(char *r, char* name_of_func, bool after_relation_operator){                                   // first token is already loaded
     //puts("nova exp \n \n");
     //token_print();
@@ -44,7 +46,7 @@ bool reduce_exp(char *r, char* name_of_func, bool after_relation_operator){     
     char token_char;
     static int counter = 0;    //When token is '(' add 1, when ')' sub 1
     //printf("count: %d \n", counter);
-    while (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 5 || current_token.type == 20 || current_token.type == 21)    // stale sme vo vyraze
+    while (current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8 ||current_token.type == 5 || current_token.type == 20 || current_token.type == 21)    // stale sme vo vyraze
     {
         token_char = (current_token.attribute)[0];
         // printf("nacitanie : %c \n", token_char);
@@ -55,7 +57,7 @@ bool reduce_exp(char *r, char* name_of_func, bool after_relation_operator){     
         else if(token_char == ')'){
             counter--;
         }
-        if(current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7){
+        if(current_token.type == 1 || current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8){
             if(current_token.type == 1){                // if we get identifier
                 char *name_of_node = '\0';
                 name_of_node = string_dup(current_token.attribute);
@@ -125,10 +127,18 @@ bool reduce_exp(char *r, char* name_of_func, bool after_relation_operator){     
                     //puts("v precedencnej");
                     handle_error(SEMANTIC_TYPE_COMPATIBILITY);
                 }
-                if (!(return_type == 'D'))                                      // vysledny double nemoze byt zmeneny na int
+                
+                if (return_type == 'I' && current_type == 'D')              // int + double
                 {
-                    return_type = current_type;
+                    int2double_int_double = true;
+                    return_type = 'D';
                 }
+                else if (return_type == 'D' && current_type == 'I')         // double + int
+                {
+                    int2double_double_int = true;
+                    return_type = 'D';
+                }        
+            
             }
             
             token_char = 'i';
@@ -321,8 +331,19 @@ void reduce(DLList *list){
         //printf("typ %c\n", temp->type);
         if(temp->type == 'I'){
             sprintf(buffer1.data, "%sPUSHS int@%d\n",buffer1.data, temp->valueI);
+            if (int2double_double_int)
+            {
+                sprintf(buffer1.data, "%sINT2FLOATS\n", buffer1.data);
+                int2double_double_int = false;
+            }
+            
         }
         else if(temp->type == 'D'){
+            if (int2double_int_double)
+            {
+                sprintf(buffer1.data, "%sINT2FLOATS\n", buffer1.data);
+                int2double_int_double = false;
+            }            
             sprintf(buffer1.data, "%sPUSHS float@%a\n",buffer1.data, temp->valueD);
         }
         else if(temp->type == 'S'){

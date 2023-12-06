@@ -42,6 +42,7 @@ extern FILE *file;
 extern bool prvy_prechod;
 extern dynamic_buffer buffer1;  // main buffer for code
 extern dynamic_buffer buffer2;  // other buffer 
+extern int instruction_per_line;
 extern int frame_counter;
 extern char* name_of_function;
 extern int anti_zanorenie;

@@ -97,6 +97,7 @@ struct Token getNextToken(){
             {   
                 if (first_in_new_line)
                 {
+                    instruction_per_line = 0;
                     token.first_in_line = true;
                     first_in_new_line = false;
                 }
@@ -109,6 +110,7 @@ struct Token getNextToken(){
             {
                 if (first_in_new_line)
                 {
+                    instruction_per_line =0;
                     token.first_in_line = true;
                     first_in_new_line = false;
                 }
@@ -207,6 +209,7 @@ struct Token getNextToken(){
             else if (c == '\n')
             {
                 // puts("prvy");
+                instruction_per_line = 0;
                 first_in_new_line =  true;
             }
             
@@ -492,6 +495,16 @@ struct Token getNextToken(){
             else if (c == '\\'){
                 state = 65;
             }
+            else if (c == '\n' && viac_riadkovy_string){
+                string[string_pos]='\\';
+                string_pos++;
+                string[string_pos]='0';
+                string_pos++;
+                string[string_pos]='1';
+                string_pos++;
+                string[string_pos] = '0';
+                string_pos++;
+            }
             else{
                 handle_error(LEXICAL_ERROR);
             }
@@ -510,18 +523,20 @@ struct Token getNextToken(){
 
             }
             else if (c == 't'){
-                string[string_pos]='\\';
-                string_pos++;
-                string[string_pos]='0';
-                string_pos++;
-                string[string_pos]='1';
-                string_pos++;
-                string[string_pos] = '1';
-                string_pos++;
-                string[string_pos] = '\t';
-                string_pos++;
-                state = 60;
-
+                if (!viac_riadkovy_string)
+                {
+                    string[string_pos]='\\';
+                    string_pos++;
+                    string[string_pos]='0';
+                    string_pos++;
+                    string[string_pos]='1';
+                    string_pos++;
+                    string[string_pos] = '1';
+                    string_pos++;
+                    string[string_pos] = '\t';
+                    string_pos++;
+                    state = 60;
+                }
             }
             else if (c == '\"'){
                 string[string_pos] = '\"';

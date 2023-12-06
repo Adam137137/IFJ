@@ -16,6 +16,7 @@ bool return_neni = false;
 struct Token current_token, current_token2;
 int frame_counter = 0;
 int func_counter = 1;
+
 int main_jump_counter = 1;
 char *name_of_function = NULL;
 int anti_zanorenie = 0;
@@ -857,11 +858,20 @@ bool sekvencia(bool in_func){
     //fflush(stdout);
     dvojbodka_typ_neni = false;
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4){
+        if (++instruction_per_line > 1)
+        {
+            return false;
+        }
         if (letnutie() == false){
             return false;
         }
     }
     else if (strcmp(current_token.attribute, "var") == 0 && current_token.type == 4){
+        if (++instruction_per_line > 1)
+        {
+            return false;
+        }
+        
         if (varnutie() == false){
             return false;
         }
@@ -914,10 +924,6 @@ bool sekvencia(bool in_func){
         }
         
     }
-    
-    //else if(current_token.type == 2 || current_token.type == 3){
-        //return reduce_exp();
-    //}
     else if (current_token.type == 23 || (current_token.type == 4 && strcmp(current_token.attribute, "return") == 0 )){                 //epsion prechod
         unget_token(current_token, current_token.first_in_line);
         if (current_token.type == 4 && return_neni == false)                        //precitali sme return

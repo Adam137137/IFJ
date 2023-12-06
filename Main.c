@@ -5,6 +5,7 @@ DLList2 symtable_stack;
 bool testovanie = false;
 dynamic_buffer buffer1;
 dynamic_buffer buffer2;
+int instruction_per_line = 0;
 
 void first_analysis_parser(){
     current_token = getNextToken();
