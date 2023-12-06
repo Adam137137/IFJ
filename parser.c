@@ -428,6 +428,12 @@ bool priradenie_prave(char *name_of_node){
                     handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
                 }
             }
+            else{
+                char return_t;
+                if(reduce_exp(&return_t, name_of_node, false) == false){
+                return false;
+                }
+            }
             current_token = getNextToken();
             if(current_token.type != 21){      // )
                 return false;
