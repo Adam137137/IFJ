@@ -32,7 +32,7 @@ bool built_in_write_one_param_print(){
         char c;
         btree_node *token_found = find_declaration(&symtable_stack, current_token.attribute,&c);
         if (token_found == NULL){
-            printf("ID nebolo deklarovane nikde-builtin\n");
+            //printf("ID nebolo deklarovane nikde-builtin\n");
             handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
         }
         if (c == 'F'){
@@ -46,7 +46,7 @@ bool built_in_write_one_param_print(){
                 }
             }
             if (!found){
-                printf("ID nebolo deklarovane nikde-builtin\n");
+                // printf("ID nebolo deklarovane nikde-builtin\n");
                 handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
             }
         }
@@ -522,24 +522,16 @@ bool priradenie_prave(char *name_of_node){
         char c;                                                                         // it is F for function or V for variable
         btree_node *tmp = find_declaration(&symtable_stack, name_of_node,&c);
         
-        if (current_token.type == 4){           // nil
-            
-            if (tmp->data_type == '\0')
-            {
+        if (current_token.type == 4){                       // priradujeme nil
+            if (tmp->data_type == '\0'){                    // zapisujeme nil do neznameho typu
                 handle_error(SEMANTIC_TYPE_INFERENCE);
             }
             
-            if (tmp->nil == false)
-            {
+            if (tmp->nil == false){
                 handle_error(SEMANTIC_TYPE_COMPATIBILITY);
             }
-            
-            
-
             return true;
         }
-        
-        
         
         char return_t;
         if (reduce_exp(&return_t, name_of_node, false) == false){
@@ -601,15 +593,28 @@ bool rovna_sa__priradenie(char* name_of_node){
         return false;
     }
     else{
-        unget_token(current_token, current_token.first_in_line);          //epsilon prechod vratime nacitany token  
+        unget_token(current_token, current_token.first_in_line);            //epsilon prechod vratime nacitany token  
         return true;
     }
 
 }
-bool letnutie(){            
+bool letnutie(bool from_if){            
     current_token = getNextToken();
     char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type == 1){
+        if (from_if){                                                       // letnutie v: if let id{}    
+            btree_node *temp = find_function_in_global(&symtable_stack, name_of_node);
+            if (temp->nil){
+                sprintf(buffer1.data, "%sPUSHS bool@false\n", buffer1.data);
+            }
+            else{
+                sprintf(buffer1.data, "%sPUSHS bool@true\n", buffer1.data);
+            }
+            free(name_of_node);
+            return true;
+        }
+
+
         insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, true);
         
         char *variable_name = unique_name(current_token.attribute, frame_counter);
@@ -619,11 +624,16 @@ bool letnutie(){
         else{
             sprintf(buffer1.data, "%sDEFVAR LF@%s\n", buffer1.data, variable_name);
         }
+
+
+
         if (dvojbodka_typ(name_of_node) == false){
+            free(name_of_node);
             return false;
         }
         
         if (rovna_sa__priradenie(name_of_node) == false){
+            free(name_of_node);
             return false;
         }
         
@@ -698,7 +708,7 @@ bool relacia(){
     if (strcmp(operator, "<") == 0){
         sprintf(buffer1.data, "%sLTS\n", buffer1.data);
     }
-    else if (strcmp(operator, ">") == 0){
+    else if (strcmp(operator, ">") == 0)    {
         sprintf(buffer1.data, "%sGTS\n", buffer1.data);
 
     }
@@ -713,13 +723,14 @@ bool relacia(){
     return true;
 }
 
-bool podmienka(){
+bool podmienka(bool *je_relacia){
     if (strcmp(current_token.attribute, "let") == 0 && current_token.type == 4)
     {
-        return letnutie();
+        return letnutie(true);
     }
     else if(current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7 || current_token.type == 20)
     {
+        *je_relacia = true;
         return relacia();
     }
     return false;
@@ -735,7 +746,7 @@ bool whilnutie(bool in_func, bool in_while, bool in_if){
     char *while_start = unique_name("while_start", while_counter);
     sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, while_start);
 
-    if (podmienka()== false){
+    if (podmienka(false)== false){
         return false;
     }
     
@@ -775,30 +786,40 @@ bool whilnutie(bool in_func, bool in_while, bool in_if){
 
 bool ifnutie(bool in_func, bool in_while, bool in_if){
     current_token = getNextToken();
-    if (podmienka()== false){
+
+    bool podmienka_je_relacia = false;
+    if (podmienka(&podmienka_je_relacia)== false){
         return false;
     }
     // printf("pri ifnuti som v ife %d\n", in_if);
     // printf("pri ifnuti som vo while %d\n", in_while);
     // printf("pri ifnuti som vo func %d\n", in_func);
     // puts("\n");
+
     if_counter++;
     char *true_end = unique_name("true_end", if_counter);
     char *else_end = unique_name("else_end", if_counter);
-    sprintf(buffer1.data, "%sPUSHS bool@true\n", buffer1.data);
-    sprintf(buffer1.data, "%sJUMPIFNEQS %s\n", buffer1.data, true_end);
-    if(!(in_func || in_while ||in_if)){
-        sprintf(buffer1.data, "%sCREATEFRAME\n", buffer1.data);
-        sprintf(buffer1.data, "%sPUSHFRAME\n", buffer1.data);
+    
+    if (podmienka_je_relacia){
+        sprintf(buffer1.data, "%sPUSHS bool@true\n", buffer1.data);
+        sprintf(buffer1.data, "%sJUMPIFNEQS %s\n", buffer1.data, true_end);
+        if(!(in_func || in_while ||in_if)){
+            sprintf(buffer1.data, "%sCREATEFRAME\n", buffer1.data);
+            sprintf(buffer1.data, "%sPUSHFRAME\n", buffer1.data);
+        }
     }
+    else{
+
+        sprintf(buffer1.data, "%sPUSHS bool@true\n", buffer1.data);
+        sprintf(buffer1.data, "%sJUMPIFNEQS %s\n", buffer1.data, true_end);
+        if(!(in_func || in_while ||in_if)){
+            sprintf(buffer1.data, "%sCREATEFRAME\n", buffer1.data);
+            sprintf(buffer1.data, "%sPUSHFRAME\n", buffer1.data);
+        }
+    }
+    
+    
     current_token = getNextToken();
-    // token_print();
-
-    // if (current_token.type == 21)               // podmienka v zatvorke, v pripade nudze odkomentovat
-    // {
-    //     current_token = getNextToken();
-    // }
-
 
     if (current_token.type != 22){                                                  // {
         return false;        
@@ -820,7 +841,7 @@ bool ifnutie(bool in_func, bool in_while, bool in_if){
         return false;        
     }
     sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, true_end);
-    //current_token = getNextToken();
+    
     if (sekvencia(false, false, true) == false){    //not sure                                    // sekvencia
         return false;
     }
@@ -985,7 +1006,7 @@ bool sekvencia(bool in_func, bool in_while, bool in_if){
         {
             return false;
         }
-        if (letnutie() == false){
+        if (letnutie(false) == false){
             return false;
         }
     }
