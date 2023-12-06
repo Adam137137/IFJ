@@ -566,7 +566,7 @@ bool priradenie_prave(char *name_of_node){
                 variable_name = unique_name(name_of_node, 0);
                 sprintf(buffer1.data, "%sDEFVAR GF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
                 sprintf(buffer1.data, "%sPOPS GF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
-                sprintf(buffer1.data, "%sGETCHAR GF%s GF@TEMP%d int@0\n", buffer1.data, variable_name, built_in_counter + func_counter);
+                sprintf(buffer1.data, "%sGETCHAR GF@%s GF@TEMP%d int@0\n", buffer1.data, variable_name, built_in_counter + func_counter);
             }
             else if(frame_counter-anti_zanorenie > 0){                             // assignment after checks
                 variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
