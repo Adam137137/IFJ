@@ -36,11 +36,7 @@ bool int2double_double_int = false;
 char *string_concat = NULL;
 char *string_concat_previous = NULL;
 int concat_counter = 0;
-bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis, char *variable_name){                                   // first token is already loaded
-    
-    printf("%s\n", name_of_func);
-    //puts("nova exp \n \n");
-    //token_print();
+bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis, char *variable_name){
     DLList list;
     DLLElementPtr topTerminal;
     btree_node *token_found = NULL;              // my token
@@ -314,7 +310,14 @@ void reduce(DLList *list, char return_type, char *variable_name){
     // printf("cache = \"%s\"\n", cache);
     if(strcmp(cache, "E+E") == 0){
         if(return_type == 'S'){
-            sprintf(buffer1.data, "%sCONCAT %s %s %s\n",buffer1.data, variable_name,string_concat_previous, string_concat);
+            if (frame_counter ==0){
+                sprintf(buffer1.data, "%sCONCAT GF@%s GF@%s GF@%s\n",buffer1.data, variable_name,string_concat_previous, string_concat);
+
+            }
+            else{
+                sprintf(buffer1.data, "%sCONCAT LF@%s LF@%s LF@%s\n",buffer1.data, variable_name,string_concat_previous, string_concat);
+            }
+            
         }
         else{
             sprintf(buffer1.data, "%sADDS\n",buffer1.data);
