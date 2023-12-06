@@ -7,7 +7,7 @@ extern struct Token current_token;
 
 void token_print();
 void unget_token(struct Token, bool new_line);
-bool returnovanie(char *name_of_node);
+bool returnovanie(char *name_of_node, bool *contains_return);
 bool func_declar();
 bool parametre(char *name_of_node);
 bool parameter(char *name_of_node);

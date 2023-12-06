@@ -129,7 +129,7 @@ void unget_token(struct Token token, bool new_line){
         }
     }
 }
-bool returnovanie(char *name_of_node){
+bool returnovanie(char *name_of_node, bool *contains_return){
     if (current_token.type == 4 && strcmp(current_token.attribute,"return") == 0){
         char return_t;
         current_token = getNextToken();             // prvy token do precedencnej
@@ -144,8 +144,8 @@ bool returnovanie(char *name_of_node){
             printf("Zla navratova hodnota z funckie\n");
             handle_error(SEMANTIC_RETURN_STATEMENT);
         }
+        *contains_return = true;
         return true;
-
     }
     else if (current_token.type == 23){             //epsilon prechod
         unget_token(current_token, current_token.first_in_line);
@@ -207,10 +207,18 @@ bool func_declar(){
         return false;
     }
     current_token = getNextToken();
-    if (returnovanie(name_of_node) == false){               // return
+    bool dead_code = false;
+    if (returnovanie(name_of_node, &dead_code) == false){               // return
         return false;
     }
     current_token = getNextToken();
+    if (dead_code){
+        while (current_token.type != 23)
+        {
+            current_token = getNextToken();
+        }
+    }
+    
     if (current_token.type != 23){              // }
         return false;
     }
