@@ -158,7 +158,7 @@ bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis){          
                 else{
                     // printf("Redukcia1\n");
                     //printf("first: %c\n Last: \n", topTerminal->data);
-                    reduce(&list);
+                    reduce(&list, return_type);
                     // DLL_PrintList(&list);
                     unget_token(current_token, current_token.first_in_line);
                 }
@@ -175,7 +175,7 @@ bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis){          
                 else{
                     // printf("Redukcia2\n");
                     //printf("first: %c\n Last: \n", topTerminal->data);
-                    reduce(&list);
+                    reduce(&list, return_type);
                     // DLL_PrintList(&list);
                     unget_token(current_token, current_token.first_in_line);
                 }
@@ -211,7 +211,7 @@ bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis){          
                 else{
                     //printf("Redukcia3\n");
                     //printf("first: %c\n Last: \n", topTerminal->data);
-                    reduce(&list);
+                    reduce(&list, return_type);
                     // DLL_PrintList(&list);
                     unget_token(current_token, current_token.first_in_line);      // ... 2hours of debugging
                     counter++;                      // after putting ')' back to input, incrementing bracket counter, so after next token we have correct counting of brackets 
@@ -240,7 +240,7 @@ bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis){          
                 else{
                     // printf("Redukcia4\n");
                     //printf("first: %c\n Last: \n", topTerminal->data);
-                    reduce(&list);
+                    reduce(&list, return_type);
                     // DLL_PrintList(&list);
                     unget_token(current_token, current_token.first_in_line);
                 }  
@@ -276,7 +276,7 @@ bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis){          
         while(topTerminal->data != '$'){
             // printf("TOP: %c\n", topTerminal->data);
             // printf("koniec\n");
-            reduce(&list);
+            reduce(&list, return_type);
             // DLL_PrintList(&list);
             topTerminal = DLL_TopTerminal(&list, true);
         }
@@ -295,7 +295,7 @@ void pushEqual(DLList *list, char c){
     DLL_InsertLast(list, c);
 }
 
-void reduce(DLList *list){
+void reduce(DLList *list, char return_type){
     DLLElementPtr temp = list->lastElement;
     char cache[4] = {'\0', '\0', '\0', '\0'};  //Temporary array to store items from "stack" before reducing, warning beacuse of unfinished code
     for(int i = 0; list->lastElement->data != '<'; i++){
@@ -320,7 +320,12 @@ void reduce(DLList *list){
         //printf("Pravidlo 3\n");
     }
     else if(strcmp(cache, "E/E") == 0){
-        sprintf(buffer1.data, "%sDIVS\n",buffer1.data);
+        if(return_type == 'D'){
+            sprintf(buffer1.data, "%sDIVS\n",buffer1.data);
+        }
+        else{
+            sprintf(buffer1.data, "%sIDIVS\n",buffer1.data);
+        }
         //printf("Pravidlo 4\n");
     }
     else if(strcmp(cache, "(E)") == 0){

@@ -12,6 +12,6 @@ void pushLess(DLList *list, char c);
 
 void pushEqual(DLList *list, char c);
 
-void reduce(DLList *list);
+void reduce(DLList *list, char return_type);
 
 #endif
