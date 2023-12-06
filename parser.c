@@ -16,6 +16,8 @@ bool return_neni = false;
 struct Token current_token, current_token2;
 int frame_counter = 0;
 int func_counter = 1;
+int if_counter = 0;
+int while_counter = 0;
 
 int main_jump_counter = 1;
 char *name_of_function = NULL;
@@ -201,7 +203,7 @@ bool func_declar(){
     if (current_token.type != 22){              // {
         return false;        
     }
-    if (sekvencia(true) == false){                  // sekvencia
+    if (sekvencia(true, false, false) == false){                  // sekvencia
         return false;
     }
     current_token = getNextToken();
@@ -631,20 +633,24 @@ bool podmienka(){
     return false;
 }
 
-bool whilnutie(bool in_func){
+bool whilnutie(bool in_func, bool in_while, bool in_if){
     current_token = getNextToken();
-    
-    char *while_start = unique_name("while_start", frame_counter);
+    // printf("pri whilnuti som v ife %d\n", in_if);
+    // printf("pri whilnuti som vo while %d\n", in_while);
+    // printf("pri whilnuti som vo func %d\n", in_func);
+    // puts("\n");
+    while_counter++;
+    char *while_start = unique_name("while_start", while_counter);
     sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, while_start);
 
     if (podmienka()== false){
         return false;
     }
     
-    char *while_end = unique_name("while_end", frame_counter);
+    char *while_end = unique_name("while_end", while_counter);
     sprintf(buffer1.data, "%sPUSHS bool@true\n", buffer1.data);
     sprintf(buffer1.data, "%sJUMPIFNEQS %s\n", buffer1.data, while_end);
-    if(!in_func){
+    if(!(in_func || in_while ||in_if)){
         sprintf(buffer1.data, "%sCREATEFRAME\n", buffer1.data);
         sprintf(buffer1.data, "%sPUSHFRAME\n", buffer1.data);
     }
@@ -660,7 +666,7 @@ bool whilnutie(bool in_func){
         return false;
     }
 
-    if (sekvencia(false) == false){
+    if (sekvencia(false, true, false) == false){
         // printf("TU\n");
         return false;
     }
@@ -675,16 +681,21 @@ bool whilnutie(bool in_func){
     return true;
 }
 
-bool ifnutie(bool in_func){
+bool ifnutie(bool in_func, bool in_while, bool in_if){
     current_token = getNextToken();
     if (podmienka()== false){
         return false;
     }
-    char *true_end = unique_name("true_end", frame_counter);
-    char *else_end = unique_name("else_end", frame_counter);
+    // printf("pri ifnuti som v ife %d\n", in_if);
+    // printf("pri ifnuti som vo while %d\n", in_while);
+    // printf("pri ifnuti som vo func %d\n", in_func);
+    // puts("\n");
+    if_counter++;
+    char *true_end = unique_name("true_end", if_counter);
+    char *else_end = unique_name("else_end", if_counter);
     sprintf(buffer1.data, "%sPUSHS bool@true\n", buffer1.data);
     sprintf(buffer1.data, "%sJUMPIFNEQS %s\n", buffer1.data, true_end);
-    if(!in_func){
+    if(!(in_func || in_while ||in_if)){
         sprintf(buffer1.data, "%sCREATEFRAME\n", buffer1.data);
         sprintf(buffer1.data, "%sPUSHFRAME\n", buffer1.data);
     }
@@ -700,7 +711,7 @@ bool ifnutie(bool in_func){
     if (current_token.type != 22){                                                  // {
         return false;        
     }
-    if (sekvencia(false) == false){                                                      // sekvencia
+    if (sekvencia(false, false, true) == false){                                    // sekvencia
         return false;
     }
     current_token = getNextToken();
@@ -718,7 +729,7 @@ bool ifnutie(bool in_func){
     }
     sprintf(buffer1.data, "%sLABEL %s\n", buffer1.data, true_end);
     //current_token = getNextToken();
-    if (sekvencia(false) == false){                                                      // sekvencia
+    if (sekvencia(false, false, true) == false){    //not sure                                    // sekvencia
         return false;
     }
     current_token = getNextToken();
@@ -872,7 +883,7 @@ bool idnutie(){
     return priradenie_zost();
 }
 
-bool sekvencia(bool in_func){
+bool sekvencia(bool in_func, bool in_while, bool in_if){
     current_token = getNextToken();
     //printf("Token v sekvencii: ");
     //token_print();
@@ -902,7 +913,7 @@ bool sekvencia(bool in_func){
         frame_counter++;
         char *name_of_node = string_dup(current_token.attribute);
         insert_func(&symtable_stack.firstElement->treeRoot, name_of_node, 4);
-        if (whilnutie(in_func) == false){
+        if (whilnutie(in_func, in_while, in_if) == false){
             return false;
         }
         DLL_DeleteFirst2(&symtable_stack);
@@ -914,7 +925,7 @@ bool sekvencia(bool in_func){
         char *name_of_node = string_dup(current_token.attribute);
         insert_func(&symtable_stack.firstElement->treeRoot, name_of_node, 4);
         
-        if (ifnutie(in_func)== false){
+        if (ifnutie(in_func, in_while, in_if)== false){
             return false;   
         }
         DLL_DeleteFirst2(&symtable_stack);
@@ -960,12 +971,12 @@ bool sekvencia(bool in_func){
     else{
         return false;
     }
-    return sekvencia(in_func);
+    return sekvencia(in_func, in_while, in_if);
     //TODO dalsie mozne neterminaly zo sekvencie
 }
 
 void parser(){
-    if (sekvencia(false) == true){
+    if (sekvencia(false, false, false) == true){
         //puts("OK");
         return;
     }
