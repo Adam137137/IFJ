@@ -1,1 +1,6 @@
-OK
+.IFJcode23
+DEFVAR GF@x$0
+PUSHS int@5
+PUSHS int@10
+SUBS
+POPS GF@x$0
