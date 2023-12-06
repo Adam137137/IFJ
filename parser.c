@@ -133,7 +133,7 @@ bool returnovanie(char *name_of_node, bool *contains_return){
     if (current_token.type == 4 && strcmp(current_token.attribute,"return") == 0){
         char return_t;
         current_token = getNextToken();             // prvy token do precedencnej
-        if (reduce_exp(&return_t, name_of_node, false) == false){
+        if (reduce_exp(&return_t, name_of_node, false, NULL) == false){
             return false;
         }
         btree_node *temp = find_function_in_global(&symtable_stack, name_of_node);
@@ -403,7 +403,7 @@ bool dvojbodka_typ(char *name_of_node){
     return true;
 }
 
-bool priradenie_prave(char *name_of_node){
+bool priradenie_prave(char *name_of_node,char *variable_name){
     // char *name_of_func = '\0';
     //token_print();
     current_token = getNextToken();
@@ -457,7 +457,7 @@ bool priradenie_prave(char *name_of_node){
     else if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || current_token.type == 7 || current_token.type == 8 || current_token.type == 20){
         unget_token(current_token2, current_token2.first_in_line);                      //toto asi treba dat pred reduce_exp
         char return_t;
-        if (reduce_exp(&return_t, name_of_node, false) == false){
+        if (reduce_exp(&return_t, name_of_node, false, variable_name) == false){
            return false;
         }
         char c;                                                                         // it is F for function or V for variable
@@ -509,14 +509,14 @@ bool priradenie_prave(char *name_of_node){
     return false;
 }
 
-bool rovna_sa__priradenie(char* name_of_node){
+bool rovna_sa__priradenie(char* name_of_node, char* variable_name){
     current_token = getNextToken();                                     // =
     
     if (current_token.type == 10 && strcmp(current_token.attribute, "=") == 0){
         char c;
         btree_node *tmp = find_declaration(&symtable_stack,name_of_node,&c);       //inicializacia lavej strany
         tmp->inicialized = true;
-        return priradenie_prave(name_of_node);
+        return priradenie_prave(name_of_node, variable_name);
     }
     else if(dvojbodka_typ_neni){              //ked bola vypustena deklaracia typu nemozeme vypustit priradenie
         return false;
@@ -532,19 +532,19 @@ bool letnutie(){
     char *name_of_node = string_dup(current_token.attribute);
     if (current_token.type == 1){
         insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, false, '\0', true);
+        
+        char *variable_name = unique_name(current_token.attribute, frame_counter);
         if(frame_counter == 0){
-            char *variable_name = unique_name(current_token.attribute, frame_counter);
             sprintf(buffer1.data, "%sDEFVAR GF@%s\n", buffer1.data, variable_name);
         }
-        else if(frame_counter > 0){
-            char *variable_name = unique_name(current_token.attribute, frame_counter);
+        else{
             sprintf(buffer1.data, "%sDEFVAR LF@%s\n", buffer1.data, variable_name);
         }
         if (dvojbodka_typ(name_of_node) == false){
             return false;
         }
         
-        if (rovna_sa__priradenie(name_of_node) == false){
+        if (rovna_sa__priradenie(name_of_node, variable_name) == false){
             return false;
         }
         
@@ -562,18 +562,19 @@ bool varnutie(){
     if (current_token.type == 1){
         //printf("INSERTUJEM: %s\n", name_of_node);
         insert_variable(&symtable_stack.firstElement->treeRoot, name_of_node, current_token.type, false, '\0', false);
+        
+        char *variable_name = unique_name(current_token.attribute, frame_counter);
         if(frame_counter == 0){
-            char *variable_name = unique_name(current_token.attribute, frame_counter);
             sprintf(buffer1.data, "%sDEFVAR GF@%s\n", buffer1.data, variable_name);
         }
-        else if(frame_counter > 0){
-            char *variable_name = unique_name(current_token.attribute, frame_counter);
+        else{
             sprintf(buffer1.data, "%sDEFVAR LF@%s\n", buffer1.data, variable_name);
         }
+
         if (dvojbodka_typ(name_of_node) == false){
             return false;
         }
-        if (rovna_sa__priradenie(name_of_node) == false){
+        if (rovna_sa__priradenie(name_of_node, variable_name) == false){
             return false;
         }
         free(name_of_node);
@@ -595,7 +596,7 @@ bool relacia(){
     //     ozatvorkovanie = true;
     // }
 
-    if (reduce_exp(&return_t,NULL, &extra_par) == false){
+    if (reduce_exp(&return_t,NULL, &extra_par, NULL) == false){
         return false;
     }
     current_token = getNextToken();
@@ -606,7 +607,7 @@ bool relacia(){
     }
     char* operator = current_token.attribute;
     current_token = getNextToken();
-    if (reduce_exp(&return_t_2,NULL, &extra_par) == false){
+    if (reduce_exp(&return_t_2,NULL, &extra_par, NULL) == false){
         return false;
     }
     if (return_t != return_t_2){                                            // porovnanie operatorov relacie
@@ -786,7 +787,7 @@ bool parameter_volania(btree_node *temp, int* num_of_params){           // temp 
             char *push_params = unique_name(temp->paramsArray[(*num_of_params)-1].identif, func_counter);
             sprintf(buffer1.data, "%sDEFVAR TF@&%s\n", buffer1.data, push_params);
             char return_t;
-            if (reduce_exp(&return_t, temp->name_of_symbol, false) == false){
+            if (reduce_exp(&return_t, temp->name_of_symbol, false, NULL) == false){
                 return false;
             }
             sprintf(buffer1.data, "%sPOPS TF@&%s\n", buffer1.data, push_params);
@@ -808,7 +809,7 @@ bool parameter_volania(btree_node *temp, int* num_of_params){           // temp 
         char *push_params = unique_name(temp->paramsArray[(*num_of_params)-1].identif, func_counter);
         sprintf(buffer1.data, "%sDEFVAR TF@&%s\n", buffer1.data, push_params);
         char return_t;
-        if (reduce_exp(&return_t, temp->name_of_symbol, false) == false){
+        if (reduce_exp(&return_t, temp->name_of_symbol, false, NULL) == false){
             return false;
         }
         sprintf(buffer1.data, "%sPOPS TF@&%s\n", buffer1.data, push_params);
@@ -882,7 +883,7 @@ bool priradenie_zost(){
         }
         //free(name_of_node);
         //printf("ANOOOO");
-        if( priradenie_prave(name_of_node) == false){
+        if( priradenie_prave(name_of_node, NULL) == false){
             return false;
         }
         

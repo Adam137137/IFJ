@@ -36,7 +36,9 @@ bool int2double_double_int = false;
 char *string_concat = NULL;
 char *string_concat_previous = NULL;
 int concat_counter = 0;
-bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis){                                   // first token is already loaded
+bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis, char *variable_name){                                   // first token is already loaded
+    
+    printf("%s\n", name_of_func);
     //puts("nova exp \n \n");
     //token_print();
     DLList list;
@@ -161,7 +163,7 @@ bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis){          
                 else{
                     // printf("Redukcia1\n");
                     //printf("first: %c\n Last: \n", topTerminal->data);
-                    reduce(&list, return_type);
+                    reduce(&list, return_type, variable_name);
                     // DLL_PrintList(&list);
                     unget_token(current_token, current_token.first_in_line);
                 }
@@ -178,7 +180,7 @@ bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis){          
                 else{
                     // printf("Redukcia2\n");
                     //printf("first: %c\n Last: \n", topTerminal->data);
-                    reduce(&list, return_type);
+                    reduce(&list, return_type, variable_name);
                     // DLL_PrintList(&list);
                     unget_token(current_token, current_token.first_in_line);
                 }
@@ -214,7 +216,7 @@ bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis){          
                 else{
                     //printf("Redukcia3\n");
                     //printf("first: %c\n Last: \n", topTerminal->data);
-                    reduce(&list, return_type);
+                    reduce(&list, return_type, variable_name);
                     // DLL_PrintList(&list);
                     unget_token(current_token, current_token.first_in_line);      // ... 2hours of debugging
                     counter++;                      // after putting ')' back to input, incrementing bracket counter, so after next token we have correct counting of brackets 
@@ -243,7 +245,7 @@ bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis){          
                 else{
                     // printf("Redukcia4\n");
                     //printf("first: %c\n Last: \n", topTerminal->data);
-                    reduce(&list, return_type);
+                    reduce(&list, return_type, variable_name);
                     // DLL_PrintList(&list);
                     unget_token(current_token, current_token.first_in_line);
                 }  
@@ -279,7 +281,7 @@ bool reduce_exp(char *r, char* name_of_func, bool *extra_paranthasis){          
         while(topTerminal->data != '$'){
             // printf("TOP: %c\n", topTerminal->data);
             // printf("koniec\n");
-            reduce(&list, return_type);
+            reduce(&list, return_type, variable_name);
             // DLL_PrintList(&list);
             topTerminal = DLL_TopTerminal(&list, true);
         }
@@ -298,7 +300,7 @@ void pushEqual(DLList *list, char c){
     DLL_InsertLast(list, c);
 }
 
-void reduce(DLList *list, char return_type){
+void reduce(DLList *list, char return_type, char *variable_name){
     DLLElementPtr temp = list->lastElement;
     char cache[4] = {'\0', '\0', '\0', '\0'};  //Temporary array to store items from "stack" before reducing, warning beacuse of unfinished code
     for(int i = 0; list->lastElement->data != '<'; i++){
@@ -312,7 +314,7 @@ void reduce(DLList *list, char return_type){
     // printf("cache = \"%s\"\n", cache);
     if(strcmp(cache, "E+E") == 0){
         if(return_type == 'S'){
-            sprintf(buffer1.data, "%sCONCAT var %s %s\n",buffer1.data, string_concat_previous, string_concat);
+            sprintf(buffer1.data, "%sCONCAT %s %s %s\n",buffer1.data, variable_name,string_concat_previous, string_concat);
         }
         else{
             sprintf(buffer1.data, "%sADDS\n",buffer1.data);
