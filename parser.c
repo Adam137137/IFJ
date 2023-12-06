@@ -35,6 +35,7 @@ bool built_in_write_one_param_print(){
         btree_node *token_found = find_declaration(&symtable_stack, current_token.attribute,&c);
         if (token_found == NULL){
             //printf("ID nebolo deklarovane nikde-builtin\n");
+            printf("SOMTU");
             handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
         }
         if (c == 'F'){
@@ -48,13 +49,14 @@ bool built_in_write_one_param_print(){
                 }
             }
             if (!found){
-                // printf("ID nebolo deklarovane nikde-builtin\n");
+                //printf("ID nebolo deklarovane nikde-builtin\n");
                 handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
             }
         }
         else{                                           //pre V cize variable
             if (token_found->inicialized == false)
             {
+                printf("TU");
                 handle_error(SEMANTIC_UNDEFINED_OR_UNINITIALIZED_VARIABLE);
             }
             
@@ -455,6 +457,7 @@ bool priradenie_prave(char *name_of_node){
                 char *variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
                 sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
             }
+            assign_to_variable->inicialized = true;
             return true;
 
         }
@@ -492,6 +495,7 @@ bool priradenie_prave(char *name_of_node){
                 char *variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
                 sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
             }
+            assign_to_variable->inicialized = true;
             return true;
         
         }
@@ -532,6 +536,7 @@ bool priradenie_prave(char *name_of_node){
                 sprintf(buffer1.data, "%sPOPS LF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
                 sprintf(buffer1.data, "%sSTRLEN %s LF@TEMP%d\n", buffer1.data, variable_name, built_in_counter + func_counter);
             }
+            assign_to_variable->inicialized = true;
             return true;
         
         }
@@ -574,6 +579,7 @@ bool priradenie_prave(char *name_of_node){
                 sprintf(buffer1.data, "%sPOPS LF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
                 sprintf(buffer1.data, "%sGETCHAR LF@%s LF@TEMP%d int@0\n", buffer1.data, variable_name, built_in_counter + func_counter);
             }
+            assign_to_variable->inicialized = true;
             return true;
 
         }
@@ -614,6 +620,7 @@ bool priradenie_prave(char *name_of_node){
             if(current_token.type != 21){       // )
                 return false;
             }
+            assign_to_variable->inicialized = true;
             return true;
 
         }
@@ -664,6 +671,7 @@ bool priradenie_prave(char *name_of_node){
             printf("Funkcia ma zlu navratovu hodnotu do priradenia premennej\n");
             handle_error(SEMANTIC_TYPE_COMPATIBILITY);
         }
+        node->inicialized = true;
         free(name_of_func);
         current_token = getNextToken();
         return (current_token.type == 21);                   // )
