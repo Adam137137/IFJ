@@ -11,10 +11,6 @@ void first_analysis_parser(){
     current_token = getNextToken();
     while (current_token.type != 0)
     {
-        // printf("Type: %d     ", current_token.type);
-        // printf("Attribute: %s         ", current_token.attribute);
-        // printf("prvy: %d\n", (int)current_token.first_in_line);
-        
         if (strcmp(current_token.attribute, "func") == 0 && current_token.type == 4){            
             if (func_declar() == false){
                 handle_error(SYNTAX_ERROR);

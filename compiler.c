@@ -23,9 +23,6 @@
 void handle_error(int error){
     switch (error)
     {
-    // case NO_ERROR:
-    //     fprintf(stdout, "no problem\n");
-    //     break;
     case LEXICAL_ERROR:
         fprintf(stderr,"lexical error\n");
         exit(LEXICAL_ERROR);

@@ -135,15 +135,14 @@ btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, 
 
     node->return_type = '\0';
 
-    // node->height = 0;                               // aj bez tohto to tam da implicitne 0, ale v debuggeri to nedalo nic
     node->left = NULL;
     node->right = NULL;
     return node;
 }
 
 void insert_data_type(btree_node **root, char *name_of_funcion, char data_type, bool nil){
-    if(*root == NULL){
-       handle_error(INTERNAL_ERROR);                    //nemala by byt NULL, lebo iba upadtujeme nodu dopisanim return typu
+    if(*root == NULL){                          // should not be NULL only updating node
+       handle_error(INTERNAL_ERROR);
     }
     else{
         btree_node *temp = search(*root, name_of_funcion);
@@ -154,7 +153,7 @@ void insert_data_type(btree_node **root, char *name_of_funcion, char data_type, 
 
 void insert_return_typ(btree_node **root, char *name_of_funcion, char return_type){
     if(*root == NULL){
-       handle_error(INTERNAL_ERROR);                    //nemala by byt NULL, lebo iba upadtujeme nodu dopisanim return typu
+       handle_error(INTERNAL_ERROR);                    // should not be NULL only updating node
     }
     else{
         btree_node *temp = search(*root, name_of_funcion);
@@ -164,25 +163,25 @@ void insert_return_typ(btree_node **root, char *name_of_funcion, char return_typ
 
 void insert_params(btree_node **root, char *name_of_funcion, int which_attribute, char *atribute){
     if(*root == NULL){
-       handle_error(INTERNAL_ERROR);                    //nemala by byt NULL, lebo iba upadtujeme nodu dopisanim parametrov
+       handle_error(INTERNAL_ERROR);                    // should not be NULL only updating node
     }
     else{
         btree_node *temp = search(*root, name_of_funcion);
         int i = 0;
-        while (temp->paramsArray[i].type != '\0')       // snazi sa najst najblizsie volne miesto pre ulozenie parametrov
+        while (temp->paramsArray[i].type != '\0')       // finding closest empty space to store params
         {
             i++;
         }
         temp->func_num_of_param = i+1;
-        if (which_attribute == 1)                       // meno
+        if (which_attribute == 1)                       // name
         {
             temp->paramsArray[i].name = atribute;
         }
-        else if (which_attribute == 2)                  // identifik
+        else if (which_attribute == 2)                  // identifier
         {
             temp->paramsArray[i].identif = atribute;
         }
-        else{                                           // typ
+        else{                                           // type
             temp->paramsArray[i].type = atribute[0];
         }
     }
@@ -263,12 +262,10 @@ void insert_func(btree_node **root, char *name_of_symbol, int token_type){
 // lexicographicly comparing identifiers and returning pointer to node it has found it, else returns NULL
 btree_node *search(btree_node *root, char *name_of_symbol){
     if (root == NULL){                          // case, when identifier not found
-        // puts("nenasli sme");
         return NULL;
     }
 
     if (strcmp(root->name_of_symbol, name_of_symbol) == 0){                 // identifier found
-        // puts("nasli sme");
         return root;
     }
     else if (strcmp(root->name_of_symbol, name_of_symbol) != 0){          // recurs 
@@ -296,13 +293,13 @@ void tree_dispose(btree_node **root) {
     }
 }
 
-void printtab(int numtabs){
+void printtab(int numtabs){                     // helping prints to debugg
     for(int i = 0; i < numtabs; i++){
         printf("\t");
     }
 }
 
-void printtree(btree_node *root, int level){
+void printtree(btree_node *root, int level){        
     if(root == NULL){
         printtab(level);
         printf("empty root\n");

@@ -38,8 +38,7 @@ char *unique_name(char *string, int number);
 
 extern FILE *file;
 extern bool prvy_prechod;
-extern dynamic_buffer buffer1;  // main buffer for code
-extern dynamic_buffer buffer2;  // other buffer 
+extern dynamic_buffer buffer1;      // main buffer for code 
 extern int instruction_per_line;
 extern int frame_counter;
 extern char* name_of_function;

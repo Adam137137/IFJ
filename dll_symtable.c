@@ -10,7 +10,7 @@ void DLL_InsertFirst2( DLList2 *list) {
 	if(list->firstElement == NULL){
 		handle_error(INTERNAL_ERROR);
 	}
-    list->firstElement->treeRoot = NULL;                    //inicializacia pointru na strom NULL
+    list->firstElement->treeRoot = NULL;                    //Initialization of pointer to tree
 	list->firstElement->nextElement = tmp;
 	list->firstElement->previousElement = NULL;
 	if(tmp != NULL){	//Set ex-first element's pointer to new element
@@ -32,8 +32,8 @@ void DLL_DeleteFirst2( DLList2 *list ) {
 btree_node* find_function_in_global(DLList2 *list, char *name_of_func){
 	DLLElementPtr2 tmp = list->firstElement;
 	btree_node *search_node;
-	while (tmp != NULL){                 // dokym nenarazime na funkciu
-		if (tmp->nextElement == NULL){			//sme v globalnom ramci
+	while (tmp != NULL){                 // until we find key word func
+		if (tmp->nextElement == NULL){			// we reach global scope
 			fflush(stdout);
 			search_node = search(tmp->treeRoot,name_of_func);
 			return search_node;
@@ -44,7 +44,7 @@ btree_node* find_function_in_global(DLList2 *list, char *name_of_func){
 
 }
 int check_params(btree_node* node_of_func, char* name_of_id){
-    for(int i =0; i < node_of_func->func_num_of_param ;i++){			// prehladanie funkcnych parametrov na najdenie id
+    for(int i =0; i < node_of_func->func_num_of_param ;i++){			// searching through function params until finding id
         if(strcmp(node_of_func->paramsArray[i].identif, name_of_id) == 0){
             return i;
         }
@@ -54,30 +54,29 @@ int check_params(btree_node* node_of_func, char* name_of_id){
 	return 0;
 }
 
-btree_node* find_declaration(DLList2 *list, char *name_of_id, char* ret){      //vrati node s name_of_id
+btree_node* find_declaration(DLList2 *list, char *name_of_id, char* ret){      // returns pointer to node with name_of_id
     DLLElementPtr2 tmp;
-    btree_node *search_node;               //hladana noda s name_of_id
+    btree_node *search_node;             
 	btree_node *func_node;
 	tmp = list->firstElement;
 	anti_zanorenie = 0;
-    while (tmp != NULL){                 // dokym nenarazime na funkciu
-		search_node =  search(tmp->treeRoot, name_of_id);	// vyhladavanie v globalnom ramci premennej
+    while (tmp != NULL){                 // until we find func 
+		search_node =  search(tmp->treeRoot, name_of_id);	// searching in global scope of variable
         if (search_node != NULL){
 			*ret = 'V';
             return search_node;
         }
-		if (tmp->nextElement == NULL && name_of_function != NULL){				//sme v globalnom ramci nenasli sme globalnu premennu, tak hladame ci name_of_id je vo func parametroch
+		if (tmp->nextElement == NULL && name_of_function != NULL){	//didnt find variable in global scope, searching through params of func
 			func_node = search(tmp->treeRoot,name_of_function);
-			if (func_node != NULL){			//toto by sa nemalo stat ze funcia nie je v strome ale pre istotu
+			if (func_node != NULL){			// func not in tree, should not happen
 				*ret = 'F';
 				return func_node;
 			}
 		}
 		anti_zanorenie++;
-		//printf("A\n");
 		tmp = tmp->nextElement;
     }
-    return NULL;                        //ked to nie je ani v globalnom ramci vrati NULL             
+    return NULL;                        //not found return NULL             
 }
 void DLL_PrintList2(DLList2 *list){
 	DLLElementPtr2 currentElement = list->firstElement;

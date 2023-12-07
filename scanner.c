@@ -211,7 +211,6 @@ struct Token getNextToken(){
             }
             else if (c == '\n')
             {
-                // puts("prvy");
                 instruction_per_line = 0;
                 first_in_new_line =  true;
             }
@@ -455,14 +454,14 @@ struct Token getNextToken(){
             }
             break;
         case 60:                                           //string
-            if (c == '"' && viac_riadkovy_string == false){             //ked nie je viacriadkovy string tak staci 1x" na ukoncenie
+            if (c == '"' && viac_riadkovy_string == false){             //if it is not multiline string
                 token.type = 7;
                 token.attribute = string_dup(string);
                 return token;  
             }
             else if (c == '"' && viac_riadkovy_string == true){
                 c2 = getc(file); c3 =  getc(file);                             
-                if (c2 == '"' && c3 == '"'){            //ukoncenie viacriaddkoveho stringu
+                if (c2 == '"' && c3 == '"'){            //end of multiline strings
                     if (!multiline_exit_possible)
                     {
                         handle_error(LEXICAL_ERROR);
@@ -476,7 +475,7 @@ struct Token getNextToken(){
                     handle_error(LEXICAL_ERROR);
                 }
             }
-            else if (c > (char)32 && c != 34 && c != 35 && c != 92){               // v stringu nemoze byt " bez opacneho lomitka
+            else if (c > (char)32 && c != 34 && c != 35 && c != 92){               // in string can be " without '\'
                 if (expect_new_line)
                 {
                     string[string_pos]='\\';
@@ -494,7 +493,7 @@ struct Token getNextToken(){
                 text_in_new_line = true;
                 multiline_exit_possible = false;
             }
-            else if (c == 32){            // 32 je ' '
+            else if (c == 32){            // 32 is ' '
                 if (expect_new_line)
                 {
                     string[string_pos]='\\';
@@ -516,7 +515,7 @@ struct Token getNextToken(){
                     string[string_pos] = '2';
                     string_pos++;
             }
-            else if (c == 35){            // 35 je '#'
+            else if (c == 35){            // 35 is '#'
                 string[string_pos] = '\\';
                 string_pos++;
                 string[string_pos] = '0';
@@ -600,7 +599,7 @@ struct Token getNextToken(){
                 state = 60;
                 ungetc(c, file);
             }
-            break;          // TODO
+            break;
 
         case 66:
             if (c == '{'){
@@ -627,17 +626,13 @@ struct Token getNextToken(){
                 unsigned int a = strtol(res,&endPtr,16);
                 string[string_pos]= (char)a;
                 string_pos++;
-                //printf("%s", string);
                 state = 69;
             }
             else{
                 handle_error(LEXICAL_ERROR);
             }
-            //ungetc(c3,file);
-            //ungetc(c, file);
             break;
         case 69:
-            //printf("%c\n", c);
             if (c == '}'){
                 state = 60;
             }
@@ -651,17 +646,17 @@ struct Token getNextToken(){
 
 
         case 90:                                            // "/"
-            if (c == '/')                                   // "//" - riadkovy koementar
+            if (c == '/')                                   // "//" - line comment
             {
                 state = 91;
             }
-            else if (c == '*')                              // "/*" - blokovy komentar
+            else if (c == '*')                              // "/*" - block comment
             {
                 comments_inside_count++;
                 state = 95;
             }
             
-            else{                                           //  delenie
+            else{                                           //  division
                 ungetc(c,file);
                 token.type = 5;
                 token.attribute = "/";
@@ -674,10 +669,8 @@ struct Token getNextToken(){
                 state = 's';
             }
             break;            
-        case 95:                                                // "/*" - blokovy koementar
-            c2 =getc(file);                         //precitam o jeden znak viac aby som sa vedel rozhodnut
-            //printf("%d", c);
-            //printf("%d\n", c2);
+        case 95:                                     // "/*" - block comment
+            c2 =getc(file);                         //looking one line ahead, so we can determine
             if (c == '*' && c2 == '/')
             {               
                 state = 96;
@@ -710,14 +703,12 @@ struct Token getNextToken(){
             break;
 
         default:
-            // fprintf(stderr, "this state was not implemented\n");
             handle_error(INTERNAL_ERROR);       
             break;
         }
 
     }
-    // posledny token;
-    if (comments_inside_count !=0){
+    if (comments_inside_count !=0){        // last token
         handle_error(LEXICAL_ERROR);
     }
     

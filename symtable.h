@@ -26,7 +26,7 @@ typedef struct btree_node{                      // structure of node
     double value_double;                        // if data_type is double
 
     // only in functions
-    param_struct_t paramsArray[10];             // array of params in func               TODO !!!!!
+    param_struct_t paramsArray[10];             // array of params in func
     int func_num_of_param;
     char return_type;                           // I (int), D (double), S (string)
 
