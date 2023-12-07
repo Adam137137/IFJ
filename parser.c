@@ -585,6 +585,7 @@ bool priradenie_prave(char *name_of_node){
         }
         else if(strcmp(current_token.attribute, "chr") == 0){
             current_token = getNextToken();
+            char *param = string_dup(current_token.attribute);
             
             if(!(current_token.type == 1 || current_token.type == 2)){      // variable or int
                 printf("u built in zly parameter\n");
@@ -605,15 +606,11 @@ bool priradenie_prave(char *name_of_node){
             char *variable_name;
             if(frame_counter-anti_zanorenie == 0){                                  // assignment after checks
                 variable_name = unique_name(name_of_node, 0);
-                sprintf(buffer1.data, "%sDEFVAR GF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
-                sprintf(buffer1.data, "%sPOPS GF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
-                sprintf(buffer1.data, "%sGETCHAR GF@%s GF@TEMP%d int@%s\n", buffer1.data, variable_name, built_in_counter + func_counter, current_token.attribute);
+                sprintf(buffer1.data, "%sINT2CHAR GF@%s int@%s\n", buffer1.data, variable_name, param);
             }
             else if(frame_counter-anti_zanorenie > 0){                             // assignment after checks
                 variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
-                printf(buffer1.data, "%sDEFVAR LF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
-                sprintf(buffer1.data, "%sPOPS LF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
-                sprintf(buffer1.data, "%sGETCHAR LF@%s LF@TEMP%d int@%s\n", buffer1.data, variable_name, built_in_counter + func_counter, current_token.attribute);
+                sprintf(buffer1.data, "%sINT2CHAR LF@%s int@%s\n", buffer1.data, variable_name, param);
                 
             }
             
@@ -624,9 +621,6 @@ bool priradenie_prave(char *name_of_node){
             assign_to_variable->inicialized = true;
             return true;
 
-        }
-        else{
-            printf("unlucky\n");
         }
     }
 
@@ -1290,15 +1284,13 @@ bool sekvencia(bool in_func, bool in_while, bool in_if){
                 return false;
             }
         }
-        
+
     }
     else if (current_token.type == 23 || (current_token.type == 4 && strcmp(current_token.attribute, "return") == 0 )){                 //epsion prechod
         unget_token(current_token, current_token.first_in_line);
-        if (current_token.type == 4 && return_neni == false)                        //precitali sme return
-        {
+        if (current_token.type == 4 && return_neni == false){
             return false;
         }
-        //printf("SOMTU");
         return true;
     }
     else if(current_token.type == 0){
