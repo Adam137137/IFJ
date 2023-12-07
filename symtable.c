@@ -112,6 +112,7 @@ btree_node *create_node(char *name_of_symbol, int token_type, bool inicialized, 
 
     node->data_type = data_type;
     node->nil = nil;
+    node->nilnuta = false;
     node->let = let;
     node->value_int = value_int;
 

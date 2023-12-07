@@ -20,6 +20,7 @@ typedef struct btree_node{                      // structure of node
     bool inicialized;
     char data_type;                             // I (int), D (double), S (string)
     bool nil;                                   // can be nil
+    bool nilnuta;                               // currently set tu nil
     bool let;                                   // if we use let, this is true or in let it is var
     int value_int;                              // if data_type is int
     char *value_string;                         // if data_type is string

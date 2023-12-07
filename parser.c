@@ -24,7 +24,7 @@ int relation_counter = 0;
 int main_jump_counter = 1;
 char *name_of_function = NULL;
 int anti_zanorenie = 0;
-bool ladenie = 0;
+bool ladenie = 1;
 
 
 bool built_in_write_one_param_print(){
@@ -655,6 +655,66 @@ bool priradenie_prave(char *name_of_node){
         current_token = getNextToken();
         return (current_token.type == 21);                   // )
     }
+    
+
+    else if (current_token.type == 1 && current_token2.type == 9){
+        unget_token(current_token2, current_token2.first_in_line);
+
+        btree_node *token_found = NULL;
+        char var;
+        char *name_of_node2 = '\0';
+        name_of_node2 = string_dup(current_token.attribute);
+        token_found = find_declaration(&symtable_stack, name_of_node2,&var);
+
+        current_token = getNextToken();         // ??
+        current_token = getNextToken();
+        
+        if (!(current_token.type == 2 || current_token.type == 3 || current_token.type == 7 || current_token.type == 8)){
+            return false;
+        }
+
+        char *typ_na_pushnutie = NULL;
+        switch (current_token.type){
+        case 2:
+            typ_na_pushnutie = "int";
+            break;
+        case 3:
+            typ_na_pushnutie = "float";
+            break;
+        default:
+            typ_na_pushnutie = "string";
+            break;
+        }
+
+
+        if (token_found->nilnuta){
+            char *variable_name = unique_name(name_of_node, 0);
+            if (frame_counter - anti_zanorenie == 0){
+                sprintf(buffer1.data, "%sPUSHS %s@%s\n", buffer1.data, typ_na_pushnutie, current_token.attribute);
+                sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
+            }
+            else if(frame_counter-anti_zanorenie > 0){
+                sprintf(buffer1.data, "%sPUSHS %s@%s\n", buffer1.data, typ_na_pushnutie, current_token.attribute);
+                sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
+            }
+        }
+        else{
+            char *variable_name = unique_name(name_of_node, 0);
+            if (frame_counter - anti_zanorenie == 0){
+                char *push_var = unique_name(token_found->name_of_symbol, 0);
+                sprintf(buffer1.data, "%sPUSHS GF@%s\n", buffer1.data, push_var);
+                sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
+            }
+            else if(frame_counter-anti_zanorenie > 0){
+                char *push_var = unique_name(token_found->name_of_symbol, frame_counter - anti_zanorenie);
+                sprintf(buffer1.data, "%sPUSHS LF@%s\n",buffer1.data, push_var);
+                sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
+            }       
+        }
+        return true;
+    }
+    
+
     else if (current_token.type == 1 || current_token.type == 2 ||  current_token.type == 3 || (current_token.type == 4 && strcmp(current_token.attribute, "nil")==0)|| current_token.type == 7 || current_token.type == 8 || current_token.type == 20){
         unget_token(current_token2, current_token2.first_in_line);
         
@@ -669,16 +729,28 @@ bool priradenie_prave(char *name_of_node){
             if (tmp->nil == false){
                 handle_error(SEMANTIC_TYPE_COMPATIBILITY);
             }
+
+            if(frame_counter-anti_zanorenie == 0){
+                char *variable_name = unique_name(name_of_node, 0);
+                sprintf(buffer1.data, "%sPUSHS nil@nil\n", buffer1.data);
+                sprintf(buffer1.data, "%sPOPS GF@%s\n", buffer1.data, variable_name);
+            }
+            else if(frame_counter-anti_zanorenie > 0){
+                char *variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
+                sprintf(buffer1.data, "%sPUSHS nil@nil\n", buffer1.data);
+                sprintf(buffer1.data, "%sPOPS LF@%s\n", buffer1.data, variable_name);
+            }
+            tmp->nilnuta = true;
             return true;
         }
         
         char return_t;
-        tmp->inicialized = true;
+        tmp->inicialized = true;    
         if (reduce_exp(&return_t, name_of_node, false) == false){
-           return false;
+            return false;
         }
         if (c == 'F'){
-            printf("Do parametru sa neda priradit hodnota\n");
+            // printf("Do parametru sa neda priradit hodnota\n");
             handle_error(OTHER_SEMANTIC_ERROR);
         }
         else if(c == 'V'){
