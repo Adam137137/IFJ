@@ -571,13 +571,13 @@ bool priradenie_prave(char *name_of_node){
                 variable_name = unique_name(name_of_node, 0);
                 sprintf(buffer1.data, "%sDEFVAR GF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
                 sprintf(buffer1.data, "%sPOPS GF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
-                sprintf(buffer1.data, "%sGETCHAR GF@%s GF@TEMP%d int@0\n", buffer1.data, variable_name, built_in_counter + func_counter);
+                sprintf(buffer1.data, "%sSTRI2INT GF@%s GF@TEMP%d int@0\n", buffer1.data, variable_name, built_in_counter + func_counter);
             }
             else if(frame_counter-anti_zanorenie > 0){                             // assignment after checks
                 variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
                 printf(buffer1.data, "%sDEFVAR LF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
                 sprintf(buffer1.data, "%sPOPS LF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
-                sprintf(buffer1.data, "%sGETCHAR LF@%s LF@TEMP%d int@0\n", buffer1.data, variable_name, built_in_counter + func_counter);
+                sprintf(buffer1.data, "%sSTRI2INT LF@%s LF@TEMP%d int@0\n", buffer1.data, variable_name, built_in_counter + func_counter);
             }
             assign_to_variable->inicialized = true;
             return true;
@@ -607,13 +607,14 @@ bool priradenie_prave(char *name_of_node){
                 variable_name = unique_name(name_of_node, 0);
                 sprintf(buffer1.data, "%sDEFVAR GF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
                 sprintf(buffer1.data, "%sPOPS GF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
-                sprintf(buffer1.data, "%sSTRI2INT GF@%s GF@TEMP%d %s\n", buffer1.data, variable_name, built_in_counter + func_counter, current_token.attribute);
+                sprintf(buffer1.data, "%sGETCHAR GF@%s GF@TEMP%d int@%s\n", buffer1.data, variable_name, built_in_counter + func_counter, current_token.attribute);
             }
             else if(frame_counter-anti_zanorenie > 0){                             // assignment after checks
                 variable_name = unique_name(name_of_node, frame_counter-anti_zanorenie);
                 printf(buffer1.data, "%sDEFVAR LF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
                 sprintf(buffer1.data, "%sPOPS LF@TEMP%d\n", buffer1.data, built_in_counter + func_counter);
-                sprintf(buffer1.data, "%sSTRI2INT LF@%s LF@TEMP%d %s\n", buffer1.data, variable_name, built_in_counter + func_counter, current_token.attribute);
+                sprintf(buffer1.data, "%sGETCHAR LF@%s LF@TEMP%d int@%s\n", buffer1.data, variable_name, built_in_counter + func_counter, current_token.attribute);
+                
             }
             
             current_token = getNextToken();
