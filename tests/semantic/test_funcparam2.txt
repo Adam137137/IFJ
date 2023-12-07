@@ -1,4 +1,4 @@
-func foo(num1: Int, num2: Int){
+func foo(num1 b: Int, num2 c: Int){
     var a : Int
 }
 var x : Int

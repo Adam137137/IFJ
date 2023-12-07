@@ -1,6 +1,6 @@
-func foo(num1: Int) -> String{
-    var res = 2 + num1
+func foo(num1 a: Int) -> Int{
+    var res : Int = 2 + a
     return res
 }
 var x : Int
-x = foo(with: 8, num2: 4)
+x = foo(num1: 8, num2: 4)
